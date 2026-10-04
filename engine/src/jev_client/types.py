@@ -96,12 +96,27 @@ class JevResponse(_Answer):
     usage: TokenUsage
 
     def check_matches(self, request: JevRequest) -> None:
-        """Refuse answers that do not line up one to one with the questions asked."""
+        """Refuse answers that do not line up one to one with the questions asked.
+
+        A choice answer must pick an offered option, and its probabilities may only name
+        offered options. A score must sit between level 0 and the top level, and its
+        probabilities may only name level numbers ("0", "1", ...) that were offered.
+        """
         if set(self.answers) != set(request.questions):
             raise ValueError("Jev answers do not match the questions asked")
         for qid, answer in self.answers.items():
-            if answer.type != request.questions[qid].type:
+            question = request.questions[qid]
+            if answer.type != question.type:
                 raise ValueError(f"Jev answers question {qid} with the wrong type")
+            if isinstance(answer, ChoiceAnswer) and isinstance(question, ChoiceQuestion):
+                offered = set(question.criteria)
+                if answer.choice not in offered or not set(answer.probabilities) <= offered:
+                    raise ValueError(f"Jev answers question {qid} with an option not offered")
+            if isinstance(answer, ScoreAnswer) and isinstance(question, ScoreQuestion):
+                levels = {str(n) for n in range(len(question.criteria))}
+                top = len(question.criteria) - 1
+                if not set(answer.probabilities) <= levels or not 0 <= answer.score <= top:
+                    raise ValueError(f"Jev answers question {qid} with a level not offered")
 
 
 class Unresolved(StrictModel):

@@ -117,3 +117,10 @@ One entry per PR.
 - Example 3 (NPN 1884412, Harborline TX 2026, EX-000005, crm_export.csv row 419) and example 4 (Harborline 2026-08 line 212, HL-998213, $61.05, TIE-002) are visible on the pages and asserted in tests.
 - `lib/tie-out.ts` reads `tie_out/*.json` and refuses money written as a number. `lib/agents.ts` shapes `rts_coverage.json` into the matrix.
 - The Tie-out and Agents nav items are now links, using the `NavLink` component from PR 14. A test checks that only the page you are on is marked current.
+
+## Jev client review fixes
+
+- #22: a reply is counted toward the $0.50 budget before it is checked, so a billed reply that fails validation (or has a broken usage block, or is not JSON) still counts. In `record`, the raw reply is saved as a cassette before the check and the error names the file, so a retry does not pay again. New `JevBadReply` error (a `ValueError`).
+- #23: a choice answer must pick an offered option and its probabilities may only name offered options. A score must sit between level 0 and the top level, with probabilities keyed only by offered level numbers. Anything else is rejected with `JevBadReply`.
+- #24: `JevHTTPError` text no longer includes the raw body. The key, its first 8 characters, and any `Bearer ...` text become `[redacted]`, and the excerpt is cut at 200 characters.
+- #25: `live` always calls the API and never reads cassettes. Only `replay` and `record` read them. docs/jev.md says so.
