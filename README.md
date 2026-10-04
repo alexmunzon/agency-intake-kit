@@ -29,7 +29,15 @@ A sixth page, Runs ("what changed since the last run?"), comes in PR 16. Every p
 
 ## Screenshots
 
-Screenshots will live in [docs/screenshots/](docs/screenshots/), made by `npm run shots`: `overview-1440.png`, `exceptions-1440.png`, `tie-out-1440.png`, and `agents-1440.png`. They are being produced now and are not yet on this branch.
+From the live demo at 1440 pixels wide, made by `npm run shots`. Files are in [docs/screenshots/](docs/screenshots/).
+
+![Overview page: a status banner answering whether the agency can go live, with counts of blockers, errors, and warnings](docs/screenshots/overview-1440.png)
+
+![Exceptions page: a table of problems sorted by severity, with filters for severity, rule, and source file](docs/screenshots/exceptions-1440.png)
+
+![Tie-out page: three cards comparing the book, the carrier statements, and the CRM, with a table of dollar differences](docs/screenshots/tie-out-1440.png)
+
+![Agents page: writing agents and a ready-to-sell matrix by carrier, state, and plan year](docs/screenshots/agents-1440.png)
 
 ## What is synthetic, and why
 
