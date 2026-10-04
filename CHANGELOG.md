@@ -187,3 +187,12 @@ One entry per PR.
 - `intake/gates/completeness.py`: CMP-001 blocks when rows received differ from the manifest (else the total row). CMP-002 warns when a listed file or sheet is missing and names the tie-out legs that cannot run.
 - Examples 5 and 6 pass at the gate level: the truncated fixture gives CMP-001 expected 2,680, received 2,574; the ssn fixture gives one SSN-001 and none of its 25 values appears in any record. Ground truth rows point at reader rows holding the record key.
 - `config.py` PR 4 section: reader encodings, delimiters, header and total-row settings, `RAW_MAPPING_VERSION`, and the SSN gate settings.
+
+## PR 5: Synonym mapping and the mapping store (2026-10-04)
+
+- `intake/mapping/synonyms.py`: `normalize_header` is the one normalization for headers and synonyms alike (accents and punctuation dropped, camelCase split, "#" read as "number", abbreviations such as dt, eff, mbr, no, yr expanded). Only an exact match after normalizing maps; a near match is offered as a candidate and never mapped on its own.
+- `intake/data/synonyms.yaml`: the synonym table, by canonical table and field. 77 of the 79 fixture headers map. Two stay unmapped for Jev in PR 7: "Birth Dt (mm/dd/yy)" (SPEC example 2) and the Northwind and Cardinal "Paid" column (a date or an amount; the values decide). A spelling that means two fields of one table is refused when the file loads.
+- `intake/mapping/store.py`: `mapping/<key>.yaml` beside `drop/`, one per source (the roster gets `roster_agents` and `roster_rts`), with header, table, field, method, confidence, and decided_at. A stored decision wins over the synonym table; a person can set `method: manual`, or leave the field empty to ignore a column. Writing what was read gives the same bytes, so a second run leaves the file unchanged.
+- `intake/mapping/headers.py`: `map_table` maps a raw table, saves its mapping, and returns a mapping version for lineage. MAP-001 (warning) names each unmapped header with its closest fields; a second column for a field already mapped is also MAP-001. MAP-003 (blocker) fires once per required field with no mapped column. A combined name column ("Client Name", "Agent Name") covers first and last name. Enrollment is not checked for MAP-003, because it cross-checks the CRM and loads no table of its own.
+- `config.py` PR 5 section: required fields per table, the CRM client id carried into policies, and how close a header must be to be offered as a candidate.
+- fixtures/agency-a maps with three MAP-001 warnings and no MAP-003.
