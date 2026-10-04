@@ -125,3 +125,11 @@ One entry per PR.
 - The shots run also checks that the Overview fits one 1440 by 900 screen and that no page scrolls sideways at 1440 or 375.
 - New `docs/design.md`: the tokens, severity colors and their meanings, type scale, layout, the one question each page answers, and how to regenerate the screenshots.
 - No page code changed. The screenshots showed no visual bugs.
+
+## PR 18a: ADRs and README draft (2026-10-04)
+
+- First half of PR 18, written early. Docs only, no code.
+- `docs/adr/0001` to `0005` plus an index: DuckDB SQL for the tie-out, Jev as a gate not a judge, static-first dashboard, synthetic data only, separate repos per project with `agency-data-commons` extracted later. Each records context, decision, and consequences, and cites the CHANGELOG entry behind it.
+- ADR 0005 records a known gap: `jev_client` imports its constants from `intake/config.py`, so they must move before the package is extracted.
+- README.md rewritten as a two-minute read for a non-engineer: what it is, who it is for, the five dashboard questions, what is synthetic and why, the data trust rules, how to run it, and a status list that names every PR not shipped yet. It publishes no detection rates or benchmark numbers, because the pipeline that measures them is not built. After merging main, the README embeds the four 1440-wide screenshots from `docs/screenshots/`.
+- Still open for the rest of PR 18: the GIF, results tables, architecture diagram, link checker, v1.0.0 release.
