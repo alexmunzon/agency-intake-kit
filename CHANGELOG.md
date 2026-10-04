@@ -188,6 +188,13 @@ One entry per PR.
 - Examples 5 and 6 pass at the gate level: the truncated fixture gives CMP-001 expected 2,680, received 2,574; the ssn fixture gives one SSN-001 and none of its 25 values appears in any record. Ground truth rows point at reader rows holding the record key.
 - `config.py` PR 4 section: reader encodings, delimiters, header and total-row settings, `RAW_MAPPING_VERSION`, and the SSN gate settings.
 
+## Jev client review fixes
+
+- #22: a reply is counted toward the $0.50 budget before it is checked, so a billed reply that fails validation (or has a broken usage block, or is not JSON) still counts. In `record`, the raw reply is saved as a cassette before the check and the error names the file, so a retry does not pay again. New `JevBadReply` error (a `ValueError`).
+- #23: a choice answer must pick an offered option and its probabilities may only name offered options. A score must sit between level 0 and the top level, with probabilities keyed only by offered level numbers. Anything else is rejected with `JevBadReply`.
+- #24: `JevHTTPError` text no longer includes the raw body. The key, its first 8 characters, and any `Bearer ...` text become `[redacted]`, and the excerpt is cut at 200 characters.
+- #25: `live` always calls the API and never reads cassettes. Only `replay` and `record` read them. docs/jev.md says so.
+
 ## PR 5: Synonym mapping and the mapping store (2026-10-04)
 
 - `intake/mapping/synonyms.py`: `normalize_header` is the one normalization for headers and synonyms alike (accents and punctuation dropped, camelCase split, "#" read as "number", abbreviations such as dt, eff, mbr, no, yr expanded). Only an exact match after normalizing maps; a near match is offered as a candidate and never mapped on its own.
