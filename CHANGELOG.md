@@ -118,6 +118,40 @@ One entry per PR.
 - `lib/tie-out.ts` reads `tie_out/*.json` and refuses money written as a number. `lib/agents.ts` shapes `rts_coverage.json` into the matrix.
 - The Tie-out and Agents nav items are now links, using the `NavLink` component from PR 14. A test checks that only the page you are on is marked current.
 
+## Screenshots and design notes (2026-10-04)
+
+- `npm run shots` now captures all five pages at 1440 by 900 in light mode, plus the Overview at 375 wide and in dark mode, into `docs/screenshots/` with stable names: `overview-1440.png`, `overview-375.png`, `overview-dark.png`, `sources-1440.png`, `exceptions-1440.png`, `tie-out-1440.png`, `agents-1440.png`.
+- Animations are off and reduced motion is on, so two runs write byte-identical images from the frozen demo run.
+- The shots run also checks that the Overview fits one 1440 by 900 screen and that no page scrolls sideways at 1440 or 375.
+- New `docs/design.md`: the tokens, severity colors and their meanings, type scale, layout, the one question each page answers, and how to regenerate the screenshots.
+- No page code changed. The screenshots showed no visual bugs.
+
+## PR 18a: ADRs and README draft (2026-10-04)
+
+- First half of PR 18, written early. Docs only, no code.
+- `docs/adr/0001` to `0005` plus an index: DuckDB SQL for the tie-out, Jev as a gate not a judge, static-first dashboard, synthetic data only, separate repos per project with `agency-data-commons` extracted later. Each records context, decision, and consequences, and cites the CHANGELOG entry behind it.
+- ADR 0005 records a known gap: `jev_client` imports its constants from `intake/config.py`, so they must move before the package is extracted.
+- README.md rewritten as a two-minute read for a non-engineer: what it is, who it is for, the five dashboard questions, what is synthetic and why, the data trust rules, how to run it, and a status list that names every PR not shipped yet. It publishes no detection rates or benchmark numbers, because the pipeline that measures them is not built. After merging main, the README embeds the four 1440-wide screenshots from `docs/screenshots/`.
+- Still open for the rest of PR 18: the GIF, results tables, architecture diagram, link checker, v1.0.0 release.
+
+## PR 8: Row validators (2026-10-04)
+
+- `intake/rules/`: the 22 row rules from guide section 6, registered with `@rule`: DOB-001 to 003, MBI-001 to 003, NPN-001 and 002, PLN-001 to 004, ADR-001 to 003, CON-001 and 002, DAT-001 to 004, STA-001. Each rule is pure, never calls Jev, and builds its ExceptionRecord in one place (`frames.hit`), which passes every shown value through `minimize_value`. Messages carry minimized values only; policy ids and two-letter state codes appear as is.
+- Rules read one of two frames (`frames.py`): the client frame, and the policy frame, which carries the client's DOB, MBI, and row lineage plus whether the writing agent is in the roster. The run date (`as_of`) is a column, so rules never read the clock.
+- On the 3a defected copy every planted DOB, MBI, NPN, PLN, ADR, CON, DAT, and STA defect is detected on its exact row, with no extra hits except MBI-003 (one per Medicare policy of the client, as 3a planned). On the PR 2 clean world nothing above info fires.
+- Choices: blank values are left to the completeness rules; a malformed NPN raises NPN-001 only, not NPN-002 too; DAT-001 also covers an unparseable termination date; MBI-002 and MBI-003 point at the client row, where the MBI lives; STA-001 accepts the five status words in any case and spacing.
+- `uv run intake rules --md` prints the Markdown catalog; `docs/rules.md` is generated from it, and a test fails if the committed file drifts.
+- `intake/rules/_canonical_io.py` is a temporary test loader for canonical CSVs, replaced by PR 4's readers.
+- Thresholds in the `# PR 8` section of `config.py`: DOB_MIN_AGE, DOB_MAX_AGE, MEDICARE_AGE.
+
+## PR 9: Cross-record checks and RTS coverage (2026-10-04)
+
+- `intake/checks/`: seven rules, none of them blockers. `duplicates.py` has DUP-001 (exact duplicate row, by raw_hash, on every table), DUP-002 (same normalized name and DOB on two or more client ids, with the group id in the message), and DUP-003 (a policy id repeated with different content). `references.py` has REF-001 (policy points at a missing client). `rts.py` has RTS-001 (no ready-to-sell row) and RTS-002 (the row exists but ended before the policy took effect). `licenses.py` has LIC-001 (policy state not in the agent's licenses).
+- RTS joins on agent, carrier, state (the client's address state when the policy has none), plan year (the effective year), and line of business, all trimmed and case-normalized. An ended RTS row gives RTS-002, never RTS-001. Agents missing from the roster are left to NPN-001 and NPN-002, so RTS and LIC skip them.
+- `rts.build_rts_coverage` writes one cell per agent, carrier, state, and plan year: held and used, held but unused, or used without RTS (listing its RTS-001 ids).
+- `_canonical_io.py` is a small canonical CSV loader for tests until PR 4's readers replace it.
+- Against `fixtures/agency-a`, every planted DUP, REF, RTS, and LIC defect is found, and the clean seed-42 world gives no exceptions. Example 3 fires RTS-001 on P-00417.
+
 ## PR 10: Three-way tie-out in DuckDB (2026-10-04)
 
 - `intake/tieout/sql/01` to `07`: the tie-out as commented DuckDB views. Lines match the book on carrier plus carrier_member_id, then policy_ref, then name plus DOB (a weak match, TIE-006). Leg A finds active policies with no line in a period (TIE-001), leg B finds orphan payments (TIE-002), leg C finds paid policies the CRM does not show as ACTIVE (TIE-004). Dollar checks: each line vs the rate table within the larger of $1 or 1 percent (TIE-003), carrier and agent totals within 0.5 percent (TIE-005). Money is DECIMAL(12,2) in SQL and Decimal in Python, never a float.
