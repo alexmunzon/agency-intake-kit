@@ -143,3 +143,11 @@ One entry per PR.
 - `uv run intake rules --md` prints the Markdown catalog; `docs/rules.md` is generated from it, and a test fails if the committed file drifts.
 - `intake/rules/_canonical_io.py` is a temporary test loader for canonical CSVs, replaced by PR 4's readers.
 - Thresholds in the `# PR 8` section of `config.py`: DOB_MIN_AGE, DOB_MAX_AGE, MEDICARE_AGE.
+
+## PR 9: Cross-record checks and RTS coverage (2026-10-04)
+
+- `intake/checks/`: seven rules, none of them blockers. `duplicates.py` has DUP-001 (exact duplicate row, by raw_hash, on every table), DUP-002 (same normalized name and DOB on two or more client ids, with the group id in the message), and DUP-003 (a policy id repeated with different content). `references.py` has REF-001 (policy points at a missing client). `rts.py` has RTS-001 (no ready-to-sell row) and RTS-002 (the row exists but ended before the policy took effect). `licenses.py` has LIC-001 (policy state not in the agent's licenses).
+- RTS joins on agent, carrier, state (the client's address state when the policy has none), plan year (the effective year), and line of business, all trimmed and case-normalized. An ended RTS row gives RTS-002, never RTS-001. Agents missing from the roster are left to NPN-001 and NPN-002, so RTS and LIC skip them.
+- `rts.build_rts_coverage` writes one cell per agent, carrier, state, and plan year: held and used, held but unused, or used without RTS (listing its RTS-001 ids).
+- `_canonical_io.py` is a small canonical CSV loader for tests until PR 4's readers replace it.
+- Against `fixtures/agency-a`, every planted DUP, REF, RTS, and LIC defect is found, and the clean seed-42 world gives no exceptions. Example 3 fires RTS-001 on P-00417.

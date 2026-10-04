@@ -20,6 +20,10 @@ the load file, a warning passes with a flag, and info is only logged.
 | DOB-001 | Error | DOB | no | DOB unparseable |
 | DOB-002 | Error | DOB | no | Age outside 0 to 115 (a future DOB counts) |
 | DOB-003 | Warning | DOB | no | Medicare policy, age under 65 at effective date, eligibility_reason not DISABILITY or ESRD |
+| DUP-001 | Warning | DUP | no | Exact duplicate row |
+| DUP-002 | Warning | DUP | no | Same normalized name and DOB on two or more clients (exact after normalization; fuzzy identity matching belongs to bob-resolve) |
+| DUP-003 | Error | DUP | no | Duplicate policy ID with different content |
+| LIC-001 | Error | LIC | no | Agent license states do not include the policy state (client address state when the policy has none) |
 | MBI-001 | Error | MBI | no | MBI format invalid |
 | MBI-002 | Warning | MBI | no | MBI present on a non-Medicare policy |
 | MBI-003 | Warning | MBI | no | Medicare policy missing MBI |
@@ -29,4 +33,7 @@ the load file, a warning passes with a flag, and info is only logged.
 | PLN-002 | Error | PLN | no | HIOS plan ID malformed (ACA only) |
 | PLN-003 | Error | PLN | no | Plan ID prefix disagrees with line of business (MA and PDP only) |
 | PLN-004 | Error | PLN | no | Medigap plan letter invalid (MEDSUPP only) |
+| REF-001 | Error | REF | no | Policy references unknown client |
+| RTS-001 | Error | RTS | no | Writing agent not RTS for carrier, policy state, plan year, line of business |
+| RTS-002 | Warning | RTS | no | RTS record end_date before policy effective date |
 | STA-001 | Warning | STA | no | Status value not recognized |
