@@ -27,6 +27,9 @@ JEV_TIMEOUT_S: Final[float] = 30.0  # seconds per HTTP request
 # PR 7: Jev mapping and enum normalization (confidence cutoffs, MAP-002)
 
 # PR 8: row validators (DOB age range, Medicare age, date rules)
+DOB_MIN_AGE: Final[int] = 0  # DOB-002: younger than this means a birth date after the run date
+DOB_MAX_AGE: Final[int] = 115  # DOB-002: older than this is usually a century error
+MEDICARE_AGE: Final[int] = 65  # DOB-003: under this, Medicare needs DISABILITY or ESRD
 
 # PR 9: cross-record checks (duplicates, references, RTS, licenses)
 # Plan year is the policy's effective year. When True, a December effective date counts toward
