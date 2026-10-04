@@ -108,7 +108,7 @@ Jev (TypeSafe) answers exactly four bounded questions. It never changes a rule v
 
 **Modes.** `replay` is the default everywhere, including CI and the Stop hook, and reads recorded answers (cassettes) keyed by request hash. A cassette miss fails the test and prints the hash. `off` sends all four questions to the human queue, and the pipeline must still complete. `live` and `record` spend money: each use needs Alex's explicit approval, every time.
 
-**Spend cap.** A hard budget guard stops any run at **$0.50** of estimated Jev spend. The manifest records actual calls and tokens so the estimate can be checked.
+**Spend cap.** When estimated Jev spend reaches **$0.50**, Jev switches to `off` for the rest of the run: the run still completes and the remaining questions go to the human queue. The manifest keeps the configured mode with the actual calls and tokens, so the estimate can be checked, and records the trip separately (PR 12).
 
 **Recording.** A cassette is keyed by a hash of the exact request, so it must be recorded against the requests the real pipeline sends. Header and enum cassettes are recorded in PR 7, against the PR 3b source files. Triage and PII cassettes are recorded in PR 12, once the full pipeline exists, never against the PR 3a canonical copy, or every cassette would miss. Each recording needs Alex's approval of the spend first.
 
@@ -116,7 +116,7 @@ Jev (TypeSafe) answers exactly four bounded questions. It never changes a rule v
 
 **Minimization.** Jev receives minimized fields only. Mapping samples skip free-text-looking columns and anything matching a 9-digit pattern. Notes never reach any model before the PII gate.
 
-**To be verified in PR 6, not assumed:** the API shape (`POST https://api.typesafe.ai/v1/systemone`, BUILD-GUIDE section 8) and the price ($0.042 per million input tokens, output free). PR 6 checks `docs.typesafe.ai` first and wraps an official SDK if a stable one exists. Alex has a key, kept in `.env` only.
+**Checked in PR 6 (2026-10-04, docs only, no live call):** the API shape (`POST https://api.typesafe.ai/v1/systemone`, BUILD-GUIDE section 8) and the price ($0.042 per million input tokens, output free) match docs.typesafe.ai. An official SDK exists but is not wrapped; `docs/jev.md` says why and lists what is still assumed. Alex has a key, kept in `.env` only.
 
 ## Three-way tie-out definition
 

@@ -65,3 +65,15 @@ One entry per PR.
 - Choices to know: the world's "today" is 2026-10-01 (the demo clock). Policies start from 2022 on and each agent sells in two to four states, which keeps the RTS table small. CSVs carry no lineage columns, because SPEC adds lineage when a file is read. List fields are joined with "|".
 - CI: `astral-sh/setup-uv` bumped from v6 to v10.2.0 (Alex approved), which runs on Node 24. From v10 on, setup-uv publishes only exact version tags, so a bare `@v10` does not resolve.
 - Size: about 690 changed lines against a plan of 380, mostly because the formatter puts one field per line. Alex chose to ship it as one PR.
+
+## PR 6: Jev client (2026-10-04)
+
+- `jev_client`: typed requests and answers for noul, choice, and score; four modes (`replay` default, `off`, `live`, `record`); `off` and a tripped budget return a typed `Unresolved`; a replay miss raises `CassetteMiss` with the request hash.
+- Cassettes hold the request body and response only, never headers, keyed by the public `request_hash` (sorted keys, fixed separators, SHA-256). `record` reuses an existing cassette instead of paying twice.
+- Retries on 429 and 529 with doubling waits and jitter, 5 tries in all. 401, 422, and other errors raise at once with the body.
+- `live` and `record` are refused unless the caller passes `allow_spend=True`.
+- Usage per run: calls, tokens, estimated cost (six decimals), budget, and `budget_tripped`. `minimize_state` keeps allowlisted fields and drops notes before PII clearance; the client refuses notes too.
+- API shape and price checked on docs.typesafe.ai on 2026-10-04 and written up in the new `docs/jev.md`. Price confirmed at $0.042 per million input tokens. The official `typesafe-sdk` exists but is not wrapped; no new dependency.
+- Constants in the `# PR 6` section of `config.py`.
+- SPEC change: the spend cap no longer "stops any run". A trip switches Jev to `off` for the rest of the run, the run completes, and remaining questions go to the human queue (decision made before this PR, following guide 7.6). The 1b `JevUsage` model is unchanged.
+- SPEC: the 'to be verified' note on the API shape now records what PR 6 checked.
