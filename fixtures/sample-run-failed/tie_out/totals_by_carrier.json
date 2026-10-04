@@ -1,0 +1,6 @@
+{
+  "group_by": "carrier",
+  "status": "NOT_RUN",
+  "not_run_reason": "A blocker (CMP-001) stopped the run before mapping",
+  "rows": []
+}

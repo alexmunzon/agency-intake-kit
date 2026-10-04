@@ -1,0 +1,51 @@
+{
+  "run_id": "sample-run-failed",
+  "status": "FAILED",
+  "rows_in": 7739,
+  "rows_mapped": 0,
+  "rows_clean": 0,
+  "exceptions_by_severity": {
+    "blocker": 1,
+    "error": 0,
+    "warning": 0,
+    "info": 1
+  },
+  "exceptions_by_rule": {
+    "CMP-001": 1,
+    "ING-001": 1
+  },
+  "tie_out": [
+    {
+      "leg": "BOOK_VS_STATEMENT",
+      "status": "NOT_RUN",
+      "not_run_reason": "A blocker (CMP-001) stopped the run before mapping",
+      "matched": null,
+      "unmatched": null,
+      "weak_matched": null,
+      "variance_count": null,
+      "variance_dollars": null
+    },
+    {
+      "leg": "STATEMENT_VS_BOOK",
+      "status": "NOT_RUN",
+      "not_run_reason": "A blocker (CMP-001) stopped the run before mapping",
+      "matched": null,
+      "unmatched": null,
+      "weak_matched": null,
+      "variance_count": null,
+      "variance_dollars": null
+    },
+    {
+      "leg": "CRM_VS_STATEMENT",
+      "status": "NOT_RUN",
+      "not_run_reason": "A blocker (CMP-001) stopped the run before mapping",
+      "matched": null,
+      "unmatched": null,
+      "weak_matched": null,
+      "variance_count": null,
+      "variance_dollars": null
+    }
+  ],
+  "rts_gaps": 0,
+  "detection": null
+}

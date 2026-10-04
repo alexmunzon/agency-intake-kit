@@ -1,0 +1,23 @@
+{
+  "group_by": "carrier",
+  "status": "RAN",
+  "not_run_reason": null,
+  "rows": [
+    {
+      "key": "Crestview Mutual",
+      "book_expected": "9875.50",
+      "statement_paid": "9875.50",
+      "difference": "0.00",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": true
+    },
+    {
+      "key": "Harborline",
+      "book_expected": "18240.00",
+      "statement_paid": "18240.00",
+      "difference": "0.00",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": true
+    }
+  ]
+}

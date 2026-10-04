@@ -1,0 +1,51 @@
+{
+  "run_id": "sample-run-passed",
+  "status": "PASSED",
+  "rows_in": 7765,
+  "rows_mapped": 7765,
+  "rows_clean": 7765,
+  "exceptions_by_severity": {
+    "blocker": 0,
+    "error": 0,
+    "warning": 0,
+    "info": 2
+  },
+  "exceptions_by_rule": {
+    "ING-001": 1,
+    "DAT-004": 1
+  },
+  "tie_out": [
+    {
+      "leg": "BOOK_VS_STATEMENT",
+      "status": "RAN",
+      "not_run_reason": null,
+      "matched": 2413,
+      "unmatched": 0,
+      "weak_matched": 0,
+      "variance_count": 0,
+      "variance_dollars": "0.00"
+    },
+    {
+      "leg": "STATEMENT_VS_BOOK",
+      "status": "RAN",
+      "not_run_reason": null,
+      "matched": 2413,
+      "unmatched": 0,
+      "weak_matched": 0,
+      "variance_count": 0,
+      "variance_dollars": "0.00"
+    },
+    {
+      "leg": "CRM_VS_STATEMENT",
+      "status": "RAN",
+      "not_run_reason": null,
+      "matched": 2413,
+      "unmatched": 0,
+      "weak_matched": 0,
+      "variance_count": 0,
+      "variance_dollars": "0.00"
+    }
+  ],
+  "rts_gaps": 0,
+  "detection": null
+}

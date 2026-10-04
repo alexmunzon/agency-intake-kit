@@ -1,0 +1,11 @@
+{
+  "leg": "STATEMENT_VS_BOOK",
+  "status": "NOT_RUN",
+  "not_run_reason": "A blocker (CMP-001) stopped the run before mapping",
+  "matched": null,
+  "unmatched": null,
+  "weak_matched": null,
+  "variance_count": null,
+  "variance_dollars": null,
+  "variances": []
+}

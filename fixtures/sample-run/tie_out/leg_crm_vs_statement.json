@@ -1,0 +1,26 @@
+{
+  "leg": "CRM_VS_STATEMENT",
+  "status": "RAN",
+  "not_run_reason": null,
+  "matched": 2398,
+  "unmatched": 1,
+  "weak_matched": 0,
+  "variance_count": 1,
+  "variance_dollars": "0.00",
+  "variances": [
+    {
+      "rule_id": "TIE-004",
+      "exception_id": "EX-000008",
+      "leg": "CRM_VS_STATEMENT",
+      "carrier": "Harborline",
+      "statement_period": "2026-08",
+      "line_no": 640,
+      "policy_id": "P-01308",
+      "carrier_member_id": "HL-331540",
+      "agent_npn": "1773019",
+      "paid": null,
+      "expected": null,
+      "difference": "0.00"
+    }
+  ]
+}
