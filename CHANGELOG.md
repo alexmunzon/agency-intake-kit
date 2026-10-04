@@ -99,6 +99,25 @@ One entry per PR.
 - PII in notes is left to PR 3b, which writes the CRM `Notes` column.
 - Size: about 1,350 changed lines against a plan of 340, not counting fixture data. Shipped as one PR on the orchestrator's instruction.
 
+## PR 14: Dashboard Sources and Exceptions (2026-10-04)
+
+- Sources page answers "What did we receive, and did it read cleanly?" with one card per file: rows expected versus received, encoding, delimiter, header row, the reading and mapping checks that fired (ING, MAP, CMP, SSN rules), and a status (read cleanly, read with warnings, rows missing, or blocked the run). On the failed sample the CRM card shows 2,600 expected and 2,574 received.
+- The run files do not record encoding, delimiter, or header row directly, so the page reads them from the ING rules: no ING-001 means UTF-8, no ING-002 means the header was on row 1, and spreadsheets need no delimiter.
+- Exceptions page: a TanStack table (v9) with blockers first, then errors, warnings, and info; filters for severity, rule, and source that only offer values present in the run; counts by severity; a sticky header and a sticky first column for phones.
+- Lineage drawer: select a row (click, Enter, or Space) to see the message, suggested fix, source file, sheet, row number, raw row hash, masked value, whether it blocks the load, and Jev scores as bars with the percent printed. Escape closes it. A notes value always shows as [redacted].
+- The Overview banner links to the Exceptions page. The nav now links Sources and Exceptions and highlights only the current page.
+- Not in this PR: the per-header mapping table (the dashboard does not read mapping/*.yaml), lane and scored filters, message search, copy as issue, and CSV export.
+
+## PR 15: Dashboard Tie-out and Agents (2026-10-04)
+
+- The Tie-out page answers "Does the money agree?" for one run: an answer banner, three cards for the checks (book vs statement, statement vs book, CRM vs statement) with matched, unmatched, weak-match counts and dollars, a table of every difference (member id, where, amount, rule, and the engine's explanation), and totals by carrier and by agent with an "All" row.
+- A check that did not run shows "Not checked" and the engine's reason, never zeros. On the failed sample all three cards and both totals say "Not checked" and no table appears.
+- Differences carry a direction word ("$61.05 more paid", "$31.00 less paid", "Even"), so the sign never depends on color. Totals rows are added with the BigInt helper in `lib/money.ts`.
+- The Agents page answers "Is every writing agent allowed to sell what they sold?": an answer banner, the RTS gaps to fix (exception id, source file and row, message, suggested fix), a writing agents table, and the RTS matrix (agents by carrier, state, and plan year). Each cell says held and used, held but unused, or used without RTS, with an icon and a policy count; used without RTS cells are outlined and shaded.
+- Example 3 (NPN 1884412, Harborline TX 2026, EX-000005, crm_export.csv row 419) and example 4 (Harborline 2026-08 line 212, HL-998213, $61.05, TIE-002) are visible on the pages and asserted in tests.
+- `lib/tie-out.ts` reads `tie_out/*.json` and refuses money written as a number. `lib/agents.ts` shapes `rts_coverage.json` into the matrix.
+- The Tie-out and Agents nav items are now links, using the `NavLink` component from PR 14. A test checks that only the page you are on is marked current.
+
 ## PR 10: Three-way tie-out in DuckDB (2026-10-04)
 
 - `intake/tieout/sql/01` to `07`: the tie-out as commented DuckDB views. Lines match the book on carrier plus carrier_member_id, then policy_ref, then name plus DOB (a weak match, TIE-006). Leg A finds active policies with no line in a period (TIE-001), leg B finds orphan payments (TIE-002), leg C finds paid policies the CRM does not show as ACTIVE (TIE-004). Dollar checks: each line vs the rate table within the larger of $1 or 1 percent (TIE-003), carrier and agent totals within 0.5 percent (TIE-005). Money is DECIMAL(12,2) in SQL and Decimal in Python, never a float.
