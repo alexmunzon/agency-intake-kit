@@ -1,0 +1,31 @@
+{
+  "group_by": "agent",
+  "status": "RAN",
+  "not_run_reason": null,
+  "rows": [
+    {
+      "key": "1773019",
+      "book_expected": "12400.00",
+      "statement_paid": "12400.00",
+      "difference": "0.00",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": true
+    },
+    {
+      "key": "1884412",
+      "book_expected": "7960.00",
+      "statement_paid": "7960.00",
+      "difference": "0.00",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": true
+    },
+    {
+      "key": "2210457",
+      "book_expected": "7755.50",
+      "statement_paid": "7755.50",
+      "difference": "0.00",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": true
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "leg": "BOOK_VS_STATEMENT",
+  "status": "RAN",
+  "not_run_reason": null,
+  "matched": 2413,
+  "unmatched": 0,
+  "weak_matched": 0,
+  "variance_count": 0,
+  "variance_dollars": "0.00",
+  "variances": []
+}

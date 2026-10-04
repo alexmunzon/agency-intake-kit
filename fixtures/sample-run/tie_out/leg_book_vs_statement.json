@@ -1,0 +1,26 @@
+{
+  "leg": "BOOK_VS_STATEMENT",
+  "status": "RAN",
+  "not_run_reason": null,
+  "matched": 2412,
+  "unmatched": 1,
+  "weak_matched": 1,
+  "variance_count": 1,
+  "variance_dollars": "24.50",
+  "variances": [
+    {
+      "rule_id": "TIE-001",
+      "exception_id": "EX-000007",
+      "leg": "BOOK_VS_STATEMENT",
+      "carrier": "Crestview Mutual",
+      "statement_period": "2026-08",
+      "line_no": null,
+      "policy_id": "P-00800",
+      "carrier_member_id": "CM-410877",
+      "agent_npn": "2210457",
+      "paid": null,
+      "expected": "24.50",
+      "difference": "-24.50"
+    }
+  ]
+}
