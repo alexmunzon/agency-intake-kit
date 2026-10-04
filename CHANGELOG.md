@@ -107,3 +107,13 @@ One entry per PR.
 - Lineage drawer: select a row (click, Enter, or Space) to see the message, suggested fix, source file, sheet, row number, raw row hash, masked value, whether it blocks the load, and Jev scores as bars with the percent printed. Escape closes it. A notes value always shows as [redacted].
 - The Overview banner links to the Exceptions page. The nav now links Sources and Exceptions and highlights only the current page.
 - Not in this PR: the per-header mapping table (the dashboard does not read mapping/*.yaml), lane and scored filters, message search, copy as issue, and CSV export.
+
+## PR 15: Dashboard Tie-out and Agents (2026-10-04)
+
+- The Tie-out page answers "Does the money agree?" for one run: an answer banner, three cards for the checks (book vs statement, statement vs book, CRM vs statement) with matched, unmatched, weak-match counts and dollars, a table of every difference (member id, where, amount, rule, and the engine's explanation), and totals by carrier and by agent with an "All" row.
+- A check that did not run shows "Not checked" and the engine's reason, never zeros. On the failed sample all three cards and both totals say "Not checked" and no table appears.
+- Differences carry a direction word ("$61.05 more paid", "$31.00 less paid", "Even"), so the sign never depends on color. Totals rows are added with the BigInt helper in `lib/money.ts`.
+- The Agents page answers "Is every writing agent allowed to sell what they sold?": an answer banner, the RTS gaps to fix (exception id, source file and row, message, suggested fix), a writing agents table, and the RTS matrix (agents by carrier, state, and plan year). Each cell says held and used, held but unused, or used without RTS, with an icon and a policy count; used without RTS cells are outlined and shaded.
+- Example 3 (NPN 1884412, Harborline TX 2026, EX-000005, crm_export.csv row 419) and example 4 (Harborline 2026-08 line 212, HL-998213, $61.05, TIE-002) are visible on the pages and asserted in tests.
+- `lib/tie-out.ts` reads `tie_out/*.json` and refuses money written as a number. `lib/agents.ts` shapes `rts_coverage.json` into the matrix.
+- The Tie-out and Agents nav items are now links, using the `NavLink` component from PR 14. A test checks that only the page you are on is marked current.

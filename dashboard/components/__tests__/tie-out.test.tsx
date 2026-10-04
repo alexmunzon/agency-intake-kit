@@ -1,0 +1,53 @@
+import path from "node:path";
+import { render, screen, within } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { TieOutView } from "@/components/tie-out";
+import { loadRunDir } from "@/lib/run-loader";
+import { loadTieOut } from "@/lib/tie-out";
+
+const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
+
+async function show(name: string) {
+  const dir = path.join(FIXTURES, name);
+  render(<TieOutView run={await loadRunDir(dir)} tieOut={await loadTieOut(dir)} />);
+}
+
+const leg = (name: string) => within(screen.getByRole("group", { name }));
+
+describe("TieOutView", () => {
+  it("shows the three legs and example 4 for the warnings sample", async () => {
+    await show("sample-run");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Does the money agree?");
+    expect(leg("B. Statement vs book").getByText("2,412")).toBeInTheDocument();
+    expect(leg("B. Statement vs book").getByText("$61.05")).toBeInTheDocument();
+    const row = within(screen.getByRole("row", { name: /HL-998213/ }));
+    expect(row.getByText("TIE-002")).toBeInTheDocument();
+    expect(row.getByText("$61.05 more paid")).toBeInTheDocument();
+    expect(row.getByText("Harborline 2026-08, line 212")).toBeInTheDocument();
+    expect(row.getByText("Harborline paid a commission for a member who is not in the book")).toBeInTheDocument();
+    const carriers = within(screen.getByRole("table", { name: "Totals by carrier" }));
+    expect(carriers.getByRole("row", { name: /Harborline/ })).toHaveTextContent("$61.05 unexplained");
+    expect(carriers.getByRole("row", { name: /All carriers/ })).toHaveTextContent("$30.05 more paid");
+    const agents = within(screen.getByRole("table", { name: "Totals by agent" }));
+    expect(agents.getByRole("row", { name: /2210457/ })).toHaveTextContent("$31.00 less paid");
+  });
+
+  it("shows Not checked, never zeros, when every leg is NOT_RUN", async () => {
+    await show("sample-run-failed");
+    expect(screen.getByText("Not checked. The run stopped before the tie-out.")).toBeInTheDocument();
+    for (const name of ["A. Book vs statement", "B. Statement vs book", "C. CRM vs statement"]) {
+      expect(leg(name).getByText("Not checked")).toBeInTheDocument();
+      expect(leg(name).queryByText("0")).toBeNull();
+    }
+    expect(screen.queryByText("$0.00")).toBeNull();
+    expect(screen.queryByRole("table")).toBeNull();
+    expect(screen.getAllByText(/CMP-001/).length).toBeGreaterThan(0);
+  });
+
+  it("answers yes for the passed sample", async () => {
+    await show("sample-run-passed");
+    expect(screen.getByText("Yes. Every check ran and the money agrees.")).toBeInTheDocument();
+    expect(screen.getByText("No differences found.")).toBeInTheDocument();
+  });
+});

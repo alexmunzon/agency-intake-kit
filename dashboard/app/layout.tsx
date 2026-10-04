@@ -16,8 +16,8 @@ const PAGES: { label: string; href?: string }[] = [
   { label: "Overview", href: "/" },
   { label: "Sources", href: "/sources" },
   { label: "Exceptions", href: "/exceptions" },
-  { label: "Tie-out" },
-  { label: "Agents" },
+  { label: "Tie-out", href: "/tie-out" },
+  { label: "Agents", href: "/agents" },
 ];
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
