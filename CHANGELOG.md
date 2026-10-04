@@ -98,3 +98,13 @@ One entry per PR.
 - Committed `fixtures/agency-a/canonical-defected/` and `fixtures/agency-a/ground_truth.json` (793 defects, about 1.7 MB). A test regenerates them and fails if the bytes drift.
 - PII in notes is left to PR 3b, which writes the CRM `Notes` column.
 - Size: about 1,350 changed lines against a plan of 340, not counting fixture data. Shipped as one PR on the orchestrator's instruction.
+
+## PR 3b: Source writers and fixtures (2026-10-04)
+
+- `synth_agency_data/writers/`: the four messy source shapes plus `drop/manifest.json`. `crm_export.csv` (latin-1 with a byte order mark, Excel serial birth dates, three rotating date styles, mixed-case status words, Notes), `enrollment_export.csv` (semicolons, "Birth Dt (mm/dd/yy)", two-digit years), one `commissions_<carrier>.xlsx` per carrier (merged title row, header on row 3, trailing total row, three header layouts), and `agent_roster.xlsx` (Agents and RTS sheets, comma license lists). Spreadsheets are saved with frozen timestamps, so the bytes never churn.
+- `synth generate` now writes `drop/` too, and takes `--truncate-crm N`, `--add-ssn-column`, and `--no-canonical`.
+- PII in notes: 26 obviously fake sentences (1 percent of CRM policy rows) in the CRM Notes column, recorded as `pii_in_notes` (PII-001, scored) keyed by `policy_id`.
+- Every ground truth defect now also says where it landed: `source_file`, `sheet`, `source_row`. A test opens each file and checks the row holds that record.
+- Fixtures committed: `fixtures/agency-a` (adds `drop/`; `canonical-defected/` unchanged), `fixtures/agency-a-truncated` (CRM keeps 2,574 data rows, manifest says 2,680, plus a `truncated_file` CMP-001 defect), `fixtures/agency-a-ssn` (roster SSN column, values all in never-issued area 000, listed in ground truth). A test regenerates all three and fails on any byte change.
+- SPEC and CLAUDE.md: the CRM export has 2,680 rows, not 2,600: 2,600 policies, 34 planted duplicate rows, and 46 clients with no policy (40 re-keyed copies plus 6 whose only policy was orphaned), each on a row with the policy columns blank. Example 5 now reads 2,574 of 2,680.
+- New `docs/synthetic-data.md`: every injector, rate, scored flag, file quirk, and fixture.
