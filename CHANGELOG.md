@@ -174,3 +174,16 @@ One entry per PR.
 ## README: why this exists, status refresh (2026-10-04)
 
 - New "Why this exists" section written for the recruiting reader: who built it, what it demonstrates, and how AI coding agents were used under the spec. Status lists updated for PRs 8, 9, 10.
+
+## PR 4: Readers, ingest, and raw gates (2026-10-04)
+
+- `intake/readers/`: `sniff.py` (encoding, delimiter, header row, trailing total rows), `csv.py`, and `xlsx.py`. Every source file or sheet becomes a `RawTable`: a polars frame with each source column under its header exactly as read (all text, blank is null) plus a `lineage` struct column with the six `Lineage` fields. `raw_hash` is the sha256 of the row's raw cells joined by the unit separator, the same recipe the PR 8 and PR 9 test loaders use.
+- Encoding: a UTF-8 byte order mark is stripped but not trusted. The body is tried as strict UTF-8, then latin-1, so the CRM export (marker plus latin-1 text) reads with its accents intact. charset-normalizer is not used: on that file it guessed cp1250, which turns "ñ" into "ń".
+- Header row: the first row where at least 60 percent of cells are words, so the merged title and subtitle rows of the commission statements are skipped and the header is found on row 3. Trailing "Total" and blank rows are dropped and counted; a total row's printed line count is kept as the fallback expected count.
+- xlsx: values only. Real date cells become ISO strings (a bare date at midnight); text such as "45901" stays text.
+- ING-001 (not UTF-8), ING-002 (header not on row 1), ING-003 (trailing rows dropped) are info; ING-004 (delimiter guessed with low confidence) is a warning.
+- `intake/ingest.py` reads a drop folder by `drop/manifest.json` (or every csv and xlsx file when there is none) into an `IngestResult`.
+- `intake/gates/refusal.py`: SSN-001 blocks when a header says SSN or social, or 90 percent of a column's values look like SSNs. The record names the column only; no value is copied, counted, or masked.
+- `intake/gates/completeness.py`: CMP-001 blocks when rows received differ from the manifest (else the total row). CMP-002 warns when a listed file or sheet is missing and names the tie-out legs that cannot run.
+- Examples 5 and 6 pass at the gate level: the truncated fixture gives CMP-001 expected 2,680, received 2,574; the ssn fixture gives one SSN-001 and none of its 25 values appears in any record. Ground truth rows point at reader rows holding the record key.
+- `config.py` PR 4 section: reader encodings, delimiters, header and total-row settings, `RAW_MAPPING_VERSION`, and the SSN gate settings.
