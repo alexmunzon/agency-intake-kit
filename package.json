@@ -1,0 +1,15 @@
+{
+  "name": "agency-intake-kit",
+  "private": true,
+  "description": "Root scripts only. No dependencies here, so there is no root lockfile.",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "verify": "npm run verify:engine && npm run verify:dashboard",
+    "verify:engine": "cd engine && uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q",
+    "verify:dashboard": "cd dashboard && npm run lint && npm run typecheck && npm run test && npm run build",
+    "demo": "cd engine && uv run intake run --in ../fixtures/agency-a/drop --out ../runs --run-id demo --overwrite --now 2026-10-01T09:00:00Z --jev replay && rm -rf ../dashboard/public/demo-run && cp -r ../runs/demo ../dashboard/public/demo-run",
+    "shots": "cd dashboard && npx playwright test e2e/shots.spec.ts"
+  }
+}

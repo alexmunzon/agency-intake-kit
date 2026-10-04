@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)", "Bash(npm ci:*)", "Bash(npm install:*)", "Bash(npx playwright:*)", "Bash(npx shadcn:*)",
+      "Bash(uv sync:*)", "Bash(uv add:*)", "Bash(uv run:*)",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git add:*)", "Bash(git commit:*)",
+      "Bash(git checkout:*)", "Bash(git switch:*)", "Bash(git worktree:*)", "Bash(git branch:*)",
+      "Bash(gh pr view:*)", "Bash(gh pr checks:*)", "Bash(gh pr diff:*)", "Bash(gh issue:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)", "Bash(gh pr create:*)", "Bash(gh pr merge:*)", "Bash(gh release:*)",
+      "Bash(vercel:*)", "Bash(rm -rf:*)", "Bash(git reset --hard:*)", "Bash(git rebase:*)",
+      "Bash(*--jev live*)", "Bash(*--jev record*)", "Bash(*JEV_MODE=live*)", "Bash(*JEV_MODE=record*)",
+      "Edit(.claude/**)", "Edit(.github/**)", "Write(.claude/**)", "Write(.github/**)"
+    ],
+    "deny": [
+      "Read(.env)", "Read(.env.*)", "Read(**/*.pem)", "Read(**/secrets/**)",
+      "Bash(git push --force:*)", "Bash(git push -f:*)",
+      "Bash(curl:*)", "Bash(wget:*)",
+      "Bash(*TYPESAFE_API_KEY=*)", "Bash(*ANTHROPIC_API_KEY=*)",
+      "Bash(*echo $TYPESAFE_API_KEY*)", "Bash(printenv:*)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-verify.sh\"", "timeout": 900 }
+        ]
+      }
+    ]
+  }
+}
