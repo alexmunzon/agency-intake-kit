@@ -170,3 +170,7 @@ One entry per PR.
 - Fixtures committed: `fixtures/agency-a` (adds `drop/`; `canonical-defected/` unchanged), `fixtures/agency-a-truncated` (CRM keeps 2,574 data rows, manifest says 2,680, plus a `truncated_file` CMP-001 defect), `fixtures/agency-a-ssn` (roster SSN column, values all in never-issued area 000, listed in ground truth). A test regenerates all three and fails on any byte change.
 - SPEC and CLAUDE.md: the CRM export has 2,680 rows, not 2,600: 2,600 policies, 34 planted duplicate rows, and 46 clients with no policy (40 re-keyed copies plus 6 whose only policy was orphaned), each on a row with the policy columns blank. Example 5 now reads 2,574 of 2,680.
 - New `docs/synthetic-data.md`: every injector, rate, scored flag, file quirk, and fixture.
+
+## README: why this exists, status refresh (2026-10-04)
+
+- New "Why this exists" section written for the recruiting reader: who built it, what it demonstrates, and how AI coding agents were used under the spec. Status lists updated for PRs 8, 9, 10.
