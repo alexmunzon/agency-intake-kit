@@ -1,0 +1,90 @@
+{
+  "run_id": "sample-run",
+  "status": "PASSED_WITH_WARNINGS",
+  "rows_in": 7765,
+  "rows_mapped": 7765,
+  "rows_clean": 7761,
+  "exceptions_by_severity": {
+    "blocker": 0,
+    "error": 4,
+    "warning": 6,
+    "info": 3
+  },
+  "exceptions_by_rule": {
+    "ING-001": 1,
+    "MAP-002": 1,
+    "DOB-002": 1,
+    "CON-001": 1,
+    "RTS-001": 1,
+    "TIE-002": 1,
+    "TIE-001": 1,
+    "TIE-004": 1,
+    "TIE-003": 1,
+    "TIE-006": 1,
+    "DUP-002": 1,
+    "NPN-002": 1,
+    "DAT-004": 1
+  },
+  "tie_out": [
+    {
+      "leg": "BOOK_VS_STATEMENT",
+      "status": "RAN",
+      "not_run_reason": null,
+      "matched": 2412,
+      "unmatched": 1,
+      "weak_matched": 1,
+      "variance_count": 1,
+      "variance_dollars": "24.50"
+    },
+    {
+      "leg": "STATEMENT_VS_BOOK",
+      "status": "RAN",
+      "not_run_reason": null,
+      "matched": 2412,
+      "unmatched": 1,
+      "weak_matched": 1,
+      "variance_count": 1,
+      "variance_dollars": "61.05"
+    },
+    {
+      "leg": "CRM_VS_STATEMENT",
+      "status": "RAN",
+      "not_run_reason": null,
+      "matched": 2398,
+      "unmatched": 1,
+      "weak_matched": 0,
+      "variance_count": 1,
+      "variance_dollars": "0.00"
+    }
+  ],
+  "rts_gaps": 1,
+  "detection": {
+    "classes": [
+      {
+        "defect_class": "dob_century",
+        "scored": true,
+        "planted": 1,
+        "detected": 1
+      },
+      {
+        "defect_class": "duplicate_person",
+        "scored": false,
+        "planted": 2,
+        "detected": 1
+      },
+      {
+        "defect_class": "orphan_payment",
+        "scored": true,
+        "planted": 1,
+        "detected": 1
+      },
+      {
+        "defect_class": "rts_gap",
+        "scored": true,
+        "planted": 1,
+        "detected": 1
+      }
+    ],
+    "false_positive_rate": 0.001
+  }
+}

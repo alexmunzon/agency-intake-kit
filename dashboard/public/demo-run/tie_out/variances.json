@@ -1,0 +1,60 @@
+{
+  "variances": [
+    {
+      "rule_id": "TIE-001",
+      "exception_id": "EX-000007",
+      "leg": "BOOK_VS_STATEMENT",
+      "carrier": "Crestview Mutual",
+      "statement_period": "2026-08",
+      "line_no": null,
+      "policy_id": "P-00800",
+      "carrier_member_id": "CM-410877",
+      "agent_npn": "2210457",
+      "paid": null,
+      "expected": "24.50",
+      "difference": "-24.50"
+    },
+    {
+      "rule_id": "TIE-002",
+      "exception_id": "EX-000006",
+      "leg": "STATEMENT_VS_BOOK",
+      "carrier": "Harborline",
+      "statement_period": "2026-08",
+      "line_no": 212,
+      "policy_id": null,
+      "carrier_member_id": "HL-998213",
+      "agent_npn": "1773019",
+      "paid": "61.05",
+      "expected": null,
+      "difference": "61.05"
+    },
+    {
+      "rule_id": "TIE-004",
+      "exception_id": "EX-000008",
+      "leg": "CRM_VS_STATEMENT",
+      "carrier": "Harborline",
+      "statement_period": "2026-08",
+      "line_no": 640,
+      "policy_id": "P-01308",
+      "carrier_member_id": "HL-331540",
+      "agent_npn": "1773019",
+      "paid": null,
+      "expected": null,
+      "difference": "0.00"
+    },
+    {
+      "rule_id": "TIE-003",
+      "exception_id": "EX-000009",
+      "leg": null,
+      "carrier": "Crestview Mutual",
+      "statement_period": "2026-08",
+      "line_no": 55,
+      "policy_id": "P-01044",
+      "carrier_member_id": "CM-551203",
+      "agent_npn": "2210457",
+      "paid": "18.00",
+      "expected": "24.50",
+      "difference": "-6.50"
+    }
+  ]
+}

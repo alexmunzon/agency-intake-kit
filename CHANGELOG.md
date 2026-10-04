@@ -77,3 +77,14 @@ One entry per PR.
 - Constants in the `# PR 6` section of `config.py`.
 - SPEC change: the spend cap no longer "stops any run". A trip switches Jev to `off` for the rest of the run, the run completes, and remaining questions go to the human queue (decision made before this PR, following guide 7.6). The 1b `JevUsage` model is unchanged.
 - SPEC: the 'to be verified' note on the API shape now records what PR 6 checked.
+
+## PR 13: Dashboard shell and Overview (2026-10-04)
+
+- The Overview answers "Can this agency go live?" for one run: a status banner (yes, yes with fixes, or no, with the engine's reason and any file whose row count came up short), tiles for blockers, errors, warnings, info, and clean rows, then tie-out differences in dollars, RTS gaps, Jev calls and estimated cost, and run time. A stacked bar shows exceptions by source file, with the counts written next to each bar.
+- A check that did not run shows "Not checked", never 0. On the failed sample that covers errors, warnings, the tie-out, and RTS gaps, because the blocker stopped the run before those checks.
+- `lib/money.ts` is the one money helper. It formats decimal text and adds amounts in whole cents with BigInt, so money never becomes a float. A lint rule refuses `parseFloat` anywhere in the dashboard.
+- `lib/run-loader.ts` reads a run folder (manifest, scorecard, exceptions, RTS coverage) and checks its basic shape: same run in manifest and scorecard, known severities, money written as text. The page reads `public/demo-run` at build time, so the deployed site is static and makes no network calls.
+- `public/demo-run` is a copy of `fixtures/sample-run` until PR 12's `npm run demo` replaces it.
+- App shell: title "Agency Intake Kit" with a real description, a left nav at desktop width and a scrolling top bar on phones. Pages not built yet show as "(soon)" instead of links. Fonts: Inter, and the system mono face for ids.
+- Dark mode follows the system setting. The manual toggle waits for PR 16.
+- `npm run shots` writes `overview-<width>-<theme>.png` to `docs/screenshots` and checks the Overview fits one screen at 1440 by 900.
