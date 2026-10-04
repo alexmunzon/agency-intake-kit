@@ -59,6 +59,7 @@ MEDIGAP_LETTERS = "GGGNNFKLAB"  # G and N are the common sellers
 class World:
     seed: int
     tables: dict[str, list[Row]]
+    locked: frozenset[str] = frozenset()  # record keys the random injectors must not touch
 
 
 def _month_index(d: date) -> int:
@@ -313,6 +314,21 @@ def build_world(seed: int, n_clients: int) -> World:
         for npn, carrier, state, year, lob in sorted(rts_keys)
     ]
 
+    return World(
+        seed,
+        {
+            "clients": clients,
+            "households": households,
+            "agents": agents,
+            "rts": rts,
+            "policies": policies,
+            "commission_lines": commission_lines(policies, clients),
+        },
+    )
+
+
+def commission_lines(policies: list[Row], clients: list[Row]) -> list[Row]:
+    """Each period, each carrier pays every ACTIVE policy once, in policy order, on schedule."""
     by_id = {c["client_id"]: c for c in clients}
     lines: list[Row] = []
     for period in STATEMENT_PERIODS:
@@ -343,15 +359,4 @@ def build_world(seed: int, n_clients: int) -> World:
                         "paid_date": paid,
                     }
                 )
-
-    return World(
-        seed,
-        {
-            "clients": clients,
-            "households": households,
-            "agents": agents,
-            "rts": rts,
-            "policies": policies,
-            "commission_lines": lines,
-        },
-    )
+    return lines

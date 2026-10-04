@@ -65,3 +65,13 @@ One entry per PR.
 - Choices to know: the world's "today" is 2026-10-01 (the demo clock). Policies start from 2022 on and each agent sells in two to four states, which keeps the RTS table small. CSVs carry no lineage columns, because SPEC adds lineage when a file is read. List fields are joined with "|".
 - CI: `astral-sh/setup-uv` bumped from v6 to v10.2.0 (Alex approved), which runs on Node 24. From v10 on, setup-uv publishes only exact version tags, so a bare `@v10` does not resolve.
 - Size: about 690 changed lines against a plan of 380, mostly because the formatter puts one field per line. Alex chose to ship it as one PR.
+
+## PR 3a: Error injectors, planted cases, defected canonical copy (2026-10-04)
+
+- `synth_agency_data/injectors/`: 25 injectors at the guide 7.3 default rates, grouped by what they touch (`clients.py`, `policies.py`, `commissions.py`, `roster.py`). Each is `(world, rng, rate) -> (world, defects)`, copies the rows it changes, and never mutates its input. 20 are scored; name typos, nicknames, DOB transposition, DOB month-day swap, and near-duplicate clients are unscored (`expected_rule_ids: []`, for bob-resolve).
+- Every defect has a stable `record_key` (`policy_id`, `client_id`, or carrier plus statement_period plus line_no) and a `row_ref` into the defected CSV (row 1 is the header). A defected record is locked, so no record carries two defects.
+- `planted.py`: SPEC example 3 (P-00417 is Harborline, TX, MA, plan year 2026, written by NPN 1884412, no RTS row) and example 4 (Harborline 2026-08 line 212 pays 61.05 to HL-998213, no policy). Supporting edits: producer `32227216` (agent06, Jeffery Wagner) is renamed to `1884412` everywhere and gets a TX license, P-00417 moves to TX client C-00452 (a 65+ PDP-only client), and line 212 is inserted so later lines shift down by one. Random injectors never touch the planted policy, its client, or line 212.
+- `synth generate` now injects by default and writes `canonical-defected/` plus a filled `ground_truth.json`. `--no-inject` writes the clean world to `canonical/` with no defects. Planting needs seed 42 at 2,000 clients and says so if the world is too small.
+- Committed `fixtures/agency-a/canonical-defected/` and `fixtures/agency-a/ground_truth.json` (793 defects, about 1.7 MB). A test regenerates them and fails if the bytes drift.
+- PII in notes is left to PR 3b, which writes the CRM `Notes` column.
+- Size: about 1,350 changed lines against a plan of 340, not counting fixture data. Shipped as one PR on the orchestrator's instruction.
