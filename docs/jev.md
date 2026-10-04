@@ -95,3 +95,54 @@ also refuses any request whose state still holds a notes field unless `pii_clear
 1. Ask Alex in words, stating the expected cost, before any `record` run.
 2. Run with `JEV_MODE=record` and `allow_spend=True` set by the caller.
 3. Commit the new cassettes and say so in the PR.
+
+## Triage and the PII gate (PR 11)
+
+**Triage** (`intake/exceptions/triage.py`) asks one request per error or warning with two
+questions: `is_entry_error` (noul) and `impact` (score: cosmetic, affects reporting, affects
+compliance or money). The state holds only the rule id, the field, the value's shape (`9999-99-99`,
+digits become 9 and letters A), and the neighbor fields for the rule's family listed in
+`TRIAGE_NEIGHBORS` in `config.py`. Closed-vocabulary neighbors (line of business, status, carrier,
+state, and similar) are sent as is; anything else is sent as a shape. Notes are never sent.
+
+| Entry-error probability | Lane |
+|---|---|
+| 0.80 or more (`TRIAGE_ENTRY_ERROR`) | SUGGESTED_FIX |
+| 0.20 or less (`TRIAGE_BUSINESS_EVENT`) | BUSINESS_EVENT |
+| in between | REVIEW |
+| no answer (off mode or spend guard) | UNREVIEWED, the human queue |
+
+Blockers go to REVIEW and info stays UNREVIEWED without a call. PII-001 is never triaged.
+
+**Deduplication.** Two exceptions with the same rule, field, value shape, and neighbors build the
+same body, so they have the same `request_hash`. Triage sends each hash once per run and reuses the
+answer. `planned_requests(items)` returns the distinct requests; its length is the call count.
+
+**PII gate** (`intake/exceptions/pii.py`): a regex pre-filter (dates, 9 to 11 digit numbers,
+SSN-shaped text, drug-like words, and health words) picks the notes worth a look; the rest pass with
+no call. Text holding an SSN-shaped value or a 9 to 11 digit number is redacted at once with no
+call, so it never leaves the machine. Other flagged text goes to the noul question with every digit
+replaced by `#`. At or above 0.50 (`PII_REDACT`) the text becomes `[redacted]` and PII-001 fires
+(warning, REVIEW lane, no value shown). With no answer the text is redacted too: the gate fails
+closed. Identical texts are asked once.
+
+**Expected calls for fixtures/agency-a** (asserted in `tests/unit/test_triage.py`):
+
+| Part | Exceptions | Calls |
+|---|---|---|
+| Triage, row rules (PR 8) on the defected canonical copy | 239 errors and warnings | **68** |
+| PII gate (agency-a has no notes text) | 0 | **0** |
+| Total today | | **68** |
+
+The 68 come from grouping: 56 missing MBIs (MBI-003) on Medicare policies share one shape and
+neighbor set, so they cost 1 call; 52 unknown statuses (STA-001) cost 11; 20 ZIP and state
+mismatches (ADR-002) cost 14, one per state. Without deduplication the same run would make 239
+calls. Cross-record and tie-out exceptions (PR 9 and PR 10) add at most 410 more, one per
+planted defect in ground_truth.json, and far fewer after grouping. PR 12 runs the real pipeline
+on the source files, which may shape values differently, so it replaces this number with the
+exact count it asserts and records.
+
+**Test cassettes.** `engine/tests/cassettes/synthetic/` holds hand-made answers for the triage and
+PII shapes (model `synthetic-hand-made`). They are not recordings. They sit in a subfolder so the
+pipeline, which reads `engine/tests/cassettes/`, can never replay a made-up answer. PR 12 records
+the real ones.

@@ -143,3 +143,11 @@ One entry per PR.
 - `uv run intake rules --md` prints the Markdown catalog; `docs/rules.md` is generated from it, and a test fails if the committed file drifts.
 - `intake/rules/_canonical_io.py` is a temporary test loader for canonical CSVs, replaced by PR 4's readers.
 - Thresholds in the `# PR 8` section of `config.py`: DOB_MIN_AGE, DOB_MAX_AGE, MEDICARE_AGE.
+
+## PR 11: exceptions policy, triage, PII gate (2026-10-04)
+
+- `intake/exceptions/policy.py`: the run status (any of the three blockers MAP-003, CMP-001, SSN-001 means FAILED; any error or warning means PASSED_WITH_WARNINGS; otherwise PASSED), the rows errors keep out of `clean/`, catalog suggested fixes for stages that left one blank, and the lanes triage does not decide (blockers to REVIEW, info stays UNREVIEWED).
+- `intake/exceptions/triage.py`: Jev question 3 for every error and warning. The state is the rule, field, value shape, and a few neighbor fields per family (in `config.py`), never raw values or notes. 0.80 or more goes to SUGGESTED_FIX, 0.20 or less to BUSINESS_EVENT, in between to REVIEW, and no answer (off mode or the spend guard) to UNREVIEWED. Identical requests are sent once, keyed by the public request hash. `queue_order` sorts the fix-first queue deterministically.
+- `intake/exceptions/pii.py`: the PII gate. A regex pre-filter picks notes worth a look, SSN-shaped text and 9 to 11 digit numbers are redacted with no call, other flagged text goes to Jev with digits masked, and 0.50 or more redacts to `[redacted]` and raises PII-001. With no answer the gate redacts (fails closed). PII-001 joins the rule catalog and `docs/rules.md`.
+- Expected Jev calls for fixtures/agency-a today: 68 triage calls for 239 row-rule exceptions, 0 PII calls. Asserted in tests and explained in `docs/jev.md`.
+- Hand-made, clearly synthetic cassettes in `engine/tests/cassettes/synthetic/` (3 files). The pipeline never reads that folder. No Jev spend: every test uses replay or httpx.MockTransport.
