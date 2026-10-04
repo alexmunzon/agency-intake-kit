@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { SeverityBadge, SeverityIcon, TONES, type Tone } from "@/components/severity-badge";
 import { CARD, Tile } from "@/components/tiles";
 import { formatMoney } from "@/lib/money";
@@ -33,7 +35,12 @@ function StatusBanner({ run }: { run: Run }) {
         {answer}
       </p>
       <p className="mt-1 text-sm">
-        <SeverityBadge tone={tone} label={word} /> {status_reason ?? fallback}
+        <SeverityBadge tone={tone} label={word} /> {status_reason ?? fallback}{" "}
+        {run.exceptions.length > 0 && (
+          <Link href="/exceptions" className="text-indigo-700 underline dark:text-indigo-300">
+            See the exceptions
+          </Link>
+        )}
       </p>
       <ul className="mt-1 text-sm tabular-nums">
         {shortFiles(run).map((file) => (
