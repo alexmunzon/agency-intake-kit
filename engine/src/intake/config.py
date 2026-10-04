@@ -29,6 +29,14 @@ JEV_TIMEOUT_S: Final[float] = 30.0  # seconds per HTTP request
 # PR 8: row validators (DOB age range, Medicare age, date rules)
 
 # PR 9: cross-record checks (duplicates, references, RTS, licenses)
+# Plan year is the policy's effective year. When True, a December effective date counts toward
+# the next plan year (an AEP sale keyed early). The synthetic world keys plan year to the
+# effective year, so this stays False.
+PLAN_YEAR_DECEMBER_ROLLS_FORWARD: Final[bool] = False
+LIST_SEPARATOR: Final[str] = "|"  # how canonical CSVs join list fields such as license_states
+RTS_TRUE_VALUES: Final[frozenset[str]] = frozenset(
+    {"true", "yes", "y", "1"}
+)  # appointed, certified
 
 # PR 10: three-way tie-out (tolerances: $1 or 1 percent per line, 0.5 percent on totals)
 
