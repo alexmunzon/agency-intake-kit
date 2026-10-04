@@ -126,6 +126,51 @@ One entry per PR.
 - New `docs/design.md`: the tokens, severity colors and their meanings, type scale, layout, the one question each page answers, and how to regenerate the screenshots.
 - No page code changed. The screenshots showed no visual bugs.
 
+## PR 18a: ADRs and README draft (2026-10-04)
+
+- First half of PR 18, written early. Docs only, no code.
+- `docs/adr/0001` to `0005` plus an index: DuckDB SQL for the tie-out, Jev as a gate not a judge, static-first dashboard, synthetic data only, separate repos per project with `agency-data-commons` extracted later. Each records context, decision, and consequences, and cites the CHANGELOG entry behind it.
+- ADR 0005 records a known gap: `jev_client` imports its constants from `intake/config.py`, so they must move before the package is extracted.
+- README.md rewritten as a two-minute read for a non-engineer: what it is, who it is for, the five dashboard questions, what is synthetic and why, the data trust rules, how to run it, and a status list that names every PR not shipped yet. It publishes no detection rates or benchmark numbers, because the pipeline that measures them is not built. After merging main, the README embeds the four 1440-wide screenshots from `docs/screenshots/`.
+- Still open for the rest of PR 18: the GIF, results tables, architecture diagram, link checker, v1.0.0 release.
+
+## PR 8: Row validators (2026-10-04)
+
+- `intake/rules/`: the 22 row rules from guide section 6, registered with `@rule`: DOB-001 to 003, MBI-001 to 003, NPN-001 and 002, PLN-001 to 004, ADR-001 to 003, CON-001 and 002, DAT-001 to 004, STA-001. Each rule is pure, never calls Jev, and builds its ExceptionRecord in one place (`frames.hit`), which passes every shown value through `minimize_value`. Messages carry minimized values only; policy ids and two-letter state codes appear as is.
+- Rules read one of two frames (`frames.py`): the client frame, and the policy frame, which carries the client's DOB, MBI, and row lineage plus whether the writing agent is in the roster. The run date (`as_of`) is a column, so rules never read the clock.
+- On the 3a defected copy every planted DOB, MBI, NPN, PLN, ADR, CON, DAT, and STA defect is detected on its exact row, with no extra hits except MBI-003 (one per Medicare policy of the client, as 3a planned). On the PR 2 clean world nothing above info fires.
+- Choices: blank values are left to the completeness rules; a malformed NPN raises NPN-001 only, not NPN-002 too; DAT-001 also covers an unparseable termination date; MBI-002 and MBI-003 point at the client row, where the MBI lives; STA-001 accepts the five status words in any case and spacing.
+- `uv run intake rules --md` prints the Markdown catalog; `docs/rules.md` is generated from it, and a test fails if the committed file drifts.
+- `intake/rules/_canonical_io.py` is a temporary test loader for canonical CSVs, replaced by PR 4's readers.
+- Thresholds in the `# PR 8` section of `config.py`: DOB_MIN_AGE, DOB_MAX_AGE, MEDICARE_AGE.
+
+## PR 9: Cross-record checks and RTS coverage (2026-10-04)
+
+- `intake/checks/`: seven rules, none of them blockers. `duplicates.py` has DUP-001 (exact duplicate row, by raw_hash, on every table), DUP-002 (same normalized name and DOB on two or more client ids, with the group id in the message), and DUP-003 (a policy id repeated with different content). `references.py` has REF-001 (policy points at a missing client). `rts.py` has RTS-001 (no ready-to-sell row) and RTS-002 (the row exists but ended before the policy took effect). `licenses.py` has LIC-001 (policy state not in the agent's licenses).
+- RTS joins on agent, carrier, state (the client's address state when the policy has none), plan year (the effective year), and line of business, all trimmed and case-normalized. An ended RTS row gives RTS-002, never RTS-001. Agents missing from the roster are left to NPN-001 and NPN-002, so RTS and LIC skip them.
+- `rts.build_rts_coverage` writes one cell per agent, carrier, state, and plan year: held and used, held but unused, or used without RTS (listing its RTS-001 ids).
+- `_canonical_io.py` is a small canonical CSV loader for tests until PR 4's readers replace it.
+- Against `fixtures/agency-a`, every planted DUP, REF, RTS, and LIC defect is found, and the clean seed-42 world gives no exceptions. Example 3 fires RTS-001 on P-00417.
+
+## PR 10: Three-way tie-out in DuckDB (2026-10-04)
+
+- `intake/tieout/sql/01` to `07`: the tie-out as commented DuckDB views. Lines match the book on carrier plus carrier_member_id, then policy_ref, then name plus DOB (a weak match, TIE-006). Leg A finds active policies with no line in a period (TIE-001), leg B finds orphan payments (TIE-002), leg C finds paid policies the CRM does not show as ACTIVE (TIE-004). Dollar checks: each line vs the rate table within the larger of $1 or 1 percent (TIE-003), carrier and agent totals within 0.5 percent (TIE-005). Money is DECIMAL(12,2) in SQL and Decimal in Python, never a float.
+- `load.py` hands polars frames to DuckDB through the Arrow stream interface, so no pyarrow dependency. `views.py` runs the SQL files in name order. `variances.py` builds the six `tie_out/*.json` models and one TIE ExceptionRecord per finding.
+- A missing commission or policy source makes every leg and both totals NOT_RUN with a reason and no counts.
+- `_canonical_io.py` is a small private canonical CSV reader that PR 4's readers replace.
+- `config.py` PR 10 section: `TIE_LINE_TOLERANCE_USD`, `TIE_LINE_TOLERANCE_PCT`, `TIE_TOTAL_TOLERANCE_PCT`.
+- On agency-a every planted TIE-001 to TIE-004 defect is found with no extras. The clean world has zero variances and totals tie to the cent. TIE-005 fires on the defected world as expected.
+
+## PR 3b: Source writers and fixtures (2026-10-04)
+
+- `synth_agency_data/writers/`: the four messy source shapes plus `drop/manifest.json`. `crm_export.csv` (latin-1 with a byte order mark, Excel serial birth dates, three rotating date styles, mixed-case status words, Notes), `enrollment_export.csv` (semicolons, "Birth Dt (mm/dd/yy)", two-digit years), one `commissions_<carrier>.xlsx` per carrier (merged title row, header on row 3, trailing total row, three header layouts), and `agent_roster.xlsx` (Agents and RTS sheets, comma license lists). Spreadsheets are saved with frozen timestamps, so the bytes never churn.
+- `synth generate` now writes `drop/` too, and takes `--truncate-crm N`, `--add-ssn-column`, and `--no-canonical`.
+- PII in notes: 26 obviously fake sentences (1 percent of CRM policy rows) in the CRM Notes column, recorded as `pii_in_notes` (PII-001, scored) keyed by `policy_id`.
+- Every ground truth defect now also says where it landed: `source_file`, `sheet`, `source_row`. A test opens each file and checks the row holds that record.
+- Fixtures committed: `fixtures/agency-a` (adds `drop/`; `canonical-defected/` unchanged), `fixtures/agency-a-truncated` (CRM keeps 2,574 data rows, manifest says 2,680, plus a `truncated_file` CMP-001 defect), `fixtures/agency-a-ssn` (roster SSN column, values all in never-issued area 000, listed in ground truth). A test regenerates all three and fails on any byte change.
+- SPEC and CLAUDE.md: the CRM export has 2,680 rows, not 2,600: 2,600 policies, 34 planted duplicate rows, and 46 clients with no policy (40 re-keyed copies plus 6 whose only policy was orphaned), each on a row with the policy columns blank. Example 5 now reads 2,574 of 2,680.
+- New `docs/synthetic-data.md`: every injector, rate, scored flag, file quirk, and fixture.
+
 ## Jev client review fixes
 
 - #22: a reply is counted toward the $0.50 budget before it is checked, so a billed reply that fails validation (or has a broken usage block, or is not JSON) still counts. In `record`, the raw reply is saved as a cassette before the check and the error names the file, so a retry does not pay again. New `JevBadReply` error (a `ValueError`).
