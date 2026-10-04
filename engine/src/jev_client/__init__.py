@@ -1,7 +1,7 @@
 """Typed Jev (TypeSafe) client with live, replay, record, and off modes."""
 
 from jev_client.cassettes import CassetteMiss, canonical_json, request_hash
-from jev_client.client import JevClient, JevHTTPError, SpendNotApproved
+from jev_client.client import JevBadReply, JevClient, JevHTTPError, SpendNotApproved
 from jev_client.cost import RunUsage, estimate_cost_usd
 from jev_client.types import (
     Answer,
@@ -25,6 +25,7 @@ __all__ = [
     "CassetteMiss",
     "ChoiceAnswer",
     "ChoiceQuestion",
+    "JevBadReply",
     "JevClient",
     "JevHTTPError",
     "JevRequest",

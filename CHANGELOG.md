@@ -187,3 +187,10 @@ One entry per PR.
 - `intake/gates/completeness.py`: CMP-001 blocks when rows received differ from the manifest (else the total row). CMP-002 warns when a listed file or sheet is missing and names the tie-out legs that cannot run.
 - Examples 5 and 6 pass at the gate level: the truncated fixture gives CMP-001 expected 2,680, received 2,574; the ssn fixture gives one SSN-001 and none of its 25 values appears in any record. Ground truth rows point at reader rows holding the record key.
 - `config.py` PR 4 section: reader encodings, delimiters, header and total-row settings, `RAW_MAPPING_VERSION`, and the SSN gate settings.
+
+## Jev client review fixes
+
+- #22: a reply is counted toward the $0.50 budget before it is checked, so a billed reply that fails validation (or has a broken usage block, or is not JSON) still counts. In `record`, the raw reply is saved as a cassette before the check and the error names the file, so a retry does not pay again. New `JevBadReply` error (a `ValueError`).
+- #23: a choice answer must pick an offered option and its probabilities may only name offered options. A score must sit between level 0 and the top level, with probabilities keyed only by offered level numbers. Anything else is rejected with `JevBadReply`.
+- #24: `JevHTTPError` text no longer includes the raw body. The key, its first 8 characters, and any `Bearer ...` text become `[redacted]`, and the excerpt is cut at 200 characters.
+- #25: `live` always calls the API and never reads cassettes. Only `replay` and `record` read them. docs/jev.md says so.
