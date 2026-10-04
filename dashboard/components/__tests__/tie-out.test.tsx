@@ -50,4 +50,31 @@ describe("TieOutView", () => {
     expect(screen.getByText("Yes. Every check ran and the money agrees.")).toBeInTheDocument();
     expect(screen.getByText("No differences found.")).toBeInTheDocument();
   });
+
+  it("counts the same differences the table lists, including the rate-table check", async () => {
+    await show("sample-run");
+    const table = within(screen.getByRole("table", { name: "Differences to review" }));
+    const rows = table.getAllByRole("row").slice(1);
+    expect(rows).toHaveLength(4);
+    expect(screen.getByText("Not fully. 4 differences to review.")).toBeInTheDocument();
+    expect(
+      screen.getByText("$85.55 in differences across 3 of 3 checks, plus 1 commission off the rate table or totals ($6.50)."),
+    ).toBeInTheDocument();
+  });
+
+  it("says a status disagreement has no amount instead of paid nothing", async () => {
+    await show("sample-run");
+    const row = within(screen.getByRole("row", { name: /HL-331540/ }));
+    expect(row.getByText("Status only, no amount")).toBeInTheDocument();
+    expect(row.queryByText(/Paid nothing, expected nothing/)).toBeNull();
+    expect(row.queryByText("Even")).toBeNull();
+  });
+
+  it("shows Not reported, never zero, for a count a leg left out", async () => {
+    const dir = path.join(FIXTURES, "sample-run");
+    const tieOut = await loadTieOut(dir);
+    tieOut.legs[0] = { ...tieOut.legs[0], matched: null, variance_dollars: null };
+    render(<TieOutView run={await loadRunDir(dir)} tieOut={tieOut} />);
+    expect(leg("A. Book vs statement").getAllByText("Not reported")).toHaveLength(2);
+  });
 });

@@ -56,4 +56,20 @@ describe("parseRun", () => {
     const bad = files.exceptions.replace('"severity":"INFO"', '"severity":"LOW"');
     expect(() => parseRun({ ...files, exceptions: bad })).toThrow(/exceptions\.jsonl line 1/);
   });
+
+  it.each([
+    ["manifest", '{"run_id": "x', /manifest\.json: not valid JSON/],
+    ["scorecard", "", /scorecard\.json: not valid JSON/],
+    ["rts", "", /rts_coverage\.json: not valid JSON/],
+  ] as const)("names the file when %s is not valid JSON", async (key, text, message) => {
+    const files = await rawFiles("sample-run");
+    expect(() => parseRun({ ...files, [key]: text })).toThrow(message);
+  });
+
+  it("names the line when one exceptions.jsonl line is not valid JSON", async () => {
+    const files = await rawFiles("sample-run");
+    const lines = files.exceptions.split("\n");
+    lines[2] = lines[2].slice(0, 40);
+    expect(() => parseRun({ ...files, exceptions: lines.join("\n") })).toThrow(/exceptions\.jsonl line 3: not valid JSON/);
+  });
 });
