@@ -13,6 +13,16 @@ cd "${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}" || exit 0
 if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
   exit 0
 fi
+# Hooks run in a bare shell that skips nvm, so load it if npm is missing.
+export PATH="$HOME/.local/bin:$PATH"  # uv lives here
+if ! command -v npm >/dev/null 2>&1; then
+  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" >/dev/null 2>&1 && nvm use 24 >/dev/null 2>&1
+fi
+if ! command -v npm >/dev/null 2>&1; then
+  echo "Stop hook: npm not found even after loading nvm. Verify did not run." >&2
+  exit 2
+fi
 out="$(npm run verify --silent 2>&1)"
 code=$?
 if [ "$code" -ne 0 ]; then
