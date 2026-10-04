@@ -15956,6 +15956,52 @@
       "source_file": "crm_export.csv",
       "sheet": null,
       "source_row": 2582
+    },
+    {
+      "source": "agent_roster",
+      "record_key": {
+        "source_file": "agent_roster.xlsx",
+        "sheet": "Agents",
+        "column": "SSN"
+      },
+      "row_ref": null,
+      "defect_type": "ssn_column",
+      "expected_rule_ids": [
+        "SSN-001"
+      ],
+      "scored": true,
+      "injected_values": {
+        "values": [
+          "000-37-3544",
+          "000-84-9108",
+          "000-60-3701",
+          "000-18-2955",
+          "000-77-2888",
+          "000-88-5865",
+          "000-56-3914",
+          "000-89-4325",
+          "000-74-1400",
+          "000-89-6483",
+          "000-41-9544",
+          "000-77-8226",
+          "000-79-9313",
+          "000-54-3297",
+          "000-39-7157",
+          "000-91-4478",
+          "000-19-6767",
+          "000-82-9212",
+          "000-94-5640",
+          "000-49-9452",
+          "000-42-0510",
+          "000-45-9747",
+          "000-78-0925",
+          "000-14-5394",
+          "000-34-7411"
+        ]
+      },
+      "source_file": "agent_roster.xlsx",
+      "sheet": "Agents",
+      "source_row": 1
     }
   ]
 }

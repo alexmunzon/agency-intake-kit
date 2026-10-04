@@ -443,7 +443,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2628
+      "source_row": null
     },
     {
       "source": "clients",
@@ -4483,7 +4483,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2580
+      "source_row": null
     },
     {
       "source": "policies",
@@ -4503,7 +4503,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2586
+      "source_row": null
     },
     {
       "source": "policies",
@@ -4935,7 +4935,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2596
+      "source_row": null
     },
     {
       "source": "policies",
@@ -4953,7 +4953,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2602
+      "source_row": null
     },
     {
       "source": "policies",
@@ -4971,7 +4971,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2631
+      "source_row": null
     },
     {
       "source": "policies",
@@ -5375,7 +5375,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2635
+      "source_row": null
     },
     {
       "source": "commission_lines",
@@ -11503,7 +11503,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2587
+      "source_row": null
     },
     {
       "source": "policies",
@@ -11523,7 +11523,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2615
+      "source_row": null
     },
     {
       "source": "policies",
@@ -13141,7 +13141,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2591
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14185,7 +14185,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2588
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14203,7 +14203,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2610
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14221,7 +14221,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2626
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14780,7 +14780,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2642
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14799,7 +14799,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2643
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14818,7 +14818,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2644
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14837,7 +14837,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2645
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14856,7 +14856,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2646
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14875,7 +14875,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2647
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14894,7 +14894,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2648
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14913,7 +14913,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2649
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14932,7 +14932,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2650
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14951,7 +14951,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2651
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14968,7 +14968,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2652
+      "source_row": null
     },
     {
       "source": "clients",
@@ -14985,7 +14985,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2653
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15002,7 +15002,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2654
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15019,7 +15019,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2655
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15036,7 +15036,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2656
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15053,7 +15053,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2657
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15070,7 +15070,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2658
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15087,7 +15087,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2659
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15104,7 +15104,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2660
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15121,7 +15121,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2661
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15138,7 +15138,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2662
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15155,7 +15155,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2663
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15172,7 +15172,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2664
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15189,7 +15189,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2665
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15206,7 +15206,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2666
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15223,7 +15223,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2667
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15240,7 +15240,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2668
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15257,7 +15257,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2669
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15274,7 +15274,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2670
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15291,7 +15291,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2671
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15308,7 +15308,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2672
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15325,7 +15325,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2673
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15342,7 +15342,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2674
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15359,7 +15359,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2675
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15376,7 +15376,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2676
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15393,7 +15393,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2677
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15410,7 +15410,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2678
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15427,7 +15427,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2679
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15444,7 +15444,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2680
+      "source_row": null
     },
     {
       "source": "clients",
@@ -15461,7 +15461,7 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2681
+      "source_row": null
     },
     {
       "source": "policies",
@@ -15955,7 +15955,26 @@
       },
       "source_file": "crm_export.csv",
       "sheet": null,
-      "source_row": 2582
+      "source_row": null
+    },
+    {
+      "source": "crm_export",
+      "record_key": {
+        "source_file": "crm_export.csv"
+      },
+      "row_ref": null,
+      "defect_type": "truncated_file",
+      "expected_rule_ids": [
+        "CMP-001"
+      ],
+      "scored": true,
+      "injected_values": {
+        "rows_expected": 2680,
+        "rows_received": 2574
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 2575
     }
   ]
 }
