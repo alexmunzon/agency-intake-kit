@@ -70,13 +70,15 @@ Every stage reports problems in this one shape. All fields are required; "may be
 | message, suggested_fix | plain language; suggested_fix may be empty |
 | blocks_load | true exactly when severity is BLOCKER |
 | lane | UNREVIEWED until triage (PR 11) sets it |
+| lineage | the full source row (file, sheet, row, hash, run, mapping version); must match row_number and raw_hash; empty for file-level problems |
 | jev | may be empty; otherwise entry_error_probability (0 to 1), impact_score, pii_probability (0 to 1), each may be empty |
 
 The record refuses to exist when:
 - severity is BLOCKER for anything other than MAP-003, CMP-001, or SSN-001 (or one of those three is not a BLOCKER),
 - `blocks_load` disagrees with severity,
-- `value_minimized` does not have the shape `minimize_value()` produces (a letter or digit after the first two characters, or longer than 32 characters plus `...`), which means a raw value slipped through,
-- `message` or `suggested_fix` contains an SSN-shaped value (`123-45-6789`). Messages must never embed a raw value; rules put the masked value in `value_minimized`.
+- `value_minimized` does not have the shape `minimize_value()` produces (more readable characters than the masking rule keeps, or longer than 32 characters plus `...`), which means a raw value slipped through,
+- a row-level problem has no lineage, or lineage that disagrees with row_number or raw_hash (or a file-level problem carries lineage),
+- `message` or `suggested_fix` contains a dashed or spaced SSN (`123-45-6789`, `123 45 6789`). Bare 9-digit numbers are allowed, because NPNs can be 9 digits. Messages must never embed a raw value; rules put the masked value in `value_minimized`.
 
 **Masking.** `minimize_value()` keeps up to two leading characters (never more than a third of the value) and all punctuation, turns every other letter or digit into `*`, and cuts anything longer than 32 characters with `...`. So `1958-03-12` becomes `19**-**-**` and `HL-998213` becomes `HL-******`, `TX` becomes `**`, and an empty value becomes `None`.
 

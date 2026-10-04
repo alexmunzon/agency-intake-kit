@@ -18,7 +18,7 @@ def lineage_kwargs() -> dict[str, Any]:
 
 
 @pytest.fixture
-def exception_kwargs() -> dict[str, Any]:
+def exception_kwargs(lineage_kwargs: dict[str, Any]) -> dict[str, Any]:
     return {
         "id": "EX-000001",
         "rule_id": "DOB-001",
@@ -34,4 +34,5 @@ def exception_kwargs() -> dict[str, Any]:
         "blocks_load": False,
         "lane": "UNREVIEWED",
         "jev": None,
+        "lineage": lineage_kwargs,
     }

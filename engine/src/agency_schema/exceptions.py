@@ -6,7 +6,7 @@ from typing import Annotated, Self
 from pydantic import Field, StrictBool, model_validator
 
 from agency_schema.enums import Family, Lane, Severity
-from agency_schema.lineage import NonEmpty, OptionalText, RowNumber, Sha256, StrictModel
+from agency_schema.lineage import Lineage, NonEmpty, OptionalText, RowNumber, Sha256, StrictModel
 
 # The only rules allowed to stop a run. Fixed by the spec, not tunable.
 BLOCKER_RULE_IDS = frozenset({"MAP-003", "CMP-001", "SSN-001"})
@@ -36,13 +36,17 @@ def minimize_value(value: str | None) -> str | None:
 
 def _looks_minimized(value: str) -> bool:
     """True when value has the shape minimize_value produces."""
-    body = value.removesuffix("...")
+    truncated = value.endswith("...") and len(value) == MASK_MAX_CHARS + 3
+    body = value[:MASK_MAX_CHARS] if truncated else value
     if len(body) > MASK_MAX_CHARS:
         return False
-    return not any(ch.isalnum() for ch in body[MASK_KEEP_CHARS:])
+    keep = MASK_KEEP_CHARS if truncated else min(MASK_KEEP_CHARS, len(body) // 3)
+    return not any(ch.isalnum() for ch in body[keep:])
 
 
-SSN_PATTERN = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
+# Dashed or spaced SSNs. Bare 9-digit runs are allowed: NPNs can be 9 digits and appear
+# in messages such as NPN-002's. SSN-001 refuses SSN columns before any rule runs.
+SSN_PATTERN = re.compile(r"\b\d{3}[- ]\d{2}[- ]\d{4}\b")
 
 
 def check_rule_identity(rule_id: str, family: Family, severity: Severity, blocks: bool) -> None:
@@ -80,12 +84,21 @@ class ExceptionRecord(StrictModel):
     blocks_load: StrictBool
     lane: Lane
     jev: JevScores | None
+    lineage: Lineage | None  # the source row; None for file-level problems such as CMP-001
 
     @model_validator(mode="after")
     def _consistent(self) -> Self:
         check_rule_identity(self.rule_id, self.family, self.severity, self.blocks_load)
         if self.value_minimized is not None and not _looks_minimized(self.value_minimized):
             raise ValueError("value_minimized looks raw; pass the value through minimize_value")
+        if self.row_number is None:
+            if self.lineage is not None or self.raw_hash is not None:
+                raise ValueError("file-level problems carry no lineage or raw_hash")
+        elif self.lineage is None or (self.lineage.row_number, self.lineage.raw_hash) != (
+            self.row_number,
+            self.raw_hash,
+        ):
+            raise ValueError("row-level problems need lineage matching row_number and raw_hash")
         for text in (self.message, self.suggested_fix):
             if text is not None and SSN_PATTERN.search(text):
                 raise ValueError("message or suggested_fix contains an SSN-shaped value")

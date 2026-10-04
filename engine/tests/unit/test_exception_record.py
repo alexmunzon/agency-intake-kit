@@ -49,7 +49,7 @@ def test_record_refuses_a_raw_value(exception_kwargs: dict[str, Any]) -> None:
         ExceptionRecord(**exception_kwargs)
 
 
-@pytest.mark.parametrize("raw", ["Smith", "1 9 5 8", "x" * 500, "ab*c"])
+@pytest.mark.parametrize("raw", ["Smith", "1 9 5 8", "x" * 500, "ab*c", "TX", "12", "1E*"])
 def test_record_refuses_anything_minimize_value_would_not_produce(
     exception_kwargs: dict[str, Any], raw: str
 ) -> None:
@@ -58,11 +58,30 @@ def test_record_refuses_anything_minimize_value_would_not_produce(
         ExceptionRecord(**exception_kwargs)
 
 
+@pytest.mark.parametrize("ssn", ["123-45-6789", "123 45 6789"])
 @pytest.mark.parametrize("field", ["message", "suggested_fix"])
-def test_record_refuses_an_ssn_in_text(exception_kwargs: dict[str, Any], field: str) -> None:
-    exception_kwargs[field] = "SSN 123-45-6789 found"
+def test_record_refuses_an_ssn_in_text(
+    exception_kwargs: dict[str, Any], field: str, ssn: str
+) -> None:
+    exception_kwargs[field] = f"SSN {ssn} found"
     with pytest.raises(ValidationError, match="SSN"):
         ExceptionRecord(**exception_kwargs)
+
+
+def test_record_allows_a_nine_digit_npn_in_text(exception_kwargs: dict[str, Any]) -> None:
+    # NPN-002's message names the NPN, and NPNs can be 9 digits long.
+    exception_kwargs["message"] = "NPN 188441234 unknown"
+    assert ExceptionRecord(**exception_kwargs).message == "NPN 188441234 unknown"
+
+
+@pytest.mark.parametrize(
+    "raw", ["TX", "7", "12345", "1958-03-12", "1EG4TE5MK73", "HL-998213", "z" * 500]
+)
+def test_record_accepts_every_minimize_value_output(
+    exception_kwargs: dict[str, Any], raw: str
+) -> None:
+    exception_kwargs["value_minimized"] = minimize_value(raw)
+    assert ExceptionRecord(**exception_kwargs).value_minimized == minimize_value(raw)
 
 
 def test_record_blocks_load_must_be_a_real_bool(exception_kwargs: dict[str, Any]) -> None:
@@ -117,8 +136,27 @@ def test_file_level_blocker_has_no_row(exception_kwargs: dict[str, Any]) -> None
         raw_hash=None,
         field=None,
         value_minimized=None,
+        lineage=None,
     )
     assert ExceptionRecord(**exception_kwargs).row_number is None
+
+
+def test_row_level_record_needs_lineage(exception_kwargs: dict[str, Any]) -> None:
+    exception_kwargs["lineage"] = None
+    with pytest.raises(ValidationError, match="lineage"):
+        ExceptionRecord(**exception_kwargs)
+
+
+def test_record_lineage_must_match_its_row(exception_kwargs: dict[str, Any]) -> None:
+    exception_kwargs["lineage"] = {**exception_kwargs["lineage"], "row_number": 3}
+    with pytest.raises(ValidationError, match="lineage"):
+        ExceptionRecord(**exception_kwargs)
+
+
+def test_file_level_record_has_no_lineage(exception_kwargs: dict[str, Any]) -> None:
+    exception_kwargs.update(row_number=None, raw_hash=None)
+    with pytest.raises(ValidationError, match="lineage"):
+        ExceptionRecord(**exception_kwargs)
 
 
 def test_jev_scores_are_probabilities(exception_kwargs: dict[str, Any]) -> None:
