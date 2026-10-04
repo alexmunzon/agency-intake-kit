@@ -118,6 +118,14 @@ One entry per PR.
 - `lib/tie-out.ts` reads `tie_out/*.json` and refuses money written as a number. `lib/agents.ts` shapes `rts_coverage.json` into the matrix.
 - The Tie-out and Agents nav items are now links, using the `NavLink` component from PR 14. A test checks that only the page you are on is marked current.
 
+## Screenshots and design notes (2026-10-04)
+
+- `npm run shots` now captures all five pages at 1440 by 900 in light mode, plus the Overview at 375 wide and in dark mode, into `docs/screenshots/` with stable names: `overview-1440.png`, `overview-375.png`, `overview-dark.png`, `sources-1440.png`, `exceptions-1440.png`, `tie-out-1440.png`, `agents-1440.png`.
+- Animations are off and reduced motion is on, so two runs write byte-identical images from the frozen demo run.
+- The shots run also checks that the Overview fits one 1440 by 900 screen and that no page scrolls sideways at 1440 or 375.
+- New `docs/design.md`: the tokens, severity colors and their meanings, type scale, layout, the one question each page answers, and how to regenerate the screenshots.
+- No page code changed. The screenshots showed no visual bugs.
+
 ## Dashboard review fixes (2026-10-04)
 
 - #11: The Tie-out answer and the Overview tile now count the same differences the table lists. Checks that belong to no leg (TIE-003 rate table, TIE-005 totals) are named separately: "Not fully. 4 differences to review." and "$85.55 in differences across 3 of 3 checks, plus 1 commission off the rate table or totals ($6.50)." A status disagreement (TIE-004) shows "Status only, no amount" instead of "Even" and "Paid nothing, expected nothing".
