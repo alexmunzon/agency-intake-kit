@@ -133,3 +133,13 @@ One entry per PR.
 - ADR 0005 records a known gap: `jev_client` imports its constants from `intake/config.py`, so they must move before the package is extracted.
 - README.md rewritten as a two-minute read for a non-engineer: what it is, who it is for, the five dashboard questions, what is synthetic and why, the data trust rules, how to run it, and a status list that names every PR not shipped yet. It publishes no detection rates or benchmark numbers, because the pipeline that measures them is not built. After merging main, the README embeds the four 1440-wide screenshots from `docs/screenshots/`.
 - Still open for the rest of PR 18: the GIF, results tables, architecture diagram, link checker, v1.0.0 release.
+
+## PR 8: Row validators (2026-10-04)
+
+- `intake/rules/`: the 22 row rules from guide section 6, registered with `@rule`: DOB-001 to 003, MBI-001 to 003, NPN-001 and 002, PLN-001 to 004, ADR-001 to 003, CON-001 and 002, DAT-001 to 004, STA-001. Each rule is pure, never calls Jev, and builds its ExceptionRecord in one place (`frames.hit`), which passes every shown value through `minimize_value`. Messages carry minimized values only; policy ids and two-letter state codes appear as is.
+- Rules read one of two frames (`frames.py`): the client frame, and the policy frame, which carries the client's DOB, MBI, and row lineage plus whether the writing agent is in the roster. The run date (`as_of`) is a column, so rules never read the clock.
+- On the 3a defected copy every planted DOB, MBI, NPN, PLN, ADR, CON, DAT, and STA defect is detected on its exact row, with no extra hits except MBI-003 (one per Medicare policy of the client, as 3a planned). On the PR 2 clean world nothing above info fires.
+- Choices: blank values are left to the completeness rules; a malformed NPN raises NPN-001 only, not NPN-002 too; DAT-001 also covers an unparseable termination date; MBI-002 and MBI-003 point at the client row, where the MBI lives; STA-001 accepts the five status words in any case and spacing.
+- `uv run intake rules --md` prints the Markdown catalog; `docs/rules.md` is generated from it, and a test fails if the committed file drifts.
+- `intake/rules/_canonical_io.py` is a temporary test loader for canonical CSVs, replaced by PR 4's readers.
+- Thresholds in the `# PR 8` section of `config.py`: DOB_MIN_AGE, DOB_MAX_AGE, MEDICARE_AGE.
