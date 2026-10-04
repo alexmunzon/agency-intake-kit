@@ -220,7 +220,7 @@ def test_refuses_empty_world(n_clients: int) -> None:
 
 def test_cli_generate(tmp_path: Path) -> None:
     result = CliRunner().invoke(
-        app, ["generate", "--seed", "3", "--clients", "60", "--out", str(tmp_path)]
+        app, ["generate", "--seed", "3", "--clients", "60", "--no-inject", "--out", str(tmp_path)]
     )
     assert result.exit_code == 0, result.output
     assert (tmp_path / "canonical" / "policies.csv").exists()
