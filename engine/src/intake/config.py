@@ -32,6 +32,14 @@ DOB_MAX_AGE: Final[int] = 115  # DOB-002: older than this is usually a century e
 MEDICARE_AGE: Final[int] = 65  # DOB-003: under this, Medicare needs DISABILITY or ESRD
 
 # PR 9: cross-record checks (duplicates, references, RTS, licenses)
+# Plan year is the policy's effective year. When True, a December effective date counts toward
+# the next plan year (an AEP sale keyed early). The synthetic world keys plan year to the
+# effective year, so this stays False.
+PLAN_YEAR_DECEMBER_ROLLS_FORWARD: Final[bool] = False
+LIST_SEPARATOR: Final[str] = "|"  # how canonical CSVs join list fields such as license_states
+RTS_TRUE_VALUES: Final[frozenset[str]] = frozenset(
+    {"true", "yes", "y", "1"}
+)  # appointed, certified
 
 # PR 10: three-way tie-out (tolerances: $1 or 1 percent per line, 0.5 percent on totals)
 

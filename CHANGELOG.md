@@ -144,10 +144,18 @@ One entry per PR.
 - `intake/rules/_canonical_io.py` is a temporary test loader for canonical CSVs, replaced by PR 4's readers.
 - Thresholds in the `# PR 8` section of `config.py`: DOB_MIN_AGE, DOB_MAX_AGE, MEDICARE_AGE.
 
+## PR 9: Cross-record checks and RTS coverage (2026-10-04)
+
+- `intake/checks/`: seven rules, none of them blockers. `duplicates.py` has DUP-001 (exact duplicate row, by raw_hash, on every table), DUP-002 (same normalized name and DOB on two or more client ids, with the group id in the message), and DUP-003 (a policy id repeated with different content). `references.py` has REF-001 (policy points at a missing client). `rts.py` has RTS-001 (no ready-to-sell row) and RTS-002 (the row exists but ended before the policy took effect). `licenses.py` has LIC-001 (policy state not in the agent's licenses).
+- RTS joins on agent, carrier, state (the client's address state when the policy has none), plan year (the effective year), and line of business, all trimmed and case-normalized. An ended RTS row gives RTS-002, never RTS-001. Agents missing from the roster are left to NPN-001 and NPN-002, so RTS and LIC skip them.
+- `rts.build_rts_coverage` writes one cell per agent, carrier, state, and plan year: held and used, held but unused, or used without RTS (listing its RTS-001 ids).
+- `_canonical_io.py` is a small canonical CSV loader for tests until PR 4's readers replace it.
+- Against `fixtures/agency-a`, every planted DUP, REF, RTS, and LIC defect is found, and the clean seed-42 world gives no exceptions. Example 3 fires RTS-001 on P-00417.
+
 ## PR 11: exceptions policy, triage, PII gate (2026-10-04)
 
 - `intake/exceptions/policy.py`: the run status (any of the three blockers MAP-003, CMP-001, SSN-001 means FAILED; any error or warning means PASSED_WITH_WARNINGS; otherwise PASSED), the rows errors keep out of `clean/`, catalog suggested fixes for stages that left one blank, and the lanes triage does not decide (blockers to REVIEW, info stays UNREVIEWED).
 - `intake/exceptions/triage.py`: Jev question 3 for every error and warning. The state is the rule, field, value shape, and a few neighbor fields per family (in `config.py`), never raw values or notes. 0.80 or more goes to SUGGESTED_FIX, 0.20 or less to BUSINESS_EVENT, in between to REVIEW, and no answer (off mode or the spend guard) to UNREVIEWED. Identical requests are sent once, keyed by the public request hash. `queue_order` sorts the fix-first queue deterministically.
 - `intake/exceptions/pii.py`: the PII gate. A regex pre-filter picks notes worth a look, SSN-shaped text and 9 to 11 digit numbers are redacted with no call, other flagged text goes to Jev with digits masked, and 0.50 or more redacts to `[redacted]` and raises PII-001. With no answer the gate redacts (fails closed). PII-001 joins the rule catalog and `docs/rules.md`.
-- Expected Jev calls for fixtures/agency-a today: 68 triage calls for 239 row-rule exceptions, 0 PII calls. Asserted in tests and explained in `docs/jev.md`.
+- Expected Jev calls for fixtures/agency-a today: 105 triage calls for 354 row-rule and cross-record exceptions (354 calls without deduplication), 0 PII calls. Asserted in tests and explained in `docs/jev.md`.
 - Hand-made, clearly synthetic cassettes in `engine/tests/cassettes/synthetic/` (3 files). The pipeline never reads that folder. No Jev spend: every test uses replay or httpx.MockTransport.

@@ -130,17 +130,18 @@ closed. Identical texts are asked once.
 
 | Part | Exceptions | Calls |
 |---|---|---|
-| Triage, row rules (PR 8) on the defected canonical copy | 239 errors and warnings | **68** |
-| PII gate (agency-a has no notes text) | 0 | **0** |
-| Total today | | **68** |
+| Triage, row rules (PR 8) | 239 errors and warnings | 68 |
+| Triage, cross-record checks (PR 9) | 115 errors and warnings | 37 |
+| PII gate (agency-a has no notes text) | 0 | 0 |
+| **Total today** | **354** | **105** |
 
-The 68 come from grouping: 56 missing MBIs (MBI-003) on Medicare policies share one shape and
-neighbor set, so they cost 1 call; 52 unknown statuses (STA-001) cost 11; 20 ZIP and state
-mismatches (ADR-002) cost 14, one per state. Without deduplication the same run would make 239
-calls. Cross-record and tie-out exceptions (PR 9 and PR 10) add at most 410 more, one per
-planted defect in ground_truth.json, and far fewer after grouping. PR 12 runs the real pipeline
-on the source files, which may shape values differently, so it replaces this number with the
-exact count it asserts and records.
+Measured on the PR 3a defected canonical copy. The savings come from grouping: 56 missing MBIs
+(MBI-003) on Medicare policies share one shape and neighbor set, so they cost 1 call; 52 unknown
+statuses (STA-001) cost 11; 26 exact duplicate rows (DUP-001) cost 4. Without deduplication the
+same run would make 354 calls. Tie-out exceptions (PR 10) add at most 305 more, one per planted
+TIE defect in ground_truth.json, and far fewer after grouping. PR 12 runs the real pipeline on
+the source files, which may shape values differently, so it replaces this number with the exact
+count it asserts and records.
 
 **Test cassettes.** `engine/tests/cassettes/synthetic/` holds hand-made answers for the triage and
 PII shapes (model `synthetic-hand-made`). They are not recordings. They sit in a subfolder so the

@@ -70,17 +70,21 @@ def attach_rows(
     records: Iterable[ExceptionRecord], frames: Iterable[pl.DataFrame]
 ) -> list[TriageItem]:
     """Pair each record with the frame row its lineage points to (frames carry `lineage`)."""
-    rows = {
-        (row["lineage"]["source_file"], row["lineage"]["row_number"]): row
-        for frame in frames
-        for row in frame.iter_rows(named=True)
-    }
+    rows = {_where(row): row for frame in frames for row in frame.iter_rows(named=True)}
     return [
         TriageItem(
             r, rows.get((r.lineage.source_file, r.lineage.row_number)) if r.lineage else None
         )
         for r in records
     ]
+
+
+def _where(row: Mapping[str, Any]) -> tuple[str, int]:
+    # A `lineage` struct (PR 8 frames) or flat _file and _row columns (PR 9's loader, until
+    # PR 4's readers give every frame one shape).
+    if "lineage" in row:
+        return row["lineage"]["source_file"], row["lineage"]["row_number"]
+    return row["_file"], row["_row"]
 
 
 def value_shape(value: Any) -> str | None:

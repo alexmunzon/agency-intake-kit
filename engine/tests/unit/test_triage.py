@@ -28,10 +28,10 @@ from jev_client import CassetteMiss, JevClient, request_hash
 
 SYNTHETIC = Path(__file__).resolve().parents[1] / "cassettes" / "synthetic"
 FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "agency-a"
-# Row-rule exceptions on the agency-a defected copy: 239 errors and warnings, 68 distinct
-# requests. Stated in docs/jev.md; PR 12 adds the cross-record and tie-out exceptions.
-AGENCY_A_TRIAGE_EXCEPTIONS = 239
-AGENCY_A_TRIAGE_CALLS = 68
+# Row rules (PR 8) and cross-record checks (PR 9) on the agency-a defected copy: 354 errors
+# and warnings, 105 distinct requests. Stated in docs/jev.md; PR 12 adds the tie-out ones.
+AGENCY_A_TRIAGE_EXCEPTIONS = 354
+AGENCY_A_TRIAGE_CALLS = 105
 
 
 def item(base: dict[str, Any], rule_id: str, field: str, row: dict[str, Any]) -> TriageItem:
@@ -178,16 +178,19 @@ def test_queue_order_is_deterministic(tmp_path: Path, exception_kwargs: dict[str
 
 
 def test_agency_a_expected_call_count(tmp_path: Path) -> None:
+    from intake.checks import run_cross_record_checks
+    from intake.checks._canonical_io import load_canonical as load_flat
     from intake.rules import run_row_rules
     from intake.rules._canonical_io import load_canonical
     from intake.rules.frames import client_frame, policy_frame
     from synth_agency_data.world import AS_OF
 
-    tables = load_canonical(FIXTURE / "canonical-defected")
+    folder = FIXTURE / "canonical-defected"
+    tables, flat = load_canonical(folder), load_flat(folder)
     clients = client_frame(tables["clients"], AS_OF)
     policies = policy_frame(tables["policies"], clients, tables["agents"], AS_OF)
-    records = run_row_rules(clients, policies)
-    items = attach_rows(records, [clients, policies])
+    items = attach_rows(run_row_rules(clients, policies), [clients, policies])
+    items += attach_rows(run_cross_record_checks(flat).records, flat.values())
     triaged = [i for i in items if i.record.severity in (Severity.ERROR, Severity.WARNING)]
     assert all(i.row is not None for i in triaged)
     sent: list[Any] = []
