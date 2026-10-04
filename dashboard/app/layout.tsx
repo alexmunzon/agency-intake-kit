@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NavLink } from "@/components/nav-link";
-
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-sans", subsets: ["latin"] });
@@ -15,8 +14,8 @@ export const metadata: Metadata = {
 // Pages arrive one PR at a time. Unbuilt pages show as disabled items, not broken links.
 const PAGES: { label: string; href?: string }[] = [
   { label: "Overview", href: "/" },
-  { label: "Sources" },
-  { label: "Exceptions" },
+  { label: "Sources", href: "/sources" },
+  { label: "Exceptions", href: "/exceptions" },
   { label: "Tie-out", href: "/tie-out" },
   { label: "Agents", href: "/agents" },
 ];
