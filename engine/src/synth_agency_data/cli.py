@@ -7,6 +7,7 @@ import typer
 
 from synth_agency_data import __version__
 from synth_agency_data.canonical_writer import write_world
+from synth_agency_data.injectors import Defect, inject
 from synth_agency_data.world import build_world
 
 app = typer.Typer(help="Synthetic agency data generator.", no_args_is_help=True)
@@ -30,9 +31,25 @@ def generate(
         int, typer.Option(help="Random seed. The same seed gives identical files.")
     ] = 42,
     clients: Annotated[int, typer.Option(help="Number of clients.")] = 2000,
+    inject_defects: Annotated[
+        bool,
+        typer.Option(
+            "--inject/--no-inject",
+            help="Plant SPEC examples 3 and 4 and inject labeled defects (needs seed 42). "
+            "--no-inject writes the clean world to canonical/ instead.",
+        ),
+    ] = True,
 ) -> None:
-    """Write the clean world as canonical CSVs plus an empty ground_truth.json."""
+    """Write canonical CSVs plus ground_truth.json, defected by default."""
     world = build_world(seed=seed, n_clients=clients)
-    write_world(world, out)
+    defects: list[Defect] = []
+    folder = "canonical"
+    if inject_defects:
+        try:
+            world, defects = inject(world)
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+        folder = "canonical-defected"
+    write_world(world, out, defects, folder)
     counts = ", ".join(f"{len(rows)} {name}" for name, rows in world.tables.items())
-    typer.echo(f"Wrote {out / 'canonical'}: {counts}")
+    typer.echo(f"Wrote {out / folder}: {counts}, {len(defects)} defects")
