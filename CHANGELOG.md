@@ -171,6 +171,10 @@ One entry per PR.
 - SPEC and CLAUDE.md: the CRM export has 2,680 rows, not 2,600: 2,600 policies, 34 planted duplicate rows, and 46 clients with no policy (40 re-keyed copies plus 6 whose only policy was orphaned), each on a row with the policy columns blank. Example 5 now reads 2,574 of 2,680.
 - New `docs/synthetic-data.md`: every injector, rate, scored flag, file quirk, and fixture.
 
+## README: why this exists, status refresh (2026-10-04)
+
+- New "Why this exists" section written for the recruiting reader: who built it, what it demonstrates, and how AI coding agents were used under the spec. Status lists updated for PRs 8, 9, 10.
+
 ## Jev client review fixes
 
 - #22: a reply is counted toward the $0.50 budget before it is checked, so a billed reply that fails validation (or has a broken usage block, or is not JSON) still counts. In `record`, the raw reply is saved as a cassette before the check and the error names the file, so a retry does not pay again. New `JevBadReply` error (a `ValueError`).
