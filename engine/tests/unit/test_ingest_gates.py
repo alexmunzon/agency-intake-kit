@@ -1,0 +1,114 @@
+"""PR 4 ingest and raw gates: SPEC examples 5 and 6 at the gate level, CMP-002, ground truth."""
+
+import json
+import shutil
+from pathlib import Path
+
+import openpyxl
+import pytest
+
+from agency_schema.enums import Severity
+from intake.gates import run_raw_gates
+from intake.gates.completeness import check_completeness
+from intake.ingest import IngestResult, ingest
+
+FIXTURES = Path(__file__).parents[3] / "fixtures"
+
+
+def run(name: str) -> IngestResult:
+    return ingest(FIXTURES / name / "drop", run_id="test-run")
+
+
+@pytest.fixture(scope="module")
+def agency_a() -> IngestResult:
+    return run("agency-a")
+
+
+def test_agency_a_reads_every_manifest_entry_and_passes_the_gates(agency_a: IngestResult) -> None:
+    assert len(agency_a.tables) == 10 and agency_a.missing == ()
+    assert all(t.rows == t.expected_rows for t in agency_a.tables)
+    assert run_raw_gates(agency_a) == []
+    rules = sorted(r.rule_id for r in agency_a.exceptions)
+    assert rules == ["ING-001"] + ["ING-002"] * 6 + ["ING-003"] * 6
+    assert not any(r.blocks_load for r in agency_a.exceptions)
+
+
+def test_example_5_truncated_crm_fires_cmp_001_as_a_blocker() -> None:
+    records = run_raw_gates(run("agency-a-truncated"))
+    assert [r.rule_id for r in records] == ["CMP-001"]
+    (record,) = records
+    assert record.blocks_load and record.severity == Severity.BLOCKER
+    assert record.source == "crm" and record.row_number is None and record.lineage is None
+    assert "expected 2680 rows, received 2574" in record.message
+
+
+def test_example_6_ssn_column_blocks_and_no_value_is_echoed() -> None:
+    result = run("agency-a-ssn")
+    records = run_raw_gates(result)
+    assert [r.rule_id for r in records] == ["SSN-001"]
+    (record,) = records
+    assert record.blocks_load and record.source == "roster" and record.lineage is None
+    assert '"SSN"' in record.message and "Agents" in record.message
+    truth = json.loads((FIXTURES / "agency-a-ssn" / "ground_truth.json").read_text())
+    (defect,) = [d for d in truth["defects"] if d["defect_type"] == "ssn_column"]
+    values = defect["injected_values"]["values"]
+    assert len(values) == 25
+    text = json.dumps([r.model_dump(mode="json") for r in records + result.exceptions])
+    assert not any(v in text or v.replace("-", "") in text for v in values)
+
+
+def test_missing_source_fires_cmp_002_warning_with_not_run_legs(tmp_path: Path) -> None:
+    drop = tmp_path / "drop"
+    shutil.copytree(FIXTURES / "agency-a" / "drop", drop)
+    (drop / "commissions_bluepeak.xlsx").unlink()
+    (drop / "enrollment_export.csv").unlink()
+    records = run_raw_gates(ingest(drop, run_id="r"))
+    assert [(r.rule_id, r.source, r.severity) for r in records] == [
+        ("CMP-002", "enrollment", Severity.WARNING),
+        ("CMP-002", "statement_bluepeak", Severity.WARNING),
+    ]
+    assert records[0].suggested_fix == "Tie-out legs marked NOT_RUN: none"
+    assert "BOOK_VS_STATEMENT" in (records[1].suggested_fix or "")
+    assert not any(r.blocks_load for r in records)
+
+
+def test_without_manifest_the_total_row_is_the_expected_count(tmp_path: Path) -> None:
+    book = openpyxl.Workbook()
+    for row in (["Acme Statement"], ["Line", "Member", "Amount"], ["1", "M-1", "2.00"]):
+        book.active.append(row)
+    book.active.append(["Total", "2", "2.00"])  # says 2 lines, only 1 arrived
+    book.save(tmp_path / "commissions_acme.xlsx")
+    result = ingest(tmp_path, run_id="r")
+    assert not result.has_manifest and result.tables[0].expected_rows is None
+    (record,) = check_completeness(result)
+    assert record.rule_id == "CMP-001" and "expected 2 rows, received 1" in record.message
+
+
+@pytest.mark.parametrize(
+    "source_file",
+    [
+        "crm_export.csv",
+        "commissions_bluepeak.xlsx",
+        "commissions_cardinal_mutual.xlsx",
+        "commissions_harborline.xlsx",
+        "commissions_meridian_care.xlsx",
+        "commissions_northwind_health.xlsx",
+        "commissions_summit_health_plans.xlsx",
+    ],
+)
+def test_ground_truth_rows_point_at_rows_holding_the_record_key(
+    agency_a: IngestResult, source_file: str
+) -> None:
+    truth = json.loads((FIXTURES / "agency-a" / "ground_truth.json").read_text())
+    defects = [d for d in truth["defects"] if d["source_file"] == source_file]
+    sample = defects[:: max(1, len(defects) // 50)]
+    assert len(sample) >= min(50, len(defects)) > 0
+    by_sheet = {t.sheet: t for t in agency_a.tables if t.source_file == source_file}
+    for defect in sample:
+        frame = by_sheet[defect["sheet"]].frame
+        row = frame.filter(frame["lineage"].struct.field("row_number") == defect["source_row"])
+        assert row.height == 1, defect
+        cells = {v for v in row.drop("lineage").row(0) if v is not None}
+        key = defect["record_key"]
+        wanted = [str(key[k]) for k in key if k != "carrier"]
+        assert set(wanted) <= cells, (defect, cells)

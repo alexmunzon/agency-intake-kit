@@ -6,9 +6,10 @@ from typing import Annotated
 import typer
 
 from synth_agency_data import __version__
-from synth_agency_data.canonical_writer import write_world
+from synth_agency_data.canonical_writer import write_ground_truth, write_tables
 from synth_agency_data.injectors import Defect, inject
 from synth_agency_data.world import build_world
+from synth_agency_data.writers import write_drop
 
 app = typer.Typer(help="Synthetic agency data generator.", no_args_is_help=True)
 
@@ -39,8 +40,18 @@ def generate(
             "--no-inject writes the clean world to canonical/ instead.",
         ),
     ] = True,
+    truncate_crm: Annotated[
+        int | None,
+        typer.Option(help="Keep only this many CRM data rows (SPEC example 5 uses 2574)."),
+    ] = None,
+    add_ssn_column: Annotated[
+        bool, typer.Option(help="Add a fake SSN column to the roster (SPEC example 6).")
+    ] = False,
+    canonical: Annotated[
+        bool, typer.Option("--canonical/--no-canonical", help="Also write the canonical CSVs.")
+    ] = True,
 ) -> None:
-    """Write canonical CSVs plus ground_truth.json, defected by default."""
+    """Write drop/ (the four source shapes), canonical CSVs, and ground_truth.json."""
     world = build_world(seed=seed, n_clients=clients)
     defects: list[Defect] = []
     folder = "canonical"
@@ -50,6 +61,11 @@ def generate(
         except ValueError as error:
             raise typer.BadParameter(str(error)) from error
         folder = "canonical-defected"
-    write_world(world, out, defects, folder)
+    defects = write_drop(
+        world, defects, out / "drop", truncate_crm, add_ssn_column, plant_pii=inject_defects
+    )
+    if canonical:
+        write_tables(world, out / folder)
+    write_ground_truth(world, out, defects)
     counts = ", ".join(f"{len(rows)} {name}" for name, rows in world.tables.items())
-    typer.echo(f"Wrote {out / folder}: {counts}, {len(defects)} defects")
+    typer.echo(f"Wrote {out}: {counts}, {len(defects)} defects")

@@ -45,3 +45,18 @@ def schema(
         typer.echo(f"wrote {out}")
     else:
         typer.echo(json.dumps(json_schema("serialization"), indent=2))
+
+
+@app.command()
+def rules(
+    md: Annotated[bool, typer.Option("--md", help="Print docs/rules.md as Markdown.")] = False,
+) -> None:
+    """List the registered rules, or print the Markdown catalog with --md."""
+    from agency_schema.registry import catalog
+    from intake.rules.docs import render_rules_md
+
+    if md:
+        typer.echo(render_rules_md(), nl=False)
+        return
+    for m in catalog():
+        typer.echo(f"{m.rule_id}  {m.severity:<8}  {m.description}")

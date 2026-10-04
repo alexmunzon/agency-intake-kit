@@ -361,6 +361,14 @@ def test_cli_same_seed_is_byte_identical_and_matches_the_fixture(tmp_path: Path)
     assert sorted(_digest(tmp_path / "a")) == [
         f"canonical-defected/{t}.csv"
         for t in sorted(("agents", "clients", "commission_lines", "households", "policies", "rts"))
+    ] + [
+        f"drop/{f}"
+        for f in sorted(
+            ["agent_roster.xlsx", "crm_export.csv", "enrollment_export.csv", "manifest.json"]
+            + [f"commissions_{c}.xlsx" for c in ("bluepeak", "cardinal_mutual", "harborline")]
+            + [f"commissions_{c}.xlsx" for c in ("meridian_care", "northwind_health")]
+            + ["commissions_summit_health_plans.xlsx"]
+        )
     ] + ["ground_truth.json"]
     committed = {k: v for k, v in _digest(FIXTURE).items() if k in _digest(tmp_path / "a")}
     assert committed == _digest(tmp_path / "a"), "regenerate fixtures/agency-a (see CHANGELOG)"
