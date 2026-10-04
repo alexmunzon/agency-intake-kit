@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Link from "next/link";
+import { NavLink } from "@/components/nav-link";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-sans", subsets: ["latin"] });
@@ -14,8 +14,8 @@ export const metadata: Metadata = {
 // Pages arrive one PR at a time. Unbuilt pages show as disabled items, not broken links.
 const PAGES: { label: string; href?: string }[] = [
   { label: "Overview", href: "/" },
-  { label: "Sources" },
-  { label: "Exceptions" },
+  { label: "Sources", href: "/sources" },
+  { label: "Exceptions", href: "/exceptions" },
   { label: "Tie-out" },
   { label: "Agents" },
 ];
@@ -30,9 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             {PAGES.map(({ label, href }) => (
               <li key={label} className="shrink-0">
                 {href ? (
-                  <Link href={href} aria-current="page" className="block rounded-md bg-indigo-50 px-3 py-1.5 font-medium text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-600 dark:bg-indigo-950 dark:text-indigo-300">
-                    {label}
-                  </Link>
+                  <NavLink href={href} label={label} />
                 ) : (
                   <span aria-disabled="true" className="block px-3 py-1.5 text-slate-600 dark:text-slate-400">
                     {label} <span className="text-xs">(soon)</span>

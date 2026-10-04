@@ -98,3 +98,12 @@ One entry per PR.
 - Committed `fixtures/agency-a/canonical-defected/` and `fixtures/agency-a/ground_truth.json` (793 defects, about 1.7 MB). A test regenerates them and fails if the bytes drift.
 - PII in notes is left to PR 3b, which writes the CRM `Notes` column.
 - Size: about 1,350 changed lines against a plan of 340, not counting fixture data. Shipped as one PR on the orchestrator's instruction.
+
+## PR 14: Dashboard Sources and Exceptions (2026-10-04)
+
+- Sources page answers "What did we receive, and did it read cleanly?" with one card per file: rows expected versus received, encoding, delimiter, header row, the reading and mapping checks that fired (ING, MAP, CMP, SSN rules), and a status (read cleanly, read with warnings, rows missing, or blocked the run). On the failed sample the CRM card shows 2,600 expected and 2,574 received.
+- The run files do not record encoding, delimiter, or header row directly, so the page reads them from the ING rules: no ING-001 means UTF-8, no ING-002 means the header was on row 1, and spreadsheets need no delimiter.
+- Exceptions page: a TanStack table (v9) with blockers first, then errors, warnings, and info; filters for severity, rule, and source that only offer values present in the run; counts by severity; a sticky header and a sticky first column for phones.
+- Lineage drawer: select a row (click, Enter, or Space) to see the message, suggested fix, source file, sheet, row number, raw row hash, masked value, whether it blocks the load, and Jev scores as bars with the percent printed. Escape closes it. A notes value always shows as [redacted].
+- The Overview banner links to the Exceptions page. The nav now links Sources and Exceptions and highlights only the current page.
+- Not in this PR: the per-header mapping table (the dashboard does not read mapping/*.yaml), lane and scored filters, message search, copy as issue, and CSV export.
