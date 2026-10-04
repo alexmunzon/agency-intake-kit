@@ -117,3 +117,11 @@ One entry per PR.
 - Example 3 (NPN 1884412, Harborline TX 2026, EX-000005, crm_export.csv row 419) and example 4 (Harborline 2026-08 line 212, HL-998213, $61.05, TIE-002) are visible on the pages and asserted in tests.
 - `lib/tie-out.ts` reads `tie_out/*.json` and refuses money written as a number. `lib/agents.ts` shapes `rts_coverage.json` into the matrix.
 - The Tie-out and Agents nav items are now links, using the `NavLink` component from PR 14. A test checks that only the page you are on is marked current.
+
+## PR 18a: ADRs and README draft (2026-10-04)
+
+- First half of PR 18, written early. Docs only, no code.
+- `docs/adr/0001` to `0005` plus an index: DuckDB SQL for the tie-out, Jev as a gate not a judge, static-first dashboard, synthetic data only, separate repos per project with `agency-data-commons` extracted later. Each records context, decision, and consequences, and cites the CHANGELOG entry behind it.
+- ADR 0005 records a known gap: `jev_client` imports its constants from `intake/config.py`, so they must move before the package is extracted.
+- README.md rewritten as a two-minute read for a non-engineer: what it is, who it is for, the five dashboard questions, what is synthetic and why, the data trust rules, how to run it, and a status list that names every PR not shipped yet. It publishes no detection rates or benchmark numbers, because the pipeline that measures them is not built. Screenshots are referenced by file name, not embedded, until they land in `docs/screenshots/`.
+- Still open for the rest of PR 18: screenshots and GIF, results tables, architecture diagram, link checker, v1.0.0 release.
