@@ -118,6 +118,14 @@ One entry per PR.
 - `lib/tie-out.ts` reads `tie_out/*.json` and refuses money written as a number. `lib/agents.ts` shapes `rts_coverage.json` into the matrix.
 - The Tie-out and Agents nav items are now links, using the `NavLink` component from PR 14. A test checks that only the page you are on is marked current.
 
+## Screenshots and design notes (2026-10-04)
+
+- `npm run shots` now captures all five pages at 1440 by 900 in light mode, plus the Overview at 375 wide and in dark mode, into `docs/screenshots/` with stable names: `overview-1440.png`, `overview-375.png`, `overview-dark.png`, `sources-1440.png`, `exceptions-1440.png`, `tie-out-1440.png`, `agents-1440.png`.
+- Animations are off and reduced motion is on, so two runs write byte-identical images from the frozen demo run.
+- The shots run also checks that the Overview fits one 1440 by 900 screen and that no page scrolls sideways at 1440 or 375.
+- New `docs/design.md`: the tokens, severity colors and their meanings, type scale, layout, the one question each page answers, and how to regenerate the screenshots.
+- No page code changed. The screenshots showed no visual bugs.
+
 ## PR 8: Row validators (2026-10-04)
 
 - `intake/rules/`: the 22 row rules from guide section 6, registered with `@rule`: DOB-001 to 003, MBI-001 to 003, NPN-001 and 002, PLN-001 to 004, ADR-001 to 003, CON-001 and 002, DAT-001 to 004, STA-001. Each rule is pure, never calls Jev, and builds its ExceptionRecord in one place (`frames.hit`), which passes every shown value through `minimize_value`. Messages carry minimized values only; policy ids and two-letter state codes appear as is.
