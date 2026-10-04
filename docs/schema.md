@@ -88,4 +88,34 @@ The record refuses to exist when:
 
 ## Format rules
 
-Added in PR 1a-ii (`agency_schema.formats` and `data/zip3_state.csv`).
+Pure functions in `agency_schema.formats`. Each takes a raw string and never raises. Models never call them; the row rules (PR 8) do, and report failures as `ExceptionRecord`s.
+
+| Function | Accepts | Notes |
+|---|---|---|
+| `is_valid_mbi` | 11 characters: C A AN N A AN N A A N N | C is 1 to 9, N a digit, A a letter except S L O I B Z, AN either. Dashes, outer spaces, and lowercase are allowed. |
+| `is_valid_npn` | 1 to 10 digits, no leading zero | |
+| `parse_medicare_plan_id` | `H1234-005`, `H1234-005-002` | Returns prefix, contract (`H1234`), plan, and segment, or None. H and R are MA, S is PDP (`.line_of_business`). |
+| `is_valid_medigap_letter` | A B C D F G K L M N | Optionally "Plan G" or "F High Deductible", any case. |
+| `is_valid_hios_plan_id` | `12345TX1234567`, optional `-01` | Letters must be capitals. |
+| `zip3_matches_state` | `90012` or `90012-1234` plus a state code | True when the ZIP's first three digits belong to that state in `data/zip3_state.csv`. |
+| `normalize_phone` | any punctuation | Ten digits, a leading 1 and any extension dropped, or None. |
+| `normalize_email` | | Trimmed and lowercased, or None if it is not name@domain.tld. |
+| `normalize_name` | | For matching only: `O'Brien, Jr.` becomes `obrien` and `DE LA CRUZ` becomes `de la cruz`. Drops Jr, Sr, II, III. |
+| `parse_date_loose` | see below | Returns a date or None. |
+
+**Dates.** `parse_date_loose` reads `2025-09-01` (a time after it is ignored), `09/01/2025` or `9/1/2025` (month first), `01-Sep-25`, and Excel serial numbers from 20000 to 60000 (`45901` is 2025-09-01). Impossible dates such as 02/30/2025 give None, and so do day-first dates such as 13/01/2025.
+
+**Two-digit years use a 1930 to 2029 pivot.** `30` to `99` mean 1930 to 1999, and `00` to `29` mean 2000 to 2029. So `05/01/29` becomes 1 May 2029, a future date. A two-digit birth year can never mean the 1920s, so PR 8's date rules must flag a future date of birth rather than trust it.
+
+### ZIP prefix table
+
+`engine/src/agency_schema/data/zip3_state.csv` has one row per prefix and state (`zip3,state`): 939 rows and 933 prefixes. It covers all 50 states, DC, PR, VI, GU, AS, MP, FM, MH, PW, and the military codes AA, AE, AP. A prefix used by several places has one row each: 967 is HI and AS, and 969 is GU, MP, PW, FM, and MH.
+
+Source: USPS Labeling List L002, 3-Digit ZIP Code Prefix Matrix, January 2011 edition (https://pe.usps.com/Archive/HTML/DMMArchive20110102/L002.htm, read 2026-10-04). The current L002 page no longer loads, so this is the newest copy we could read.
+
+Limits, stated plainly:
+
+- **No second source.** The plan was to cross-check against a second public list. Wikipedia's list no longer loads, and other sites could only be read through a summarizing tool that returned wrong states, so the cross-check was dropped (Alex's decision, 2026-10-04).
+- **Facility versus state.** L002 names the mail sorting facility, which is sometimes in a neighboring state. These prefixes were corrected by hand to the state the addresses are in: NH 035 to 037, ME 039, VA 201, WV 267, SC 297 to 299, KY 410 to 412 and 424, IN 470 and 471, IA 515 and 516, WI 540, MN 567, IL 620, 622, 623, MO 634 and 635, AR 723, OK 739, ID 838, AZ 865, CA 961, OR 979, WA 994, and VI 008. Prefix 569 (DC) is not in L002 but was added.
+- **2011 data.** A prefix put into use after 2011 is missing and will fail the check for every address under it. If ZIP rules flag a cluster of valid addresses, check this table first.
+- Fishers Island, NY uses prefix 063, which the table keeps as CT only.
