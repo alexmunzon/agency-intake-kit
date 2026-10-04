@@ -171,6 +171,10 @@ One entry per PR.
 - SPEC and CLAUDE.md: the CRM export has 2,680 rows, not 2,600: 2,600 policies, 34 planted duplicate rows, and 46 clients with no policy (40 re-keyed copies plus 6 whose only policy was orphaned), each on a row with the policy columns blank. Example 5 now reads 2,574 of 2,680.
 - New `docs/synthetic-data.md`: every injector, rate, scored flag, file quirk, and fixture.
 
+## README: why this exists, status refresh (2026-10-04)
+
+- New "Why this exists" section written for the recruiting reader: who built it, what it demonstrates, and how AI coding agents were used under the spec. Status lists updated for PRs 8, 9, 10.
+
 ## PR 4: Readers, ingest, and raw gates (2026-10-04)
 
 - `intake/readers/`: `sniff.py` (encoding, delimiter, header row, trailing total rows), `csv.py`, and `xlsx.py`. Every source file or sheet becomes a `RawTable`: a polars frame with each source column under its header exactly as read (all text, blank is null) plus a `lineage` struct column with the six `Lineage` fields. `raw_hash` is the sha256 of the row's raw cells joined by the unit separator, the same recipe the PR 8 and PR 9 test loaders use.
