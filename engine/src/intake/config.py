@@ -31,6 +31,9 @@ JEV_TIMEOUT_S: Final[float] = 30.0  # seconds per HTTP request
 # PR 9: cross-record checks (duplicates, references, RTS, licenses)
 
 # PR 10: three-way tie-out (tolerances: $1 or 1 percent per line, 0.5 percent on totals)
+TIE_LINE_TOLERANCE_USD: Final[Decimal] = Decimal("1.00")  # a line passes within $1 ...
+TIE_LINE_TOLERANCE_PCT: Final[Decimal] = Decimal("0.01")  # ... or 1 percent, whichever is larger
+TIE_TOTAL_TOLERANCE_PCT: Final[Decimal] = Decimal("0.005")  # carrier and agent totals: 0.5 percent
 
 # PR 11: exceptions policy and triage (PII gate cutoff)
 

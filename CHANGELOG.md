@@ -98,3 +98,12 @@ One entry per PR.
 - Committed `fixtures/agency-a/canonical-defected/` and `fixtures/agency-a/ground_truth.json` (793 defects, about 1.7 MB). A test regenerates them and fails if the bytes drift.
 - PII in notes is left to PR 3b, which writes the CRM `Notes` column.
 - Size: about 1,350 changed lines against a plan of 340, not counting fixture data. Shipped as one PR on the orchestrator's instruction.
+
+## PR 10: Three-way tie-out in DuckDB (2026-10-04)
+
+- `intake/tieout/sql/01` to `07`: the tie-out as commented DuckDB views. Lines match the book on carrier plus carrier_member_id, then policy_ref, then name plus DOB (a weak match, TIE-006). Leg A finds active policies with no line in a period (TIE-001), leg B finds orphan payments (TIE-002), leg C finds paid policies the CRM does not show as ACTIVE (TIE-004). Dollar checks: each line vs the rate table within the larger of $1 or 1 percent (TIE-003), carrier and agent totals within 0.5 percent (TIE-005). Money is DECIMAL(12,2) in SQL and Decimal in Python, never a float.
+- `load.py` hands polars frames to DuckDB through the Arrow stream interface, so no pyarrow dependency. `views.py` runs the SQL files in name order. `variances.py` builds the six `tie_out/*.json` models and one TIE ExceptionRecord per finding.
+- A missing commission or policy source makes every leg and both totals NOT_RUN with a reason and no counts.
+- `_canonical_io.py` is a small private canonical CSV reader that PR 4's readers replace.
+- `config.py` PR 10 section: `TIE_LINE_TOLERANCE_USD`, `TIE_LINE_TOLERANCE_PCT`, `TIE_TOTAL_TOLERANCE_PCT`.
+- On agency-a every planted TIE-001 to TIE-004 defect is found with no extras. The clean world has zero variances and totals tie to the cent. TIE-005 fires on the defected world as expected.
