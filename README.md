@@ -176,7 +176,7 @@ This is the first project built in the Agency Data Trust Series. Next: bob-resol
 MIT. See [LICENSE](LICENSE).
 
 
-## Neutral finance review (synthetic development slice)
+## Neutral finance review and receipt ledger (synthetic development candidate)
 
 Classify one complete structured statement with a versioned mapping:
 
@@ -189,5 +189,16 @@ uv run intake finance-review --statement ../fixtures/finance-review/statement.js
 The example retains renewal revenue of 75.00 after a 25.00 reversal, plus 0.03 unclassified. Category and transaction kind are independent. Unknown labels and missing account codes remain visible. The command prints a neutral review artifact; it does not post entries, claim Campfire compatibility or assign customer/policy identity. JSON is the full statement review including totals; CSV contains scoped source rows for review.
 
 This first slice accepts synthetic structured JSON, not carrier spreadsheets. Approval metadata is declared by the caller, not authenticated; the example approver is synthetic. Invalid amounts, unknown fields, duplicate row IDs and mismatched expected row counts refuse the entire package without partial output. A matching control total checks arithmetic, not finance approval or identity correctness. Source digests are declared provenance, not a verified attachment hash. Do not treat concatenated exports as a ledger: persistent duplicate-delivery and replacement selection, raw-file adapters and dashboard integration are subsequent slices. No real PHI is supported. These are development fixtures, not unseen evaluation or measured operational savings.
+
+The candidate receipt ledger accepts one ordered batch for one carrier and resolves receipts in memory, without a database:
+
+```sh
+cd engine
+uv run intake finance-ledger --receipts ../fixtures/finance-review/receipts.json --mapping ../fixtures/finance-review/mapping.json
+```
+
+It retains every receipt and computes a structured digest from normalized statement evidence. That digest is not a hash of the original file bytes; the caller-provided content hash remains declared provenance. Repeated equivalent receipts are labeled duplicates and add no recognized revenue. Identical legitimate rows within a statement remain separate rows. A correction must explicitly name the current revision it replaces. Superseded revisions stay in receipt history; competing or invalid replacements are reported as conflicts, with conflict amounts separate from active revenue totals.
+
+The ledger is still a development candidate using synthetic structured JSON. The example retains four receipts and yields 85.03 active revenue with 95.03 of competing correction evidence held separately. The current dashboard does not include a finance view or consume this ledger. Carrier spreadsheet adapters, durable storage, authenticated finance approval, and UI integration remain future work.
 
 For future browser testing, use ChatGPT/Codex's in-app browser. Do not launch laptop Chrome, Edge, Chromium or local Playwright browsers. Normal non-browser tests remain required.
