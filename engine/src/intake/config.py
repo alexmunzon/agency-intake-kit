@@ -18,9 +18,10 @@ READER_DELIMITERS: Final[str] = ",;\t|"  # candidates, the first is the fallback
 SNIFF_SAMPLE_LINES: Final[int] = 50  # lines used to guess the delimiter
 HEADER_SCAN_ROWS: Final[int] = 20  # how far down to look for the header row
 HEADER_MIN_TEXT_SHARE: Final[float] = 0.6  # share of cells that must be words in a header
-TOTAL_ROW_WORDS: Final[frozenset[str]] = frozenset(
-    {"total", "subtotal", "sub total", "grand total"}
-)
+# A total row's first cell, after lowercasing and collapsing spaces: total, totals, grand total,
+# subtotal, sub total, sub-total, with anything after a word break ("Total:", "TOTAL (3 periods)").
+TOTAL_ROW_PATTERN: Final[str] = r"^(grand[ -]?|sub[ -]?)?totals?\b"
+FOOTER_MAX_FILLED_CELLS: Final[int] = 1  # after a total row, a row this sparse is a footer note
 RAW_MAPPING_VERSION: Final[str] = "unmapped"  # lineage mapping_version before PR 5 maps headers
 SSN_HEADER_WORDS: Final[frozenset[str]] = frozenset({"ssn", "social"})
 SSN_VALUE_PATTERN: Final[str] = r"^\d{3}[- ]?\d{2}[- ]?\d{4}$"  # dashed, spaced, or 9 digits

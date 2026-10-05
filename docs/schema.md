@@ -103,7 +103,7 @@ Pure functions in `agency_schema.formats`. Each takes a raw string and never rai
 | `normalize_name` | | For matching only: `O'Brien, Jr.` becomes `obrien` and `DE LA CRUZ` becomes `de la cruz`. Drops Jr, Sr, II, III. |
 | `parse_date_loose` | see below | Returns a date or None. |
 
-**Dates.** `parse_date_loose` reads `2025-09-01` (a time after it is ignored), `09/01/2025` or `9/1/2025` (month first), `01-Sep-25`, and Excel serial numbers from 20000 to 60000 (`45901` is 2025-09-01). Impossible dates such as 02/30/2025 give None, and so do day-first dates such as 13/01/2025.
+**Dates.** `parse_date_loose` reads `2025-09-01` (a time after it is ignored), `09/01/2025` or `9/1/2025` (month first), `01-Sep-25`, compact `20260501` (exactly eight digits read as year, month, day, with a year from 1900 to 2099), and Excel serial numbers from 20000 to 60000 (`45901` is 2025-09-01). Eight digits are never read as a serial, and serials have five digits, so the two shapes cannot be confused; an eight-digit value that is not a real yyyymmdd date (`20261301`, `01052026`, `00045901`) gives None. Impossible dates such as 02/30/2025 give None, and so do day-first dates such as 13/01/2025.
 
 **Two-digit years use a 1930 to 2029 pivot.** `30` to `99` mean 1930 to 1999, and `00` to `29` mean 2000 to 2029. So `05/01/29` becomes 1 May 2029, a future date. A two-digit birth year can never mean the 1920s, so PR 8's date rules must flag a future date of birth rather than trust it.
 
