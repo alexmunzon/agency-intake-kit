@@ -188,5 +188,10 @@ PII_REDACTED_TEXT: Final[str] = "[redacted]"
 PII_HEALTH_WORDS: Final[frozenset[str]] = frozenset(
     {"diagnos", "condition", "treatment", "prescription", "disabilit"}
 )
+# PII gate fix (#55): a relationship word followed by a capitalized name redacts the name
+PII_RELATION_WORDS: Final[frozenset[str]] = frozenset(
+    {"daughter", "son", "spouse", "wife", "husband", "mother", "father", "brother", "sister"}
+    | {"caregiver", "grandson", "granddaughter", "niece", "nephew", "partner"}
+)
 
 # PR 12: run orchestration
