@@ -4,6 +4,8 @@ One entry per PR.
 
 ## PR84 verification repair (2026-10-05)
 
+- Allocate a unique overwrite backup instead of deleting a pre-existing sibling directory, preserving input and unrelated files at the old backup name. Failed output installation retains the previous run in its backup.
+
 - Page the RTS matrix twelve combinations at a time instead of rendering 25,920 demo cells at once. Every combination remains reachable, with unchanged aggregate policy and gap counts. Existing test deadlines remain unchanged.
 
 ## Audit fixes (2026-10-05)
