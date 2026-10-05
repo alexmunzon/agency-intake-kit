@@ -1,6 +1,7 @@
 """docs/rules.md, generated from the rule registry."""
 
 import intake.checks  # noqa: F401  (registers the cross-record rules)
+import intake.exceptions.pii  # noqa: F401  (registers PII-001)
 import intake.rules  # noqa: F401  (registers the row rules)
 from agency_schema.registry import catalog
 
