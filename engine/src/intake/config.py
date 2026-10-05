@@ -18,9 +18,10 @@ READER_DELIMITERS: Final[str] = ",;\t|"  # candidates, the first is the fallback
 SNIFF_SAMPLE_LINES: Final[int] = 50  # lines used to guess the delimiter
 HEADER_SCAN_ROWS: Final[int] = 20  # how far down to look for the header row
 HEADER_MIN_TEXT_SHARE: Final[float] = 0.6  # share of cells that must be words in a header
-TOTAL_ROW_WORDS: Final[frozenset[str]] = frozenset(
-    {"total", "subtotal", "sub total", "grand total"}
-)
+# A total row's first cell, after lowercasing and collapsing spaces: total, totals, grand total,
+# subtotal, sub total, sub-total, with anything after a word break ("Total:", "TOTAL (3 periods)").
+TOTAL_ROW_PATTERN: Final[str] = r"^(grand[ -]?|sub[ -]?)?totals?\b"
+FOOTER_MAX_FILLED_CELLS: Final[int] = 1  # after a total row, a row this sparse is a footer note
 RAW_MAPPING_VERSION: Final[str] = "unmapped"  # lineage mapping_version before PR 5 maps headers
 SSN_HEADER_WORDS: Final[frozenset[str]] = frozenset({"ssn", "ssns", "social", "tin", "taxpayer"})
 SSN_HEADER_PHRASES: Final[tuple[str, ...]] = ("tax id", "soc sec", "s s n")  # header text, spaced
@@ -190,5 +191,20 @@ PII_REDACTED_TEXT: Final[str] = "[redacted]"
 PII_HEALTH_WORDS: Final[frozenset[str]] = frozenset(
     {"diagnos", "condition", "treatment", "prescription", "disabilit"}
 )
+# PII gate fix (#55): a relationship word followed by a capitalized name redacts the name
+PII_RELATION_WORDS: Final[frozenset[str]] = frozenset(
+    {"daughter", "son", "spouse", "wife", "husband", "mother", "father", "brother", "sister"}
+    | {"caregiver", "grandson", "granddaughter", "niece", "nephew", "partner"}
+)
 
 # PR 12: run orchestration
+
+# PR 17: header mapping benchmark
+# The benchmark mirrors SPEC's mapping cutoff: a Jev answer under 0.60 leaves the header
+# unmapped. PR 7 owns the pipeline's own cutoffs; this one only scores the benchmark.
+BENCH_JEV_MIN_CONFIDENCE: Final[float] = 0.60
+BENCH_SONNET_MODEL: Final[str] = "claude-sonnet-5-5"
+BENCH_SONNET_MAX_TOKENS: Final[int] = 2000  # room for brief thinking before a one-word answer
+# Anthropic's published Sonnet price, checked 2026-10-04. An assumption for cost estimates.
+SONNET_USD_PER_MTOK_IN: Final[Decimal] = Decimal("2.00")
+SONNET_USD_PER_MTOK_OUT: Final[Decimal] = Decimal("10.00")

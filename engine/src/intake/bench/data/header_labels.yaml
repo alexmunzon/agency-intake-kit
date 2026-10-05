@@ -1,0 +1,152 @@
+# Labeled headers for the header mapping benchmark (PR 17). Synthetic data only.
+# origin, then source kind, then header: the canonical table.field it holds, or none.
+# fixture: every distinct header in the agency-a source files (a test checks this list
+# against the files). synthetic: variants written for the benchmark, in the style of real
+# exports, including columns that hold no canonical field. A header's meaning can depend on
+# the source: "Line" is a statement line number but an RTS line of business.
+fixture:
+  crm:
+    "Client ID": clients.client_id
+    "Client Name": clients.full_name
+    "Mbr DOB": clients.dob
+    "Primary Phone": clients.phone
+    "Email": clients.email
+    "Address": clients.address_line1
+    "City": clients.city
+    "State": clients.state
+    "Zip": clients.zip
+    "Medicare ID": clients.mbi
+    "Household": clients.household_id
+    "Policy #": policies.policy_id
+    "Carrier Name": policies.carrier
+    "Plan": policies.plan_id
+    "Product": policies.line_of_business
+    "Policy State": policies.state
+    "Eligibility": policies.eligibility_reason
+    "Member ID": policies.carrier_member_id
+    "Eff Date": policies.effective_date
+    "Term Date": policies.termination_date
+    "Status": policies.status
+    "Writing Agent NPN": policies.writing_agent_npn
+    "Premium": policies.monthly_premium
+    "Notes": clients.notes
+  enrollment:
+    "member_first": clients.first_name
+    "member_last": clients.last_name
+    "Birth Dt (mm/dd/yy)": clients.dob
+    "mbi": clients.mbi
+    "carrier": policies.carrier
+    "contract_plan": policies.plan_id
+    "effective": policies.effective_date
+    "agent_npn": policies.writing_agent_npn
+    "application_status": policies.status
+    "policy_number": policies.policy_id
+  statement:
+    "Line": commission_lines.line_no
+    "Period": commission_lines.statement_period
+    "Member ID": commission_lines.carrier_member_id
+    "Member Name": commission_lines.member_name
+    "DOB": commission_lines.member_dob
+    "Policy": commission_lines.policy_ref
+    "Writing Agent": commission_lines.agent_npn
+    "Type": commission_lines.commission_type
+    "Paid": commission_lines.paid_date
+    "Commission": commission_lines.amount
+    "Stmt Period": commission_lines.statement_period
+    "Seq #": commission_lines.line_no
+    "Subscriber Name": commission_lines.member_name
+    "Subscriber ID": commission_lines.carrier_member_id
+    "Birth Date": commission_lines.member_dob
+    "Agent NPN": commission_lines.agent_npn
+    "Agency Policy Ref": commission_lines.policy_ref
+    "Txn Type": commission_lines.commission_type
+    "Pay Date": commission_lines.paid_date
+    "Amount Paid": commission_lines.amount
+    "Statement Month": commission_lines.statement_period
+    "Line No": commission_lines.line_no
+    "Member #": commission_lines.carrier_member_id
+    "Insured": commission_lines.member_name
+    "Date of Birth": commission_lines.member_dob
+    "Producer NPN": commission_lines.agent_npn
+    "Ref": commission_lines.policy_ref
+    "Comm Type": commission_lines.commission_type
+    "Payment Date": commission_lines.paid_date
+    "Comp $": commission_lines.amount
+  roster_agents:
+    "Agent Name": agents.full_name
+    "NPN #": agents.npn
+    "E-mail": agents.email
+    "Licensed States": agents.license_states
+    "Upline NPN": agents.upline_npn
+    "Status": agents.status
+  roster_rts:
+    "NPN": rts.npn
+    "Carrier": rts.carrier
+    "State": rts.state
+    "Plan Yr": rts.plan_year
+    "Line": rts.line_of_business
+    "Appointed?": rts.appointed
+    "Certified?": rts.certified
+    "RTS Start": rts.effective_date
+    "RTS End": rts.end_date
+synthetic:
+  crm:
+    "Cust ID": clients.client_id
+    "Customer #": clients.client_id
+    "First Name": clients.first_name
+    "Last Name": clients.last_name
+    "Date of Birth": clients.dob
+    "DOB (MM/DD/YYYY)": clients.dob
+    "Cell Phone": clients.phone
+    "Phone #": clients.phone
+    "E-Mail Address": clients.email
+    "Street Address": clients.address_line1
+    "Mailing Address 1": clients.address_line1
+    "ZIP+4": clients.zip
+    "Postal Code": clients.zip
+    "MBI #": clients.mbi
+    "Medicare Beneficiary ID": clients.mbi
+    "HH ID": clients.household_id
+    "Policy Number": policies.policy_id
+    "Carrier": policies.carrier
+    "Contract-PBP": policies.plan_id
+    "LOB": policies.line_of_business
+    "Effective Dt": policies.effective_date
+    "Cancel Date": policies.termination_date
+    "Policy Status": policies.status
+    "Agent NPN": policies.writing_agent_npn
+    "Monthly Prem": policies.monthly_premium
+    "Carrier Member #": policies.carrier_member_id
+    "Comments": clients.notes
+    "Lead Source": none
+    "Last Contact Date": none
+    "Preferred Language": none
+    "Created By": none
+  enrollment:
+    "Applicant First Name": clients.first_name
+    "Applicant Last Name": clients.last_name
+    "Signature Date": none
+    "Confirmation #": none
+  statement:
+    "Commission Period": commission_lines.statement_period
+    "Line #": commission_lines.line_no
+    "Policyholder": commission_lines.member_name
+    "Net Commission": commission_lines.amount
+    "Check Date": commission_lines.paid_date
+    "Chargeback Reason": none
+    "Statement Total": none
+    "Payee": none
+  roster_agents:
+    "Producer Name": agents.full_name
+    "National Producer #": agents.npn
+    "States Licensed In": agents.license_states
+    "Manager NPN": agents.upline_npn
+    "Agent Status": agents.status
+    "Hire Date": none
+  roster_rts:
+    "Writing NPN": rts.npn
+    "Plan Year": rts.plan_year
+    "Ready to Sell Start": rts.effective_date
+    "Ready to Sell End": rts.end_date
+    "Is Certified": rts.certified
+    "Region": none

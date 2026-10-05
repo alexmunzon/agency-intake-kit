@@ -31,7 +31,7 @@ defects point at the statement row. A missing commission line points at its poli
 
 | File | Shape | Quirks |
 |---|---|---|
-| `crm_export.csv` | One row per policy, client fields repeated (2,680 rows). Clients with no policy (46: re-keyed copies, and clients whose only policy was orphaned) get one row with the policy columns blank. | latin-1 text that starts with a UTF-8 byte order mark; "Client Name" as "Last, First"; "Mbr DOB" as Excel serial text when the serial is 20000 to 60000, else 01/31/1950; "Eff Date" and "Term Date" rotate 01/31/2026, 2026-01-31, 01/31/26 by row; status words in mixed case (Active, ACTIVE, active); a Notes column; CRLF line ends. |
+| `crm_export.csv` | One row per policy, client fields repeated (2,680 rows). Clients with no policy (46: re-keyed copies, and clients whose only policy was orphaned) get one row with the policy columns blank. | latin-1 text that starts with a UTF-8 byte order mark; "Client Name" as "Last, First"; "Mbr DOB" as Excel serial text when the serial is 20000 to 60000, else 01/31/1950; "Eff Date" and "Term Date" rotate 01/31/2026, 2026-01-31, 01/31/26 by row; status words in mixed case (Active, ACTIVE, active); a Notes column; CRLF line ends. An exact duplicate row (DUP-001) repeats its original byte for byte; a changed copy (DUP-003) does not. |
 | `enrollment_export.csv` | One row per MA or PDP policy row (1,847). | Semicolon delimiter, UTF-8, no BOM; snake_case headers plus "Birth Dt (mm/dd/yy)" (SPEC example 2); two-digit birth years (all 1930 or later); effective dates like 20260501; its own status words (Approved, Submitted, Disenrolled, Withdrawn, Unknown). |
 | `commissions_<carrier>.xlsx` | One per carrier, all three periods on one sheet named Statement. | Row 1 is a merged title, row 2 a subtitle, row 3 the header, data from row 4, last row a total (column A "Total", column B the data row count, the last column the summed amount). Three header layouts. Amounts are two-decimal text. Northwind Health and Cardinal Mutual store dates as date cells; Bluepeak and Summit Health Plans as 01/31/2026 text; Harborline and Meridian Care as 2026-01-31 text. |
 | `agent_roster.xlsx` | Sheet Agents (one row per agent) and sheet RTS (one row per agent, carrier, state, plan year, line of business). Header on row 1 of each. | Free-form headers ("NPN #", "Plan Yr", "Appointed?"); license states as one comma list; Y/N flags; RTS dates as date cells. |
@@ -75,7 +75,7 @@ A rate is a share of the table the defect lives in. Each defected record carries
 | RTS gap | 1% | RTS-001 | yes |
 | RTS expired | 0.3% | RTS-002 | yes |
 | License gap | 0.5% | LIC-001 | yes |
-| Same name and birth date, two client ids | 0.5% of clients | DUP-002 | yes |
+| Same name and birth date, two client ids (both the copy and the original are labeled) | 0.5% of clients | DUP-002 | yes |
 | PII sentence in CRM Notes | 1% of CRM policy rows | PII-001 | yes |
 | Name typo | 2% | none | no |
 | Nickname | 3% | none | no |
@@ -84,6 +84,12 @@ A rate is a share of the table the defect lives in. Each defected record carries
 | Near-duplicate client | 1.5% | none | no |
 
 Unscored defects are for the later bob-resolve project: they are reported but not gated.
+
+Totals off by more than 0.5 percent (TIE-005) are not injected on their own. They are what the
+missing, half-paid, and orphan lines add up to, so ground truth lists one `statement_total_variance`
+defect for each carrier or agent whose total breaks the tolerance (seed 42: 3 carriers, 45
+agents). The record key is `{"carrier": ...}` or `{"agent_npn": ...}`, the same fields tie-out
+reports, and `source_file`, `sheet`, and `source_row` are null because a total spans every file.
 
 Planted on purpose (SPEC examples 3 and 4): P-00417 has no RTS for Harborline, TX, 2026
 (RTS-001), and Harborline 2026-08 line 212 pays 61.05 to member HL-998213, who has no policy

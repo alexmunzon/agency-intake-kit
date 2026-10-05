@@ -141,13 +141,19 @@ Blockers go to REVIEW and info stays UNREVIEWED without a call. PII-001 is never
 same body, so they have the same `request_hash`. Triage sends each hash once per run and reuses the
 answer. `planned_requests(items)` returns the distinct requests; its length is the call count.
 
-**PII gate** (`intake/exceptions/pii.py`): a regex pre-filter (dates, 9 to 11 digit numbers,
-SSN-shaped text, drug-like words, and health words) picks the notes worth a look; the rest pass with
-no call. Text holding an SSN-shaped value or a 9 to 11 digit number is redacted at once with no
-call, so it never leaves the machine. Other flagged text goes to the noul question with every digit
-replaced by `#`. At or above 0.50 (`PII_REDACT`) the text becomes `[redacted]` and PII-001 fires
-(warning, REVIEW lane, no value shown). With no answer the text is redacted too: the gate fails
-closed. Identical texts are asked once.
+**PII gate** (`intake/exceptions/pii.py`) has two layers. The regex layer runs first and needs no
+call: SSN shapes, emails, phone numbers (10 digits with separators, or labeled phone or cell),
+dates of birth after a DOB label, card numbers after "card", bank and routing numbers (8 to 17
+digits, or labeled account, acct, routing, IBAN), driver's license numbers (a state letter plus
+digits, or labeled DL or license no), Medicare and member ids, anything labeled SSN, social,
+password, or PIN, and a name after a relationship word (daughter, spouse, and so on). Each match
+is replaced in place by a typed placeholder such as `[REDACTED:phone]`, and PII-001 fires
+(warning, REVIEW lane) with `value_minimized` from `minimize_value` and the kinds in the message,
+never the raw value. Text that still holds a date, a drug-like word, or a health word after that
+goes to the noul question, already redacted and with every digit replaced by `#`. At or above
+0.50 (`PII_REDACT`) the whole text becomes `[redacted]` and PII-001 fires. With no answer (off
+mode or the spend guard) the text is redacted too: the gate fails closed. Identical texts are
+asked once. The gate's returned text is what every output writes.
 
 **Expected calls for fixtures/agency-a** (asserted in `tests/unit/test_triage.py`):
 
@@ -155,8 +161,8 @@ closed. Identical texts are asked once.
 |---|---|---|
 | Triage, row rules (PR 8) | 239 errors and warnings | 68 |
 | Triage, cross-record checks (PR 9) | 115 errors and warnings | 37 |
-| PII gate (agency-a has no notes text) | 0 | 0 |
-| **Total today** | **354** | **105** |
+| PII gate (26 planted notes, all caught by the regex layer) | 26 | 0 |
+| **Total today** | **380** | **105** |
 
 Measured on the PR 3a defected canonical copy. The savings come from grouping: 56 missing MBIs
 (MBI-003) on Medicare policies share one shape and neighbor set, so they cost 1 call; 52 unknown

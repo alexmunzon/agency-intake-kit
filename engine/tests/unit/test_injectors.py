@@ -27,6 +27,7 @@ from agency_schema.formats import (
 from synth_agency_data.canonical_writer import load_ground_truth, write_world
 from synth_agency_data.cli import app
 from synth_agency_data.injectors import INJECTORS, Defect, inject, lock_key
+from synth_agency_data.injectors.base import AGGREGATE_DEFECTS
 from synth_agency_data.planted import ORPHAN_LINE, PLANTED_NPN, PLANTED_POLICY, plant
 from synth_agency_data.rates import expected_amount
 from synth_agency_data.world import AS_OF, World, build_world
@@ -218,8 +219,10 @@ def test_every_defect_is_really_in_the_world() -> None:
     world, defects = injected()
     witnesses = _witnesses(world)
     seen = Counter(d["defect_type"] for d in defects)
-    assert set(seen) == set(EXPECTED)
+    assert set(seen) == set(EXPECTED) | AGGREGATE_DEFECTS
     for d in defects:
+        if d["defect_type"] in AGGREGATE_DEFECTS:
+            continue  # a total, not a row: test_tie_005_is_labeled_for_every_total_off_tolerance
         row = _rows(world, d)[-1]
         iv = d["injected_values"]
         if "field" in iv:
@@ -344,6 +347,9 @@ def test_ground_truth_row_refs_and_round_trip(tmp_path: Path) -> None:
             "scored",
             "injected_values",
         }
+        if d["defect_type"] in AGGREGATE_DEFECTS:
+            assert d["row_ref"] is None  # a total has no canonical row
+            continue
         if d["source"] not in tables:
             with (tmp_path / "canonical-defected" / f"{d['source']}.csv").open() as f:
                 tables[d["source"]] = list(csv.DictReader(f))
@@ -387,3 +393,99 @@ def test_cli_no_inject_writes_the_clean_world(tmp_path: Path) -> None:
 def test_dates_in_ground_truth_are_strings() -> None:
     for d in injected()[1]:
         json.dumps(d["injected_values"])  # no date or Decimal objects slip through
+
+
+def _person(c: dict[str, Any]) -> tuple[str, str, str]:
+    """DUP-002's key: normalized first name, normalized last name, and date of birth."""
+    return normalize_name(c["first_name"]), normalize_name(c["last_name"]), str(c["dob"])
+
+
+def test_every_client_in_a_name_dob_collision_is_labeled() -> None:
+    """Issue 26: the original and the copy both raise DUP-002, so both are in ground truth."""
+    world, defects = injected()
+    groups: dict[tuple[str, str, str], set[str]] = {}
+    for c in world.tables["clients"]:
+        groups.setdefault(_person(c), set()).add(c["client_id"])
+    colliding = {cid for ids in groups.values() if len(ids) > 1 for cid in ids}
+    labeled = {
+        d["record_key"]["client_id"] for d in defects if d["expected_rule_ids"] == ["DUP-002"]
+    }
+    assert colliding and labeled == colliding
+    copies = [d for d in defects if "copy_of" in d["injected_values"] and d["scored"]]
+    for d in copies:
+        (original,) = [
+            o for o in defects if o["record_key"] == {"client_id": d["injected_values"]["copy_of"]}
+        ]
+        assert original["defect_type"] == "name_dob_collision" and original["scored"]
+        assert original["injected_values"]["copied_to"] == d["record_key"]["client_id"]
+
+
+def test_tie_005_is_labeled_for_every_total_off_tolerance() -> None:
+    """Issue 28: the line injectors push totals past 0.5 percent; ground truth expects TIE-005."""
+    defects = [d for d in injected()[1] if d["defect_type"] == "statement_total_variance"]
+    by_carrier = {d["record_key"]["carrier"] for d in defects if "carrier" in d["record_key"]}
+    # Seed 42: orphan payments outweigh the gaps at two carriers, gaps win at Summit; the other
+    # three net out within 0.5 percent. PR 10's test checks these keys against its own output.
+    assert by_carrier == {"Bluepeak", "Harborline", "Summit Health Plans"}
+    assert sum("agent_npn" in d["record_key"] for d in defects) == 45
+    for d in defects:
+        assert set(d["record_key"]) in ({"carrier"}, {"agent_npn"})
+        assert d["expected_rule_ids"] == ["TIE-005"] and d["scored"]
+        assert d["source"] == "commission_lines"
+        iv = d["injected_values"]
+        book, paid = Decimal(iv["book_expected"]), Decimal(iv["statement_paid"])
+        assert abs(paid - book) > book * Decimal("0.005"), d
+
+
+def _example_3_holds(
+    policies: list[dict[str, Any]],
+    agents: list[dict[str, Any]],
+    rts: list[dict[str, Any]],
+    lines: list[dict[str, Any]],
+) -> None:
+    (p,) = [p for p in policies if p["policy_id"] == PLANTED_POLICY]
+    assert (p["carrier"], p["state"], str(p["effective_date"])[:4]) == ("Harborline", "TX", "2026")
+    assert (p["writing_agent_npn"], p["line_of_business"]) == (PLANTED_NPN, "MA")
+    (agent,) = [a for a in agents if a["npn"] == PLANTED_NPN]
+    licenses = agent["license_states"]
+    assert "TX" in (licenses.split("|") if isinstance(licenses, str) else licenses)
+    assert not [
+        r
+        for r in rts
+        if (r["npn"], r["carrier"], r["state"], str(r["plan_year"]), r["line_of_business"])
+        == (PLANTED_NPN, "Harborline", "TX", "2026", "MA")
+    ]
+    (line,) = [
+        ln
+        for ln in lines
+        if (ln["carrier"], ln["statement_period"], str(ln["line_no"]))
+        == ("Harborline", "2026-08", str(ORPHAN_LINE["line_no"]))
+    ]
+    assert line["policy_ref"] in (None, "") and str(line["amount"]) == "61.05"
+    assert line["carrier_member_id"] == "HL-998213"
+
+
+def _example_3_truth(defects: list[Defect] | tuple[Defect, ...]) -> None:
+    on_policy = [d for d in defects if d["record_key"] == {"policy_id": PLANTED_POLICY}]
+    assert [(d["defect_type"], d["expected_rule_ids"]) for d in on_policy] == [
+        ("rts_gap", ["RTS-001"])
+    ]
+
+
+def test_example_3_still_holds_after_every_injector() -> None:
+    """Issue 29: the RTS gap is checked on the injected world, not only on the planted one."""
+    world, defects = injected()
+    t = world.tables
+    _example_3_holds(t["policies"], t["agents"], t["rts"], t["commission_lines"])
+    _example_3_truth(defects)
+
+
+def test_example_3_still_holds_in_the_committed_fixture() -> None:
+    folder = FIXTURE / "canonical-defected"
+
+    def read(table: str) -> list[dict[str, Any]]:
+        with (folder / f"{table}.csv").open(encoding="utf-8") as f:
+            return list(csv.DictReader(f))
+
+    _example_3_holds(read("policies"), read("agents"), read("rts"), read("commission_lines"))
+    _example_3_truth(load_ground_truth(FIXTURE / "ground_truth.json")["defects"])
