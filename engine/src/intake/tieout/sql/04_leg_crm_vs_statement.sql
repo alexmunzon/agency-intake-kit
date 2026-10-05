@@ -10,6 +10,6 @@ SELECT b.policy_id, b.carrier, b.carrier_member_id, b.agent_npn, b.status,
        b.status = 'ACTIVE' AS agrees,
        bool_and(l.match_method = 'NAME_DOB') AS weak
 FROM line_match AS l
-JOIN book AS b USING (policy_id)
+JOIN book AS b USING (carrier, policy_id)
 WHERE NOT l.is_chargeback
 GROUP BY ALL;

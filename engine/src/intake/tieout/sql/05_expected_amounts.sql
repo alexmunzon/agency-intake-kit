@@ -24,7 +24,7 @@ LEFT JOIN rate_table AS r
 CREATE OR REPLACE VIEW due_expected AS
 SELECT d.*, e.expected
 FROM leg_book_vs_statement AS d
-JOIN in_force_expected AS e USING (policy_id, statement_period);
+JOIN in_force_expected AS e USING (carrier, policy_id, statement_period);
 
 -- A carrier and period the book expected money for, with no statement at all.
 CREATE OR REPLACE VIEW missing_statements AS
@@ -43,7 +43,7 @@ SELECT l.*, r.monthly_amount AS expected,
                             OR coalesce(b.termination_date <= last_day(l.period_start), false))
            AS expected_chargeback
 FROM line_match AS l
-JOIN book AS b USING (policy_id)
+JOIN book AS b USING (carrier, policy_id)
 CROSS JOIN tolerances AS t
 LEFT JOIN rate_table AS r
   ON r.line_of_business = b.line_of_business

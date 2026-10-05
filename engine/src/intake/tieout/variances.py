@@ -47,7 +47,9 @@ RULES = {
 def _message(f: Mapping[str, Any]) -> str:
     match f["rule_id"]:
         case "TIE-001":
-            return f"An active policy has no commission line in {f['statement_period']}"
+            return f"An active policy has no confirmed commission link in {f['statement_period']}"
+        case "TIE-002" if f["reason_code"] == "UNRESOLVED_LINK":
+            return "Commission policy attribution is unresolved; review the candidate evidence"
         case "TIE-002":
             return f"{f['carrier']} paid a commission for a member who is not in the book"
         case "TIE-003" if f["reason_code"] == "AMOUNT_BLANK":

@@ -20,6 +20,11 @@ from synth_agency_data.writers import write_drop
 FIXTURES = Path(__file__).parents[3] / "fixtures"
 AGENCY_A = FIXTURES / "agency-a"
 LEG_RULE = {"TIE-001": "A", "TIE-002": "B", "TIE-003": None, "TIE-004": "C"}
+# REF-001 on P-01324 induces a strong-versus-name/DOB conflict in three statements.
+LINK_CONFLICTS = {
+    "TIE-001": {("P-01324",)},
+    "TIE-002": {("Meridian Care", f"2026-{month}", 193) for month in ("06", "07", "08")},
+}
 
 
 @pytest.fixture(scope="module")
@@ -51,7 +56,7 @@ def test_each_rule_finds_exactly_its_ground_truth_defects(
     found = {
         _key(rule_id, v.model_dump()) for v in defected.variances.variances if v.rule_id == rule_id
     }
-    assert planted and found == planted
+    assert planted and found == planted | LINK_CONFLICTS.get(rule_id, set())
 
 
 def test_each_leg_file_holds_its_own_rule(defected: TieOutResult) -> None:
@@ -226,9 +231,9 @@ def test_totals_tolerance_is_half_a_percent(amount: str, within: bool) -> None:
 def test_a_name_and_dob_match_is_weak_and_flagged() -> None:
     result = _tiny([_line(1, None, None, "26.25")], [_policy("P-1", "MA", "BP-1")])
     leg_b = result.legs[1]
-    assert (leg_b.matched, leg_b.weak_matched, leg_b.unmatched) == (1, 1, 0)
-    assert [r.rule_id for r in result.exceptions] == ["TIE-006"]
-    assert result.exceptions[0].severity == "INFO"
+    assert (leg_b.matched, leg_b.weak_matched, leg_b.unmatched) == (0, 0, 1)
+    assert [r.rule_id for r in result.exceptions] == ["TIE-001", "TIE-002", "TIE-006"]
+    assert result.exceptions[-1].severity == "INFO"
 
 
 def test_status_conflict_and_unpaid_policy() -> None:
