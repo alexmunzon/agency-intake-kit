@@ -47,7 +47,11 @@ The files in `runs/<run_id>/` that the dashboard and report read. Code: `engine/
 
 ## Sample runs (the contract)
 
-`fixtures/sample-run/` (PASSED_WITH_WARNINGS, with examples 3 and 4), `fixtures/sample-run-failed/` (CMP-001, 2,600 expected and 2,574 received, all legs NOT_RUN, empty RTS coverage, no `clean/`), and `fixtures/sample-run-passed/` (PASSED, info only). Synthetic data. Tests run `check_run_dir` on each one and check that every file is byte-for-byte what the models write, so money can never sneak in as a number. Messages do not repeat raw values; the masked value is in `value_minimized` and amounts are in the tie-out files. When an output model changes, update the samples and regenerate the types.
+`fixtures/sample-run/` (PASSED_WITH_WARNINGS, with examples 3 and 4), `fixtures/sample-run-failed/` (CMP-001, 2,600 expected and 2,574 received, all legs NOT_RUN, empty RTS coverage, no `clean/`), `fixtures/sample-run-passed/` (PASSED, info only), and `fixtures/sample-run-partial/` (a copy of sample-run where the CRM vs statement leg did not run, so two legs ran and one is NOT_RUN with a reason and no counts). Synthetic data. Tests run `check_run_dir` on each one and check that every file is byte-for-byte what the models write, so money can never sneak in as a number. Messages do not repeat raw values; the masked value is in `value_minimized` and amounts are in the tie-out files. When an output model changes, update the samples and regenerate the types.
+
+## Comparing two runs
+
+`uv run intake diff <run_a> <run_b>` prints what changed, in plain language: the status, exception counts by severity, new and resolved exceptions by rule, and each tie-out leg's differences with the dollar change. Exception ids are numbered per run, so two records count as the same problem when they share rule, source, field, and the row's raw hash (or the message, for file-level records). It exits 0, or 1 when a folder is not a run.
 
 ## TypeScript for the dashboard
 

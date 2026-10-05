@@ -1,0 +1,63 @@
+{
+  "run_id": "sample-run-partial",
+  "started_at": "2026-10-01T09:00:00Z",
+  "finished_at": "2026-10-01T09:00:47Z",
+  "engine_version": "0.0.0",
+  "status": "PASSED_WITH_WARNINGS",
+  "status_reason": "No blockers. 4 errors kept their rows out of the load files. The CRM vs statement check did not run.",
+  "inputs": [
+    {
+      "source": "crm",
+      "file_name": "crm_export.csv",
+      "sha256": "cbd6c640b21d61df3d66cf8ddbafd5479fc0a2ce92f41630c8a47b9a3c5089a3",
+      "rows_expected": 2600,
+      "rows_received": 2600
+    },
+    {
+      "source": "enrollment",
+      "file_name": "enrollment_export.csv",
+      "sha256": "e3c305aa9f353d283eae3fe0630457df9a5965e0f82bfea1322ded0f388c22b0",
+      "rows_expected": 2600,
+      "rows_received": 2600
+    },
+    {
+      "source": "statement_harborline",
+      "file_name": "harborline_statements.xlsx",
+      "sha256": "d12286bd7b1f3532e1a71f23bfd971b11660cc5167d23bb87d42f895c7d80b6a",
+      "rows_expected": 1490,
+      "rows_received": 1490
+    },
+    {
+      "source": "statement_crestview",
+      "file_name": "crestview_mutual_statements.xlsx",
+      "sha256": "3e1c31b200e9d30c6de53672dcbae8ff68b6c775b5160348198f116cc4d17513",
+      "rows_expected": 935,
+      "rows_received": 935
+    },
+    {
+      "source": "roster",
+      "file_name": "agent_roster.xlsx",
+      "sha256": "7d678afca9bc244fd0be4665535a78558e0f684ee906a7e4ae702ea9c840faa8",
+      "rows_expected": 140,
+      "rows_received": 140
+    }
+  ],
+  "jev": {
+    "mode": "replay",
+    "calls": 38,
+    "input_tokens": 21450,
+    "output_tokens": 152,
+    "estimated_cost_usd": "0.000901"
+  },
+  "thresholds": {
+    "jev_budget_usd": 0.5,
+    "map_auto_confidence": 0.85,
+    "map_review_confidence": 0.6,
+    "pii_redact_probability": 0.5,
+    "tie_line_tolerance_pct": 0.01,
+    "tie_line_tolerance_usd": 1.0,
+    "tie_total_tolerance_pct": 0.005,
+    "triage_business_event_max": 0.2,
+    "triage_entry_error_min": 0.8
+  }
+}
