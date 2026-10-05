@@ -17,7 +17,8 @@ SELECT 'TIE-001' AS rule_id, 'NO_PAYMENT' AS reason_code, carrier, statement_per
        'policies' AS source, 'policy_id' AS field, policy_id AS raw_value, _rec
 FROM due_expected WHERE NOT is_paid
 UNION ALL
-SELECT 'TIE-002', 'ORPHAN_PAYMENT', carrier, statement_period, line_no, NULL,
+SELECT 'TIE-002', CASE WHEN link_state = 'unmatched' THEN 'ORPHAN_PAYMENT'
+                      ELSE 'UNRESOLVED_LINK' END, carrier, statement_period, line_no, NULL,
        carrier_member_id, agent_npn, amount, NULL,
        'commission_lines', 'carrier_member_id', carrier_member_id, _rec
 FROM leg_statement_vs_book WHERE NOT is_matched
@@ -61,7 +62,7 @@ SELECT 'BOOK_VS_STATEMENT' AS leg, count(*) FILTER (is_paid) AS matched,
 FROM leg_book_vs_statement
 UNION ALL
 SELECT 'STATEMENT_VS_BOOK', count(*) FILTER (is_matched), count(*) FILTER (NOT is_matched),
-       count(*) FILTER (weak)
+       count(*) FILTER (weak AND is_matched)
 FROM leg_statement_vs_book
 UNION ALL
 SELECT 'CRM_VS_STATEMENT', count(*) FILTER (agrees), count(*) FILTER (NOT agrees),

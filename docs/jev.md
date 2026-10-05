@@ -180,14 +180,15 @@ asked once. The gate's returned text is what every output writes.
 | Part | Exceptions | Calls |
 |---|---|---|
 | Header and enum mapping (PR 7, recorded) | 8 questions asked | 7 |
-| Triage: row rules, cross-record checks, tie-out (PR 8, 9, 10) | 705 errors and warnings | 157 |
+| Triage: row rules, cross-record checks, tie-out (PR 8, 9, 10) | 711 errors and warnings | 157 |
 | PII gate (26 planted notes, all caught by the regex layer) | 26 | 0 |
 | **Total** | | **164** |
 
 Measured on the real drop path in PR 12 (readers, mapping, canonical tables), not the old
 canonical copy. The savings come from grouping: requests with the same rule, field, value shape,
 and neighbors are sent once, so 54 missing MBIs (MBI-003) cost one call. Without deduplication
-the run would send 705 triage requests.
+the run would send 711 triage requests. The bounded link slice adds six exceptions for the
+planted P-01324 identity conflict; the grouped call count remains unchanged.
 
 **Test cassettes.** `engine/tests/cassettes/synthetic/` holds hand-made answers for the triage and
 PII shapes (model `synthetic-hand-made`). They are not recordings. They sit in a subfolder so the

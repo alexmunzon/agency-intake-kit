@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Preserve conservative reconciliation states and carrier isolation; keep weak/conflicting evidence unresolved.
 - Preserve optional unresolved-evidence row references for absent CRM and missing, blank or malformed DOB. Keep raw safety gates, load exclusions and unavailable comparisons unchanged.
 
 - Show neutral statement finance reviews in Runs, with an optional validated finance.json sidecar and a clearly separate synthetic example. Preserve exact decimal strings, unresolved classifications and source mapping provenance.
