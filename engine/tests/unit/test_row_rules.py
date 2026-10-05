@@ -10,8 +10,8 @@ import pytest
 
 from agency_schema.enums import Severity
 from intake.rules import ROW_FAMILIES, run_row_rules
-from intake.rules._canonical_io import frame_from_rows
 from intake.rules.frames import client_frame, policy_frame
+from intake.run.canonicalize import frame_from_rows
 
 AS_OF = date(2026, 10, 1)
 CLIENT = {

@@ -42,7 +42,7 @@ describe("Overview", () => {
   it("answers no for the failed sample and never shows a missing check as zero", async () => {
     await show("sample-run-failed");
     expect(screen.getByText("No. A blocker stopped the run.")).toBeInTheDocument();
-    expect(screen.getByText("crm_export.csv: expected 2,600 rows, received 2,574.")).toBeInTheDocument();
+    expect(screen.getByText("crm_export.csv: expected 2,680 rows, received 2,574.")).toBeInTheDocument();
     expect(tile("Blockers").getByText("1")).toBeInTheDocument();
     expect(tile("Errors").getByText("Not checked")).toBeInTheDocument();
     expect(tile("Warnings").getByText("Not checked")).toBeInTheDocument();

@@ -10,8 +10,8 @@ import polars as pl
 import pytest
 
 from intake.readers import build_frame
+from intake.run.pipeline import canonical_from_drop
 from intake.tieout import TieOutResult, run_tieout
-from intake.tieout._canonical_io import read_canonical
 from synth_agency_data.canonical_writer import load_ground_truth
 
 AGENCY_A = Path(__file__).parents[3] / "fixtures" / "agency-a"
@@ -95,17 +95,11 @@ def _key(rule_id: str, v: dict[str, object]) -> tuple[object, ...]:
 
 
 def test_six_statement_files_find_exactly_the_ground_truth() -> None:
-    """#53: the fixture's lines split into one file per carrier, rows numbered from 4 each."""
-    tables = dict(read_canonical(AGENCY_A / "canonical-defected"))
+    """#53: the real drop has one statement file per carrier, rows numbered from 4 in each."""
+    tables = canonical_from_drop(AGENCY_A / "drop").tables
     lines = tables["commission_lines"]
-    assert lines is not None
-    tables["commission_lines"] = pl.concat(
-        part.with_columns(
-            pl.lit(f"commissions_{carrier}.xlsx").alias("_source_file"),
-            pl.int_range(4, part.height + 4, dtype=pl.Int64).alias("_row_number"),
-        )
-        for (carrier,), part in lines.group_by("carrier", maintain_order=True)
-    )
+    files = lines["lineage"].struct.field("source_file").unique()
+    assert files.len() == 6, "the real drop has one statement file per carrier"
     result = run_tieout(tables, run_id="test-run")
     truth = load_ground_truth(AGENCY_A / "ground_truth.json")["defects"]
     for rule_id in ("TIE-001", "TIE-002", "TIE-003", "TIE-004", "TIE-005"):

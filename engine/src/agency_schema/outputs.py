@@ -83,11 +83,15 @@ class Manifest(StrictModel):
     run_id: NonEmpty
     started_at: AwareDatetime
     finished_at: AwareDatetime
+    as_of: AwareDatetime | None  # the frozen clock (--as-of) when given, else None
     engine_version: NonEmpty
     status: RunStatus
     status_reason: OptionalText  # one plain sentence for the banner; None only when PASSED
     inputs: tuple[InputFile, ...]
     jev: JevUsage
+    # The $0.50 spend cap was reached: Jev went off for the rest of the run (SPEC "Spend cap").
+    # jev.mode stays the configured mode; calls and tokens are what was actually used.
+    budget_tripped: StrictBool
     thresholds: dict[NonEmpty, float]  # config.py values used by this run
 
     @model_validator(mode="after")

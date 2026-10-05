@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intake report demo</title>
+<style>
+:root { --bg: #f8fafc; --card: #fff; --text: #0f172a; --muted: #475569; --line: #e2e8f0;
+  --ok: #059669; --warn: #d97706; --bad: #e11d48; --accent: #4f46e5; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #020617; --card: #0f172a; --text: #f1f5f9; --muted: #94a3b8; --line: #1e293b;
+    --ok: #34d399; --warn: #fbbf24; --bad: #fb7185; --accent: #818cf8; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 14px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 32px 16px; }
+h1 { font-size: 24px; margin: 0 0 4px; } h2 { font-size: 18px; margin: 32px 0 8px; }
+.muted { color: var(--muted); } .mono, td.mono { font-family: ui-monospace, Menlo, monospace; }
+.banner { border: 2px solid var(--line); border-left-width: 8px; border-radius: 8px;
+  background: var(--card); padding: 16px 20px; margin: 16px 0; }
+.banner.PASSED { border-color: var(--ok); } .banner.PASSED_WITH_WARNINGS { border-color: var(--warn); }
+.banner.FAILED { border-color: var(--bad); }
+.banner strong { font-size: 18px; display: block; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.tile b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); } td.num, th.num { text-align: right; }
+</style>
+</head>
+<body>
+<main>
+<h1>Can this agency go live?</h1>
+<p class="muted">Run <span class="mono">demo</span>, engine 0.0.0,
+frozen clock 2026-10-01T09:00:00+00:00.
+Synthetic data only.</p>
+
+<section class="banner PASSED_WITH_WARNINGS" aria-label="Run status">
+<strong>Yes, with fixes. The load files exclude the rows below.</strong>
+<span>Status: PASSED_WITH_WARNINGS. No blockers. 308 errors keep their rows out of the load files and 423 warnings pass with a flag.</span>
+</section>
+
+<div class="tiles">
+<div class="tile">Rows received<b>14,879</b></div>
+<div class="tile">Rows mapped<b>13,032</b></div>
+<div class="tile">Rows ready to load<b>12,836</b></div>
+<div class="tile">Blockers<b>0</b></div>
+<div class="tile">Errors<b>308</b></div>
+<div class="tile">Warnings<b>423</b></div>
+<div class="tile">Info notes<b>13</b></div>
+<div class="tile">RTS gaps<b>26</b></div>
+<div class="tile">Jev calls<b>7</b>replay mode, about $0.000136</div>
+</div>
+
+<h2>Files received</h2>
+<div class="scroll"><table>
+<tr><th>Source</th><th>File</th><th class="num">Rows expected</th><th class="num">Rows received</th></tr>
+<tr><td class="mono">crm</td><td class="mono">crm_export.csv</td>
+<td class="num">2,680</td><td class="num">2,680</td></tr>
+<tr><td class="mono">enrollment</td><td class="mono">enrollment_export.csv</td>
+<td class="num">1,847</td><td class="num">1,847</td></tr>
+<tr><td class="mono">statement_northwind_health</td><td class="mono">commissions_northwind_health.xlsx</td>
+<td class="num">1,119</td><td class="num">1,119</td></tr>
+<tr><td class="mono">statement_bluepeak</td><td class="mono">commissions_bluepeak.xlsx</td>
+<td class="num">1,069</td><td class="num">1,069</td></tr>
+<tr><td class="mono">statement_harborline</td><td class="mono">commissions_harborline.xlsx</td>
+<td class="num">1,154</td><td class="num">1,154</td></tr>
+<tr><td class="mono">statement_cardinal_mutual</td><td class="mono">commissions_cardinal_mutual.xlsx</td>
+<td class="num">1,020</td><td class="num">1,020</td></tr>
+<tr><td class="mono">statement_summit_health_plans</td><td class="mono">commissions_summit_health_plans.xlsx</td>
+<td class="num">1,058</td><td class="num">1,058</td></tr>
+<tr><td class="mono">statement_meridian_care</td><td class="mono">commissions_meridian_care.xlsx</td>
+<td class="num">1,168</td><td class="num">1,168</td></tr>
+<tr><td class="mono">roster</td><td class="mono">agent_roster.xlsx</td>
+<td class="num">3,764</td><td class="num">3,764</td></tr>
+</table></div>
+
+<h2>Does the money agree?</h2>
+<div class="scroll"><table>
+<tr><th>Check</th><th>Result</th><th class="num">Matched</th><th class="num">Unmatched</th><th class="num">Differences</th><th class="num">Dollars</th></tr>
+<tr><td>Book vs statement (is every active policy paid?)</td>
+<td>Ran</td><td class="num">6,400</td><td class="num">131</td><td class="num">131</td><td class="num">$3,518.15</td>
+</tr>
+<tr><td>Statement vs book (is every payment for a known policy?)</td>
+<td>Ran</td><td class="num">6,520</td><td class="num">68</td><td class="num">68</td><td class="num">$1,567.40</td>
+</tr>
+<tr><td>CRM vs statement (do the statuses agree?)</td>
+<td>Ran</td><td class="num">2,177</td><td class="num">40</td><td class="num">40</td><td class="num">$0.00</td>
+</tr>
+</table></div>
+<h2>Totals by carrier</h2>
+<div class="scroll"><table>
+<tr><th>Carrier</th><th class="num">Book expected</th><th class="num">Statement paid</th><th class="num">Difference</th><th class="num">Unexplained revenue</th><th>Within 0.5 percent</th></tr>
+<tr><td>Bluepeak</td><td class="num">$27,220.00</td><td class="num">$27,439.51</td><td class="num">$219.51</td><td class="num">$271.35</td><td>No</td></tr>
+<tr><td>Cardinal Mutual</td><td class="num">$25,755.30</td><td class="num">$25,750.78</td><td class="num">-$4.52</td><td class="num">$264.00</td><td>Yes</td></tr>
+<tr><td>Harborline</td><td class="num">$28,969.95</td><td class="num">$29,119.65</td><td class="num">$149.70</td><td class="num">$318.85</td><td>No</td></tr>
+<tr><td>Meridian Care</td><td class="num">$29,719.80</td><td class="num">$29,734.13</td><td class="num">$14.33</td><td class="num">$144.50</td><td>Yes</td></tr>
+<tr><td>Northwind Health</td><td class="num">$27,701.35</td><td class="num">$27,677.23</td><td class="num">-$24.12</td><td class="num">$318.45</td><td>Yes</td></tr>
+<tr><td>Summit Health Plans</td><td class="num">$26,579.50</td><td class="num">$26,433.61</td><td class="num">-$145.89</td><td class="num">$250.25</td><td>No</td></tr>
+</table></div>
+
+<h2>What needs fixing, in order</h2>
+<div class="scroll"><table>
+<tr><th>Severity</th><th>Rule</th><th>Where</th><th>Problem</th><th>Suggested fix</th></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 1397</td>
+<td>ZIP 7**** is not in MO</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 2463</td>
+<td>ZIP 3**** is not in DE</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 399</td>
+<td>ZIP 4**** is not in LA</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 678</td>
+<td>ZIP 3**** is not in VA</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 1029</td>
+<td>ZIP 2**** is not in MO</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 2628</td>
+<td>ZIP 3**** is not in SC</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 844</td>
+<td>ZIP 9**** is not in KS</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 1645</td>
+<td>ZIP 7**** is not in VA</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 1547</td>
+<td>ZIP 1**** is not in ME</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 913</td>
+<td>ZIP 0**** is not in IL</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 2259</td>
+<td>ZIP 6**** is not in FL</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 2519</td>
+<td>ZIP 0**** is not in MI</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 1829</td>
+<td>ZIP 9**** is not in TX</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 457</td>
+<td>ZIP 8**** is not in MN</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 1808</td>
+<td>ZIP 5**** is not in LA</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 164</td>
+<td>ZIP 5**** is not in CA</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 713</td>
+<td>ZIP 6**** is not in LA</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 834</td>
+<td>ZIP 7**** is not in IL</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 1009</td>
+<td>ZIP 9**** is not in NE</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">ADR-002</td>
+<td class="mono">crm_export.csv row 1226</td>
+<td>ZIP 6**** is not in IL</td><td>Correct ZIP or state</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 1255</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 1561</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 2076</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 443</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 41</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 1537</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 1905</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 2235</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 2106</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 1329</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 1137</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 2292</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-002</td>
+<td class="mono">crm_export.csv row 18</td>
+<td>Term 20**-**-** precedes effective 20**-**-**</td><td>Correct the dates</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 2011</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 999</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 1473</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 797</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 2381</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 599</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 2429</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 727</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 745</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 2546</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 939</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 1008</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 1372</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 226</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 1362</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 1472</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+<tr><td>Error</td><td class="mono">DAT-003</td>
+<td class="mono">crm_export.csv row 2164</td>
+<td>Terminated on 20**-**-** yet marked active</td><td>Update status</td></tr>
+</table></div>
+<p class="muted">694 more in exceptions.jsonl.</p><h2>Problems by rule</h2>
+<div class="scroll"><table>
+<tr><th>Rule</th><th class="num">Count</th></tr>
+<tr><td class="mono">TIE-001</td><td class="num">131</td></tr>
+<tr><td class="mono">TIE-002</td><td class="num">68</td></tr>
+<tr><td class="mono">TIE-003</td><td class="num">66</td></tr>
+<tr><td class="mono">MBI-003</td><td class="num">54</td></tr>
+<tr><td class="mono">STA-001</td><td class="num">52</td></tr>
+<tr><td class="mono">TIE-005</td><td class="num">48</td></tr>
+<tr><td class="mono">TIE-004</td><td class="num">40</td></tr>
+<tr><td class="mono">RTS-001</td><td class="num">27</td></tr>
+<tr><td class="mono">DAT-003</td><td class="num">26</td></tr>
+<tr><td class="mono">DUP-001</td><td class="num">26</td></tr>
+<tr><td class="mono">PII-001</td><td class="num">26</td></tr>
+<tr><td class="mono">ADR-002</td><td class="num">20</td></tr>
+<tr><td class="mono">DUP-002</td><td class="num">20</td></tr>
+<tr><td class="mono">MBI-001</td><td class="num">20</td></tr>
+<tr><td class="mono">PLN-001</td><td class="num">20</td></tr>
+<tr><td class="mono">DAT-002</td><td class="num">13</td></tr>
+<tr><td class="mono">LIC-001</td><td class="num">13</td></tr>
+<tr><td class="mono">NPN-001</td><td class="num">13</td></tr>
+<tr><td class="mono">NPN-002</td><td class="num">13</td></tr>
+<tr><td class="mono">REF-001</td><td class="num">13</td></tr>
+<tr><td class="mono">DUP-003</td><td class="num">8</td></tr>
+<tr><td class="mono">RTS-002</td><td class="num">8</td></tr>
+<tr><td class="mono">ING-002</td><td class="num">6</td></tr>
+<tr><td class="mono">ING-003</td><td class="num">6</td></tr>
+<tr><td class="mono">PLN-002</td><td class="num">3</td></tr>
+<tr><td class="mono">PLN-004</td><td class="num">3</td></tr>
+<tr><td class="mono">ING-001</td><td class="num">1</td></tr>
+</table></div>
+
+<h2>Accuracy against the planted defects</h2>
+<p class="muted">False positives on clean rows: 0.0 percent.</p>
+<div class="scroll"><table>
+<tr><th>Defect type</th><th>Scored</th><th class="num">Planted</th><th class="num">Detected</th></tr>
+<tr><td class="mono">commission_off_schedule</td><td>Yes</td><td class="num">66</td><td class="num">66</td></tr>
+<tr><td class="mono">crm_status_conflict</td><td>Yes</td><td class="num">40</td><td class="num">40</td></tr>
+<tr><td class="mono">dob_month_day_swap</td><td>No, reported only</td><td class="num">10</td><td class="num">0</td></tr>
+<tr><td class="mono">dob_transposition</td><td>No, reported only</td><td class="num">20</td><td class="num">0</td></tr>
+<tr><td class="mono">duplicate_policy_id</td><td>Yes</td><td class="num">8</td><td class="num">8</td></tr>
+<tr><td class="mono">exact_duplicate_row</td><td>Yes</td><td class="num">26</td><td class="num">26</td></tr>
+<tr><td class="mono">invalid_mbi</td><td>Yes</td><td class="num">20</td><td class="num">20</td></tr>
+<tr><td class="mono">license_gap</td><td>Yes</td><td class="num">13</td><td class="num">13</td></tr>
+<tr><td class="mono">messy_status</td><td>Yes</td><td class="num">52</td><td class="num">52</td></tr>
+<tr><td class="mono">missing_commission_line</td><td>Yes</td><td class="num">131</td><td class="num">131</td></tr>
+<tr><td class="mono">missing_mbi</td><td>Yes</td><td class="num">40</td><td class="num">40</td></tr>
+<tr><td class="mono">name_dob_collision</td><td>Yes</td><td class="num">20</td><td class="num">20</td></tr>
+<tr><td class="mono">name_typo</td><td>No, reported only</td><td class="num">40</td><td class="num">0</td></tr>
+<tr><td class="mono">near_duplicate_client</td><td>No, reported only</td><td class="num">30</td><td class="num">0</td></tr>
+<tr><td class="mono">nickname</td><td>No, reported only</td><td class="num">60</td><td class="num">0</td></tr>
+<tr><td class="mono">npn_malformed</td><td>Yes</td><td class="num">13</td><td class="num">13</td></tr>
+<tr><td class="mono">orphan_commission_line</td><td>Yes</td><td class="num">68</td><td class="num">68</td></tr>
+<tr><td class="mono">orphan_policy</td><td>Yes</td><td class="num">13</td><td class="num">13</td></tr>
+<tr><td class="mono">pii_in_notes</td><td>Yes</td><td class="num">26</td><td class="num">26</td></tr>
+<tr><td class="mono">plan_id_malformed</td><td>Yes</td><td class="num">26</td><td class="num">26</td></tr>
+<tr><td class="mono">rts_expired</td><td>Yes</td><td class="num">8</td><td class="num">8</td></tr>
+<tr><td class="mono">rts_gap</td><td>Yes</td><td class="num">27</td><td class="num">27</td></tr>
+<tr><td class="mono">statement_total_variance</td><td>Yes</td><td class="num">48</td><td class="num">48</td></tr>
+<tr><td class="mono">status_date_conflict</td><td>Yes</td><td class="num">26</td><td class="num">26</td></tr>
+<tr><td class="mono">term_before_effective</td><td>Yes</td><td class="num">13</td><td class="num">13</td></tr>
+<tr><td class="mono">unknown_writing_agent</td><td>Yes</td><td class="num">13</td><td class="num">13</td></tr>
+<tr><td class="mono">zip_state_mismatch</td><td>Yes</td><td class="num">20</td><td class="num">20</td></tr>
+</table></div>
+<p class="muted">Load files: written to clean/.</p>
+</main>
+</body>
+</html>

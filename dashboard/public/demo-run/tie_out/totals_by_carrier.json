@@ -4,20 +4,52 @@
   "not_run_reason": null,
   "rows": [
     {
-      "key": "Crestview Mutual",
-      "book_expected": "9875.50",
-      "statement_paid": "9844.50",
-      "difference": "-31.00",
-      "unexplained_revenue": "0.00",
+      "key": "Bluepeak",
+      "book_expected": "27220.00",
+      "statement_paid": "27439.51",
+      "difference": "219.51",
+      "unexplained_revenue": "271.35",
+      "within_tolerance": false
+    },
+    {
+      "key": "Cardinal Mutual",
+      "book_expected": "25755.30",
+      "statement_paid": "25750.78",
+      "difference": "-4.52",
+      "unexplained_revenue": "264.00",
       "within_tolerance": true
     },
     {
       "key": "Harborline",
-      "book_expected": "18240.00",
-      "statement_paid": "18301.05",
-      "difference": "61.05",
-      "unexplained_revenue": "61.05",
+      "book_expected": "28969.95",
+      "statement_paid": "29119.65",
+      "difference": "149.70",
+      "unexplained_revenue": "318.85",
+      "within_tolerance": false
+    },
+    {
+      "key": "Meridian Care",
+      "book_expected": "29719.80",
+      "statement_paid": "29734.13",
+      "difference": "14.33",
+      "unexplained_revenue": "144.50",
       "within_tolerance": true
+    },
+    {
+      "key": "Northwind Health",
+      "book_expected": "27701.35",
+      "statement_paid": "27677.23",
+      "difference": "-24.12",
+      "unexplained_revenue": "318.45",
+      "within_tolerance": true
+    },
+    {
+      "key": "Summit Health Plans",
+      "book_expected": "26579.50",
+      "statement_paid": "26433.61",
+      "difference": "-145.89",
+      "unexplained_revenue": "250.25",
+      "within_tolerance": false
     }
   ]
 }

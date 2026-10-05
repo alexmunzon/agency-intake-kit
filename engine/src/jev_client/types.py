@@ -122,7 +122,8 @@ class JevResponse(_Answer):
 class Unresolved(StrictModel):
     """No machine answer. Every question in the request goes to the human queue."""
 
-    reason: Literal["mode_off", "budget_tripped"]
+    # not_recorded: a run in replay found no cassette and sent the question to a person (PR 12)
+    reason: Literal["mode_off", "budget_tripped", "not_recorded"]
     question_ids: tuple[NonEmpty, ...]
 
 

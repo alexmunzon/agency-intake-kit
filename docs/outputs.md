@@ -13,7 +13,7 @@ The files in `runs/<run_id>/` that the dashboard and report read. Code: `engine/
 
 | File | Model | Holds |
 |---|---|---|
-| manifest.json | Manifest | run_id, start and finish times, engine version, status, `status_reason` (one sentence for the banner, required unless PASSED), input files (sha256, rows expected and received), Jev usage (mode, calls, tokens, estimated cost), thresholds used |
+| manifest.json | Manifest | run_id, start and finish times, `as_of` (the frozen clock from `--as-of`, else null), engine version, status, `status_reason` (one sentence for the banner, required unless PASSED), input files (sha256, rows expected and received), Jev usage (mode, calls, tokens, estimated cost), `budget_tripped` (the $0.50 spend cap was reached and Jev went off for the rest of the run; the mode stays the configured one), thresholds used |
 | scorecard.json | Scorecard | rows in, mapped, and clean; exception counts by severity and by rule; one tie-out summary per leg; RTS gap count; detection against ground truth per defect class, planted and detected (recall is detected divided by planted), or `None` |
 | tie_out/leg_book_vs_statement.json | LegResult | Leg A summary and its TIE-001 variances |
 | tie_out/leg_statement_vs_book.json | LegResult | Leg B summary and its TIE-002 variances (orphan payments) |
@@ -47,7 +47,7 @@ The files in `runs/<run_id>/` that the dashboard and report read. Code: `engine/
 
 ## Sample runs (the contract)
 
-`fixtures/sample-run/` (PASSED_WITH_WARNINGS, with examples 3 and 4), `fixtures/sample-run-failed/` (CMP-001, 2,600 expected and 2,574 received, all legs NOT_RUN, empty RTS coverage, no `clean/`), `fixtures/sample-run-passed/` (PASSED, info only), and `fixtures/sample-run-partial/` (a copy of sample-run where the CRM vs statement leg did not run, so two legs ran and one is NOT_RUN with a reason and no counts). Synthetic data. Tests run `check_run_dir` on each one and check that every file is byte-for-byte what the models write, so money can never sneak in as a number. Messages do not repeat raw values; the masked value is in `value_minimized` and amounts are in the tie-out files. When an output model changes, update the samples and regenerate the types.
+`fixtures/sample-run/` (PASSED_WITH_WARNINGS, with examples 3 and 4), `fixtures/sample-run-failed/` (CMP-001, 2,680 expected and 2,574 received, all legs NOT_RUN, empty RTS coverage, no `clean/`), `fixtures/sample-run-passed/` (PASSED, info only), and `fixtures/sample-run-partial/` (a copy of sample-run where the CRM vs statement leg did not run, so two legs ran and one is NOT_RUN with a reason and no counts). Synthetic data. Tests run `check_run_dir` on each one and check that every file is byte-for-byte what the models write, so money can never sneak in as a number. Messages do not repeat raw values; the masked value is in `value_minimized` and amounts are in the tie-out files. When an output model changes, update the samples and regenerate the types.
 
 ## Comparing two runs
 

@@ -69,22 +69,30 @@ class TriageItem:
 def attach_rows(
     records: Iterable[ExceptionRecord], frames: Iterable[pl.DataFrame]
 ) -> list[TriageItem]:
-    """Pair each record with the frame row its lineage points to (frames carry `lineage`)."""
-    rows = {_where(row): row for frame in frames for row in frame.iter_rows(named=True)}
+    """Pair each record with the frame row its lineage points to (frames carry `lineage`).
+
+    Rows are keyed by file, sheet, and row number: the roster's two sheets share row numbers.
+    When several frames hold the same source row (a CRM row is a policy and maybe a client),
+    their fields merge and the later frame wins a shared field name.
+    """
+    rows: dict[tuple[str, str | None, int], dict[str, Any]] = {}
+    for frame in frames:
+        for row in frame.iter_rows(named=True):
+            rows.setdefault(_where(row), {}).update(row)
     return [
         TriageItem(
-            r, rows.get((r.lineage.source_file, r.lineage.row_number)) if r.lineage else None
+            r,
+            rows.get((r.lineage.source_file, r.lineage.sheet, r.lineage.row_number))
+            if r.lineage
+            else None,
         )
         for r in records
     ]
 
 
-def _where(row: Mapping[str, Any]) -> tuple[str, int]:
-    # A `lineage` struct (PR 8 frames) or flat _file and _row columns (PR 9's loader, until
-    # PR 4's readers give every frame one shape).
-    if "lineage" in row:
-        return row["lineage"]["source_file"], row["lineage"]["row_number"]
-    return row["_file"], row["_row"]
+def _where(row: Mapping[str, Any]) -> tuple[str, str | None, int]:
+    lineage = row["lineage"]
+    return lineage["source_file"], lineage["sheet"], lineage["row_number"]
 
 
 def value_shape(value: Any) -> str | None:

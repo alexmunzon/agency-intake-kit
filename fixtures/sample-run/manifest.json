@@ -2,6 +2,7 @@
   "run_id": "sample-run",
   "started_at": "2026-10-01T09:00:00Z",
   "finished_at": "2026-10-01T09:00:47Z",
+  "as_of": "2026-10-01T09:00:00Z",
   "engine_version": "0.0.0",
   "status": "PASSED_WITH_WARNINGS",
   "status_reason": "No blockers. 4 errors kept their rows out of the load files.",
@@ -49,6 +50,7 @@
     "output_tokens": 152,
     "estimated_cost_usd": "0.000901"
   },
+  "budget_tripped": false,
   "thresholds": {
     "jev_budget_usd": 0.5,
     "map_auto_confidence": 0.85,

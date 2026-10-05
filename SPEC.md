@@ -136,7 +136,7 @@ A leg whose source is missing is NOT_RUN, never silently passed. Each leg report
 
 ## Run outputs
 
-`runs/<run_id>/`, immutable. An existing run_id is refused unless `--overwrite` is passed. `--now <iso>` freezes the clock so demo output and screenshots do not churn.
+`runs/<run_id>/`, immutable. The command is `intake run --in <drop folder> --out <run folder> [--jev replay|off] [--as-of <iso>] [--overwrite]`; the run folder's name is the run_id. An existing run folder is refused unless `--overwrite` is passed. `--as-of <iso>` freezes the clock so demo output and screenshots do not churn, and the manifest records it as `as_of`. ground_truth.json beside drop/ is found on its own.
 
 | File | Purpose | Read by dashboard |
 |---|---|---|
