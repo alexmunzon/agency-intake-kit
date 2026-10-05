@@ -27,3 +27,12 @@ Rules decide. Models fill gaps and order queues. In practice:
 - A cassette must be recorded against the exact requests the real pipeline sends, or replay misses. So recording waits for the real source files (PR 7) and the full pipeline (PR 12).
 - Some items a model could have settled go to a human instead. That is the intended trade.
 - Shipped so far: the Jev client with its modes, cassettes, retries, and spend accounting (PR 6). The four questions are wired in by PR 7 and PR 11, which have not shipped.
+
+## Update 2026-10-05
+
+The original text above is kept as written. What changed since:
+
+- All four questions are wired in: header mapping and enum values (PR 7), triage and the PII gate (PR 11), all run by `intake run` (PR 12).
+- **The spend cap works end to end.** When estimated spend reaches the cap, Jev switches off for the rest of the run, the remaining questions go to the person queue, and the run still completes. The manifest records this in a new field, `budget_tripped`, next to the configured mode, calls, and tokens. A test sets a tiny budget and checks all three (`engine/tests/e2e/test_gates_and_clean_world.py`).
+- The placeholder answers are gone. The seven mapping cassettes are real TypeSafe answers (7 requests, 3,239 input tokens, about $0.000136, CHANGELOG "Real Jev mapping cassettes recorded"). In replay, a question with no recording goes to a person and is counted, so a missing recording never stops a run.
+- Rules still have the last word. Normalizing a value never hides a non-standard source: status, line of business, and state keep their raw value, and STA-001 and ADR-003 judge the raw value (PR 12).

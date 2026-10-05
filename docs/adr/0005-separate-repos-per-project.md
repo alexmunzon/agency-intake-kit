@@ -29,3 +29,11 @@ Rules that keep extraction cheap:
 - Until extraction, a fix to a shared package must be copied by hand. The CHANGELOG records each shared-package change so nothing is missed.
 - Extraction is a later, separate piece of work. Nothing in this repo depends on `agency-data-commons` yet.
 - The generator already plants defects meant for bob-resolve (name typos, nicknames, swapped birth dates). This kit does not score them (SPEC, "Out of scope").
+
+## Update 2026-10-05
+
+The original text above is kept as written. What changed since, and what bob-resolve's extraction (its PR 0) must cut:
+
+- `jev_client` still imports from this repo's pipeline: `client.py` reads `JEV_API_URL`, `JEV_BUDGET_USD`, `JEV_MAX_TRIES`, `JEV_TIMEOUT_S`, and `JEV_BACKOFF_BASE_S` from `intake/config.py`; `types.py` reads `JEV_MODEL`; `cost.py` reads `JEV_USD_PER_MTOK_IN`. These must move into `jev_client` (or be passed in) before extraction.
+- `jev_client/client.py` sets `DEFAULT_CASSETTE_DIR` to this repo's `engine/tests/cassettes` by file path. The extracted package must take the cassette folder as an argument instead. This repo then passes `engine/tests/cassettes/mapping` and `engine/tests/cassettes/run`, as `intake/run/jev.py` already does.
+- The pipeline's own run wrapper (`intake/run/jev.py`, one client and one budget per run, "not recorded" answers go to a person) stays in this repo. It is pipeline code, not shared code.
