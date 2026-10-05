@@ -22,19 +22,22 @@
   "response": {
     "answers": {
       "value": {
-        "choice": "unknown",
-        "confidence": 0.88,
+        "choice": "PENDING",
+        "confidence": 0.84,
         "probabilities": {
-          "TERMINATED": 0.12,
-          "unknown": 0.88
+          "ACTIVE": 0.01,
+          "CANCELLED": 0.0,
+          "PENDING": 0.87,
+          "TERMINATED": 0.0,
+          "unknown": 0.12
         },
         "type": "choice"
       }
     },
-    "model": "handmade-placeholder",
+    "model": "jev-1.13.0",
     "usage": {
-      "input_tokens": 139,
-      "output_tokens": 1
+      "input_tokens": 399,
+      "output_tokens": 61
     }
   }
 }

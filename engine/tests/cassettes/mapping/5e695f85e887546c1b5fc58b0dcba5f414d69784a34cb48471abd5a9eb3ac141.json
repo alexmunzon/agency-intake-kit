@@ -53,18 +53,44 @@
     "answers": {
       "field": {
         "choice": "clients.dob",
-        "confidence": 0.93,
+        "confidence": 1.0,
         "probabilities": {
-          "clients.dob": 0.93,
-          "clients.full_name": 0.07
+          "clients.address_line1": 0.0,
+          "clients.city": 0.0,
+          "clients.client_id": 0.0,
+          "clients.dob": 1.0,
+          "clients.email": 0.0,
+          "clients.first_name": 0.0,
+          "clients.full_name": 0.0,
+          "clients.household_id": 0.0,
+          "clients.last_name": 0.0,
+          "clients.mbi": 0.0,
+          "clients.notes": 0.0,
+          "clients.phone": 0.0,
+          "clients.state": 0.0,
+          "clients.zip": 0.0,
+          "none": 0.0,
+          "policies.carrier": 0.0,
+          "policies.carrier_member_id": 0.0,
+          "policies.client_id": 0.0,
+          "policies.effective_date": 0.0,
+          "policies.eligibility_reason": 0.0,
+          "policies.line_of_business": 0.0,
+          "policies.monthly_premium": 0.0,
+          "policies.plan_id": 0.0,
+          "policies.policy_id": 0.0,
+          "policies.state": 0.0,
+          "policies.status": 0.0,
+          "policies.termination_date": 0.0,
+          "policies.writing_agent_npn": 0.0
         },
         "type": "choice"
       }
     },
-    "model": "handmade-placeholder",
+    "model": "jev-1.13.0",
     "usage": {
-      "input_tokens": 454,
-      "output_tokens": 1
+      "input_tokens": 729,
+      "output_tokens": 297
     }
   }
 }

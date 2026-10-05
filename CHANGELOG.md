@@ -299,3 +299,7 @@ One entry per PR.
 - Expected Jev calls for fixtures/agency-a: 7 requests (8 asked; Northwind's and Cardinal's "Paid" are the same request). Estimated cost about $0.00006.
 - 7 hand-made cassettes in `engine/tests/cassettes/mapping/`, built from the real request hashes and marked `"model": "handmade-placeholder"`. The record command replaces them. No Jev spend in this PR: every test uses replay or httpx.MockTransport.
 - `config.py` PR 7 section: MAP_AUTO, MAP_SUGGEST, ENUM_AUTO, sample limits, the 9-digit pattern, and the token estimate for the cost preview.
+
+## Real Jev mapping cassettes recorded (2026-10-05)
+
+- The seven hand-made mapping cassettes are replaced by real TypeSafe answers recorded with `intake jev record-mapping` on fixtures/agency-a: 7 requests, 3,239 input tokens, estimated cost $0.000136, approved by Alex. No key or header is stored. The recording test now seeds hand-made placeholders explicitly.

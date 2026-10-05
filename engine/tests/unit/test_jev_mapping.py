@@ -276,8 +276,14 @@ def test_record_mapping_refuses_without_record_mode(monkeypatch: pytest.MonkeyPa
 def test_record_mapping_prints_count_and_estimate_first(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
+    # Seed the temp folder with hand-made placeholders (the committed cassettes are now real
+    # recordings, which the command keeps rather than paying for again).
     for path in MAPPING_CASSETTES.glob("*.json"):
-        (tmp_path / path.name).write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data["response"]["model"] = cli.HANDMADE_MODEL
+        (tmp_path / path.name).write_text(
+            json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
     monkeypatch.setenv("JEV_MODE", "record")
     monkeypatch.setenv("TYPESAFE_API_KEY", "ts-test-key-NEVER-PRINT")
 
