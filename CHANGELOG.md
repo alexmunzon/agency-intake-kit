@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add a deterministic statement receipt ledger with duplicate evidence, explicit revisions, historical provenance, grouped active totals and separate unresolved correction amounts. Canonical structured content is hashed internally before deduplication.
+
 - Add a synthetic single-statement finance review command with separate revenue categories and transaction kinds, exact signed totals, versioned mapping metadata and neutral JSON/CSV exports. Unknown classifications remain unresolved and policy attribution stays empty. Duplicate/replacement ledger selection follows separately.
 
 One entry per PR.

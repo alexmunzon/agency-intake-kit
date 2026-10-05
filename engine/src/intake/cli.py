@@ -117,6 +117,25 @@ def finance_review(
     typer.echo(review_csv(review) if output_format == "csv" else review_json(review), nl=False)
 
 
+@app.command("finance-ledger")
+def finance_ledger(
+    receipts: Annotated[Path, typer.Option(help="Synthetic ordered receipt batch JSON.")],
+    mapping: Annotated[Path, typer.Option(help="Versioned mapping for this carrier.")],
+) -> None:
+    """Print active revenue and unresolved corrections without counting duplicate receipts."""
+    from intake.revenue import RevenueMapping
+    from intake.revenue_ledger import ReceiptBatch, reconcile_receipts
+
+    try:
+        batch = ReceiptBatch.model_validate_json(receipts.read_text())
+        rules = RevenueMapping.model_validate_json(mapping.read_text())
+        ledger = reconcile_receipts(batch.receipts, rules)
+    except (OSError, ValueError):
+        typer.echo("Finance ledger refused: invalid receipts or mapping.", err=True)
+        raise typer.Exit(2) from None
+    typer.echo(ledger.model_dump_json(indent=2))
+
+
 def _clock(as_of: str | None) -> datetime | None:
     if as_of is None:
         return None
