@@ -14766,6 +14766,24 @@
     {
       "source": "clients",
       "record_key": {
+        "client_id": "C-00004"
+      },
+      "row_ref": 5,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02001"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 6
+    },
+    {
+      "source": "clients",
+      "record_key": {
         "client_id": "C-02001"
       },
       "row_ref": 2002,
@@ -14781,6 +14799,24 @@
       "source_file": "crm_export.csv",
       "sheet": null,
       "source_row": null
+    },
+    {
+      "source": "clients",
+      "record_key": {
+        "client_id": "C-00270"
+      },
+      "row_ref": 271,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02002"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 355
     },
     {
       "source": "clients",
@@ -14804,6 +14840,24 @@
     {
       "source": "clients",
       "record_key": {
+        "client_id": "C-00711"
+      },
+      "row_ref": 712,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02003"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 930
+    },
+    {
+      "source": "clients",
+      "record_key": {
         "client_id": "C-02003"
       },
       "row_ref": 2004,
@@ -14819,6 +14873,24 @@
       "source_file": "crm_export.csv",
       "sheet": null,
       "source_row": null
+    },
+    {
+      "source": "clients",
+      "record_key": {
+        "client_id": "C-00791"
+      },
+      "row_ref": 792,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02004"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 1037
     },
     {
       "source": "clients",
@@ -14842,6 +14914,24 @@
     {
       "source": "clients",
       "record_key": {
+        "client_id": "C-01444"
+      },
+      "row_ref": 1445,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02005"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 1896
+    },
+    {
+      "source": "clients",
+      "record_key": {
         "client_id": "C-02005"
       },
       "row_ref": 2006,
@@ -14857,6 +14947,24 @@
       "source_file": "crm_export.csv",
       "sheet": null,
       "source_row": null
+    },
+    {
+      "source": "clients",
+      "record_key": {
+        "client_id": "C-01481"
+      },
+      "row_ref": 1482,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02006"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 1940
     },
     {
       "source": "clients",
@@ -14880,6 +14988,24 @@
     {
       "source": "clients",
       "record_key": {
+        "client_id": "C-01710"
+      },
+      "row_ref": 1711,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02007"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 2245
+    },
+    {
+      "source": "clients",
+      "record_key": {
         "client_id": "C-02007"
       },
       "row_ref": 2008,
@@ -14895,6 +15021,24 @@
       "source_file": "crm_export.csv",
       "sheet": null,
       "source_row": null
+    },
+    {
+      "source": "clients",
+      "record_key": {
+        "client_id": "C-01852"
+      },
+      "row_ref": 1853,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02008"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 2433
     },
     {
       "source": "clients",
@@ -14918,6 +15062,24 @@
     {
       "source": "clients",
       "record_key": {
+        "client_id": "C-01882"
+      },
+      "row_ref": 1883,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02009"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 2469
+    },
+    {
+      "source": "clients",
+      "record_key": {
         "client_id": "C-02009"
       },
       "row_ref": 2010,
@@ -14933,6 +15095,24 @@
       "source_file": "crm_export.csv",
       "sheet": null,
       "source_row": null
+    },
+    {
+      "source": "clients",
+      "record_key": {
+        "client_id": "C-01907"
+      },
+      "row_ref": 1908,
+      "defect_type": "name_dob_collision",
+      "expected_rule_ids": [
+        "DUP-002"
+      ],
+      "scored": true,
+      "injected_values": {
+        "copied_to": "C-02010"
+      },
+      "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": 2502
     },
     {
       "source": "clients",
@@ -14963,8 +15143,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00022",
-        "last_name": "Anold"
+        "copy_of": "C-00023",
+        "last_name": "Nlan"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -14980,8 +15160,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00023",
-        "last_name": "Noln"
+        "copy_of": "C-00024",
+        "last_name": "Chery"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -14997,8 +15177,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00058",
-        "last_name": "Daltn"
+        "copy_of": "C-00059",
+        "last_name": "More"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15014,8 +15194,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00443",
-        "last_name": "Rodiguez"
+        "copy_of": "C-00445",
+        "last_name": "Stphens"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15031,8 +15211,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00495",
-        "last_name": "Caney"
+        "copy_of": "C-00497",
+        "last_name": "Guterrez"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15048,8 +15228,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00511",
-        "last_name": "Meia"
+        "copy_of": "C-00514",
+        "last_name": "Soo"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15065,8 +15245,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00566",
-        "last_name": "Gibsn"
+        "copy_of": "C-00569",
+        "last_name": "Paheco"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15082,8 +15262,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00580",
-        "last_name": "Wigins"
+        "copy_of": "C-00582",
+        "last_name": "Roerts"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15099,8 +15279,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00620",
-        "last_name": "Sanders"
+        "copy_of": "C-00622",
+        "last_name": "Stevns"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15116,8 +15296,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00633",
-        "last_name": "Adms"
+        "copy_of": "C-00637",
+        "last_name": "Mosey"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15133,8 +15313,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00687",
-        "last_name": "Mooe"
+        "copy_of": "C-00689",
+        "last_name": "Petrson"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15150,8 +15330,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00717",
-        "last_name": "Alii"
+        "copy_of": "C-00720",
+        "last_name": "Rivs"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15167,8 +15347,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00775",
-        "last_name": "Weaer"
+        "copy_of": "C-00778",
+        "last_name": "Sanos"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15184,8 +15364,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00816",
-        "last_name": "Carer"
+        "copy_of": "C-00821",
+        "last_name": "Evas"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15201,8 +15381,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00897",
-        "last_name": "Nah"
+        "copy_of": "C-00901",
+        "last_name": "Saage"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15218,8 +15398,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-00942",
-        "last_name": "Smih"
+        "copy_of": "C-00946",
+        "last_name": "Baily"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15235,8 +15415,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01126",
-        "last_name": "Penington"
+        "copy_of": "C-01130",
+        "last_name": "Nguyn"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15252,8 +15432,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01133",
-        "last_name": "Ruz"
+        "copy_of": "C-01138",
+        "last_name": "Fobes"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15269,8 +15449,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01163",
-        "last_name": "Simmns"
+        "copy_of": "C-01167",
+        "last_name": "Stanon"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15286,8 +15466,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01168",
-        "last_name": "Stnton"
+        "copy_of": "C-01172",
+        "last_name": "Simmns"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15303,8 +15483,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01238",
-        "last_name": "Hernndez"
+        "copy_of": "C-01242",
+        "last_name": "Tomas"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15320,8 +15500,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01458",
-        "last_name": "Loez"
+        "copy_of": "C-01464",
+        "last_name": "Rvera"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15337,8 +15517,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01572",
-        "last_name": "Mrray"
+        "copy_of": "C-01578",
+        "last_name": "Weks"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15354,8 +15534,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01574",
-        "last_name": "Brns"
+        "copy_of": "C-01580",
+        "last_name": "Rchards"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15371,8 +15551,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01674",
-        "last_name": "Orzco"
+        "copy_of": "C-01680",
+        "last_name": "Jons"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15388,8 +15568,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01688",
-        "last_name": "Vlencia"
+        "copy_of": "C-01694",
+        "last_name": "Clne"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15405,8 +15585,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01715",
-        "last_name": "Wole"
+        "copy_of": "C-01725",
+        "last_name": "Jonson"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15422,8 +15602,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01779",
-        "last_name": "Sampon"
+        "copy_of": "C-01786",
+        "last_name": "Beson"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15439,8 +15619,8 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01871",
-        "last_name": "Cark"
+        "copy_of": "C-01883",
+        "last_name": "Chritensen"
       },
       "source_file": "crm_export.csv",
       "sheet": null,
@@ -15456,10 +15636,970 @@
       "expected_rule_ids": [],
       "scored": false,
       "injected_values": {
-        "copy_of": "C-01903",
-        "last_name": "Beder"
+        "copy_of": "C-01915",
+        "last_name": "Smth"
       },
       "source_file": "crm_export.csv",
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "(blank)"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "0.00",
+        "statement_paid": "61.05",
+        "difference": "61.05"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "10583482"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "6469.15",
+        "statement_paid": "6390.37",
+        "difference": "-78.78"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "13981052"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "5838.00",
+        "statement_paid": "5901.27",
+        "difference": "63.27"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "13O81052"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "157.50",
+        "statement_paid": "0.00",
+        "difference": "-157.50"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "1884412"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "8641.35",
+        "statement_paid": "8951.27",
+        "difference": "309.92"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "18O4412"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "91.35",
+        "statement_paid": "0.00",
+        "difference": "-91.35"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "29898923"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "7319.70",
+        "statement_paid": "7199.47",
+        "difference": "-120.23"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "29O98923"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "48.00",
+        "statement_paid": "0.00",
+        "difference": "-48.00"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "32244663"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "7423.20",
+        "statement_paid": "7311.69",
+        "difference": "-111.51"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "33857966"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "9126.65",
+        "statement_paid": "8997.02",
+        "difference": "-129.63"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "3502049"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "35278047"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "25.20",
+        "statement_paid": "0.00",
+        "difference": "-25.20"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "37231783"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "5537.85",
+        "statement_paid": "6029.47",
+        "difference": "491.62"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "3798272"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "37O31783"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "39032271"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "43339391"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "7372.85",
+        "statement_paid": "7509.96",
+        "difference": "137.11"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "4356886"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "5864.00",
+        "statement_paid": "6027.05",
+        "difference": "163.05"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "43O6886"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "66.00",
+        "statement_paid": "0.00",
+        "difference": "-66.00"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "44524491"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "6016.50",
+        "statement_paid": "6082.85",
+        "difference": "66.35"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "54100814"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "7408.60",
+        "statement_paid": "7586.10",
+        "difference": "177.50"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "61291817"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "8756.80",
+        "statement_paid": "8554.10",
+        "difference": "-202.70"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "61855700"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "4905.50",
+        "statement_paid": "4797.34",
+        "difference": "-108.16"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "66419307"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "6831819"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "6500.05",
+        "statement_paid": "7165.12",
+        "difference": "665.07"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "68O1819"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "37.80",
+        "statement_paid": "0.00",
+        "difference": "-37.80"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "7150444"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "6944.70",
+        "statement_paid": "7005.72",
+        "difference": "61.02"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "74197857"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "7509.70",
+        "statement_paid": "7559.64",
+        "difference": "49.94"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "77125617"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "7265.30",
+        "statement_paid": "7420.37",
+        "difference": "155.07"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "77803264"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "78490893"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "6563.90",
+        "statement_paid": "6629.12",
+        "difference": "65.22"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "78508051"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "157.50",
+        "statement_paid": "0.00",
+        "difference": "-157.50"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "78O90893"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "66.00",
+        "statement_paid": "0.00",
+        "difference": "-66.00"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "86411466"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "157.50",
+        "statement_paid": "0.00",
+        "difference": "-157.50"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "86822412"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "0.00",
+        "statement_paid": "63.20",
+        "difference": "63.20"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "90949389"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "6837.45",
+        "statement_paid": "6918.69",
+        "difference": "81.24"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "90O49389"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "92646676"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "157.50",
+        "statement_paid": "0.00",
+        "difference": "-157.50"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "94702683"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "6570.95",
+        "statement_paid": "6714.59",
+        "difference": "143.64"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "94O02683"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "97102525"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "7652.45",
+        "statement_paid": "7799.41",
+        "difference": "146.96"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "97O02525"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "157.50",
+        "statement_paid": "0.00",
+        "difference": "-157.50"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "9934332"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "99366868"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "78.75",
+        "statement_paid": "0.00",
+        "difference": "-78.75"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "agent_npn": "99847493"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "5376.30",
+        "statement_paid": "5346.64",
+        "difference": "-29.66"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "carrier": "Bluepeak"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "27220.00",
+        "statement_paid": "27439.51",
+        "difference": "219.51"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "carrier": "Harborline"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "28969.95",
+        "statement_paid": "29119.65",
+        "difference": "149.70"
+      },
+      "source_file": null,
+      "sheet": null,
+      "source_row": null
+    },
+    {
+      "source": "commission_lines",
+      "record_key": {
+        "carrier": "Summit Health Plans"
+      },
+      "row_ref": null,
+      "defect_type": "statement_total_variance",
+      "expected_rule_ids": [
+        "TIE-005"
+      ],
+      "scored": true,
+      "injected_values": {
+        "book_expected": "26579.50",
+        "statement_paid": "26433.61",
+        "difference": "-145.89"
+      },
+      "source_file": null,
       "sheet": null,
       "source_row": null
     },

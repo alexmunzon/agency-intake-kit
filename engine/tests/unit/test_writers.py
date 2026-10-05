@@ -153,6 +153,9 @@ def test_every_defect_points_at_a_row_that_holds_its_record(name: str) -> None:
         key, row = d["record_key"], d["source_row"]
         if d["defect_type"] in ("truncated_file", "ssn_column"):
             continue
+        if d["defect_type"] == "statement_total_variance":  # a TIE-005 total spans every file
+            assert (d["source_file"], d["sheet"], row) == (None, None, None), d
+            continue
         if d["source_file"] == "crm_export.csv":
             if cut is not None and row is None:
                 continue  # its row was cut off; the check below proves no row was dropped early
@@ -210,3 +213,25 @@ def test_pii_notes_are_one_percent_scored_and_obviously_fake() -> None:
     for d in pii:
         sentence = d["injected_values"]["to"]
         assert not re.search(r"\d{3}-?\d{2}-?\d{4}", sentence.replace("555-01", "")), sentence
+
+
+def test_exact_duplicate_rows_are_byte_identical_in_the_crm_file() -> None:
+    """Issue 54: a DUP-001 copy repeats its original's bytes (same date style, same casing).
+
+    DUP-003 copies differ in content, so they must still differ in the file.
+    """
+    raw, rows = crm("agency-a")
+    lines = raw[3:].split(b"\r\n")[1:-1]  # drop the BOM, the header, and the final empty piece
+    assert len(lines) == len(rows)  # no cell holds a line break, so line i is row i
+    planted = {"exact_duplicate_row": 0, "duplicate_policy_id": 0}
+    for d in truth("agency-a"):
+        if d["defect_type"] not in planted:
+            continue
+        planted[d["defect_type"]] += 1
+        pid = d["record_key"]["policy_id"]
+        first, copy = [lines[i] for i, r in enumerate(rows) if r["Policy #"] == pid]
+        if d["defect_type"] == "exact_duplicate_row":
+            assert first == copy, pid
+        else:
+            assert first != copy, pid
+    assert planted == {"exact_duplicate_row": 26, "duplicate_policy_id": 8}

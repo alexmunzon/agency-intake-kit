@@ -4,14 +4,15 @@ write_drop also returns every defect with its location added: source_file, sheet
 a CSV), and source_row (1-based, as in the file; the header is row 1 in the CSVs and row 3
 in the statements). Policy defects point at the policy's CRM row (the later copy for a
 duplicated id). Client defects point at the client's first CRM row. Line defects point at
-the statement row. A row cut off by truncation gets source_row None.
+the statement row. A row cut off by truncation gets source_row None. A total (TIE-005, by
+carrier or by agent) has no file or row: source_file, sheet, and source_row are all None.
 """
 
 import json
 from pathlib import Path
 from typing import Any
 
-from synth_agency_data.injectors.base import Defect, defect
+from synth_agency_data.injectors.base import AGGREGATE_DEFECTS, Defect, defect
 from synth_agency_data.world import World
 from synth_agency_data.writers import commissions, crm, enrollment, roster
 from synth_agency_data.writers.common import Location
@@ -20,8 +21,10 @@ from synth_agency_data.writers.notes import plant_notes
 __all__ = ["write_drop"]
 
 
-def _locate(d: Defect, where: dict[str, Any]) -> Location:
+def _locate(d: Defect, where: dict[str, Any]) -> Location | tuple[None, None, None]:
     key = d["record_key"]
+    if d["defect_type"] in AGGREGATE_DEFECTS:
+        return None, None, None  # a total spans every statement file, so it has no one row
     if d["source"] == "commission_lines":
         line: Location = where["lines"][
             f"{key['carrier']}|{key['statement_period']}|{key['line_no']}"
@@ -47,7 +50,7 @@ def write_drop(
     located = []
     for d in defects + pii:
         file, sheet, row = _locate(d, placed)
-        cut = file == crm.FILE and truncate_crm is not None and row > truncate_crm + 1
+        cut = file == crm.FILE and truncate_crm is not None and (row or 0) > truncate_crm + 1
         located.append(
             {**d, "source_file": file, "sheet": sheet, "source_row": None if cut else row}
         )
