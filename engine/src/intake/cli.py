@@ -145,7 +145,7 @@ def run_command(
     if result.score is not None:
         typer.echo(
             f"Detection: false positives {result.score.summary.false_positive_rate:.4%} of "
-            f"{result.score.clean_rows} clean rows"
+            f"{result.score.summary.clean_rows:,} clean rows (scorecard.json detection.clean_rows)"
         )
     if result.status == RunStatus.FAILED:
         raise typer.Exit(1)

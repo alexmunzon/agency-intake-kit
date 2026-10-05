@@ -52,7 +52,13 @@ export function shortFiles(run: Run): InputFile[] {
   );
 }
 
+/** A frozen clock (--as-of) pins both times, so the difference is not a measurement (#77). */
+export function frozenClock(run: Run): boolean {
+  return run.manifest.as_of !== null;
+}
+
 export function durationText(run: Run): string {
+  if (frozenClock(run)) return "Not measured";
   const ms = Date.parse(run.manifest.finished_at) - Date.parse(run.manifest.started_at);
   const seconds = Math.round(ms / 1000);
   if (seconds < 60) return plural(seconds, "second");

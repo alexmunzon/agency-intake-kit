@@ -61,6 +61,9 @@ def test_example_1_accuracy_gates(agency_a: RunResult) -> None:
     assert fp <= FALSE_POSITIVE_MAX, agency_a.score.false_positives_by_rule
     card = Scorecard.model_validate_json((agency_a.run_dir / "scorecard.json").read_text())
     assert card.detection == agency_a.score.summary
+    assert card.detection is not None
+    assert card.detection.clean_rows == agency_a.score.clean_rows  # committed, not only printed
+    assert card.detection.false_positive_rows == agency_a.score.false_positive_rows
 
 
 def test_unscored_identity_defects_are_reported_not_gated(agency_a: RunResult) -> None:

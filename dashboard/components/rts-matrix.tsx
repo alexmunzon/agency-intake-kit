@@ -1,6 +1,7 @@
 import { SeverityIcon, type Tone } from "@/components/severity-badge";
 import { STICKY, TABLE, TABLE_WRAP } from "@/components/tie-out";
 import type { RtsMatrix } from "@/lib/agents";
+import { plural } from "@/lib/overview";
 import type { RtsCellState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,11 @@ export function RtsMatrixTable({ matrix }: { matrix: RtsMatrix }) {
         <table className={TABLE}>
           <caption className="p-3 text-left text-sm font-medium whitespace-normal">
             RTS matrix: agent by carrier, state, and plan year
+            {matrix.gapCells > 0 && (
+              <span className="block text-xs font-normal text-slate-600 dark:text-slate-400">
+                {`Gaps: ${plural(matrix.gapCells, "agent, carrier, state and year combination")}.`}
+              </span>
+            )}
             <span className="block text-xs font-normal text-slate-600 sm:hidden dark:text-slate-400">Scroll sideways to see every column.</span>
           </caption>
           <thead>

@@ -17,7 +17,8 @@ describe("AgentsView", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "Is every writing agent allowed to sell what they sold?",
     );
-    expect(screen.getByText("No. 1 policy was sold without RTS.")).toBeInTheDocument();
+    expect(screen.getByText("No. 1 policy was sold without ready-to-sell status.")).toBeInTheDocument();
+    expect(screen.getByText("Gaps: 1 agent, carrier, state and year combination.")).toBeInTheDocument();
     const gap = screen.getByRole("cell", { name: "1884412, Harborline TX 2026: Used without RTS, 1 policy" });
     expect(gap).toHaveAttribute("data-state", "USED_WITHOUT_RTS");
     expect(screen.getByRole("cell", { name: "1884412, Crestview Mutual TX 2026: Held but unused, 0 policies" })).toBeInTheDocument();
@@ -27,6 +28,13 @@ describe("AgentsView", () => {
     expect(fix.getByText(/Obtain RTS or reassign writing agent/)).toBeInTheDocument();
     const list = within(screen.getByRole("table", { name: "Writing agents" }));
     expect(list.getByRole("row", { name: /1884412/ })).toHaveTextContent("1 gap");
+  });
+
+  it("says 27 policies on the demo run, and 26 combinations only beside the matrix (#76)", async () => {
+    render(<AgentsView run={await loadRunDir(path.resolve(import.meta.dirname, "../../public/demo-run"))} />);
+    expect(screen.getByText("No. 27 policies were sold without ready-to-sell status.")).toBeInTheDocument();
+    const matrix = within(screen.getByRole("table", { name: /RTS matrix/ }));
+    expect(matrix.getByText("Gaps: 26 agent, carrier, state and year combinations.")).toBeInTheDocument();
   });
 
   it("shows Not checked with no matrix for the failed sample", async () => {

@@ -56,6 +56,8 @@ export interface DetectionClass {
 
 export interface DetectionSummary {
   classes: DetectionClass[];
+  clean_rows: number;
+  false_positive_rows: number;
   false_positive_rate: number;
 }
 

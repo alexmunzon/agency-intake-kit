@@ -24,6 +24,10 @@ def first_variance(d: dict[str, Any], **change: Any) -> dict[str, Any]:
     return {**d, "variances": [{**d["variances"][0], **change}, *d["variances"][1:]]}
 
 
+def without(d: dict[str, Any], key: str) -> dict[str, Any]:
+    return {k: v for k, v in d.items() if k != key}
+
+
 def first_cell(d: dict[str, Any], **change: Any) -> dict[str, Any]:
     gap = next(c for c in d["cells"] if c["coverage"] == "USED_WITHOUT_RTS")
     return {"cells": [{**gap, **change}]}
@@ -125,6 +129,24 @@ CASES: list[tuple[str, str, str, Any]] = [
         lambda d: {"cells": d["cells"][:1] * 2},
     ),
     ("unknown field", "sample-run", "manifest.json", lambda d: {**d, "ssn": "x"}),
+    (
+        "detection without its clean row count (#80)",
+        "sample-run",
+        "scorecard.json",
+        lambda d: {**d, "detection": without(d["detection"], "clean_rows")},
+    ),
+    (
+        "more false positive rows than clean rows (#80)",
+        "sample-run",
+        "scorecard.json",
+        lambda d: {**d, "detection": {**d["detection"], "false_positive_rows": 7001}},
+    ),
+    (
+        "false positive rate not rows over clean rows (#80)",
+        "sample-run",
+        "scorecard.json",
+        lambda d: {**d, "detection": {**d["detection"], "false_positive_rate": 0.5}},
+    ),
 ]
 
 

@@ -33,8 +33,16 @@ describe("rtsMatrix", () => {
     expect(agents[0].cells.has("Crestview Mutual TX 2026")).toBe(false);
   });
 
+  it("counts the demo run's gaps as 27 policies in 26 cells, and they match RTS-001 (#76)", async () => {
+    const run = await loadRunDir(path.resolve(import.meta.dirname, "../../public/demo-run"));
+    const { gapPolicies, gapCells } = rtsMatrix(run.rts);
+    expect([gapPolicies, gapCells]).toEqual([27, 26]);
+    expect(gapPolicies).toBe(run.scorecard.exceptions_by_rule["RTS-001"]);
+    expect(gapCells).toBe(run.scorecard.rts_gaps);
+  });
+
   it("is empty for the failed sample", async () => {
-    expect(await matrixFor("sample-run-failed")).toEqual({ columns: [], agents: [], gapPolicies: 0 });
+    expect(await matrixFor("sample-run-failed")).toEqual({ columns: [], agents: [], gapPolicies: 0, gapCells: 0 });
   });
 
   it("has no gaps for the passed sample", async () => {

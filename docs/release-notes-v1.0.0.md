@@ -11,7 +11,7 @@ agency-intake-kit takes the files a newly acquired insurance agency hands over (
 Measured on the committed demo run of the synthetic agency (seed 42), in `dashboard/public/demo-run/scorecard.json`:
 
 - **All 717 planted mistakes found across 22 scored mistake types**, recall 1.00 for every type. Recall is the share of planted mistakes found.
-- **0 false alarms on 11,234 clean rows** (printed by `npm run demo`). A false alarm is a problem raised on a row with no planted mistake.
+- **0 false alarms on 11,234 clean rows** (`detection.clean_rows` in `dashboard/public/demo-run/scorecard.json`). A false alarm is a problem raised on a row with no planted mistake.
 - Status passed with warnings: 14,879 rows read, 12,836 clean, 0 blockers, 308 errors, 423 warnings, 13 info.
 - The tie-out matched 6,400 book policies, 6,520 statement lines, and 2,177 CRM statuses, and explained $5,085.55 in differences across 239 items, plus 114 commissions off the rate table or statement totals ($7,018.44).
 - Both "must block" examples block: a CRM file cut to 2,574 of 2,680 rows fails on CMP-001 before any model call, and a roster with an SSN column fails on SSN-001 with none of the 25 values in any output file.
