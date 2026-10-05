@@ -1,0 +1,40 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "value": {
+        "criteria": {
+          "ACTIVE": "coverage is in force",
+          "CANCELLED": "stopped before coverage started",
+          "PENDING": "submitted, not yet in force",
+          "TERMINATED": "coverage ended after it started",
+          "unknown": "cannot tell from the value"
+        },
+        "instructions": "Which of the allowed values does `value` mean for the field `field`?",
+        "type": "choice"
+      }
+    },
+    "state": {
+      "field": "status",
+      "value": "XFER"
+    }
+  },
+  "response": {
+    "answers": {
+      "value": {
+        "choice": "unknown",
+        "confidence": 0.71,
+        "probabilities": {
+          "TERMINATED": 0.29,
+          "unknown": 0.71
+        },
+        "type": "choice"
+      }
+    },
+    "model": "handmade-placeholder",
+    "usage": {
+      "input_tokens": 136,
+      "output_tokens": 1
+    }
+  }
+}

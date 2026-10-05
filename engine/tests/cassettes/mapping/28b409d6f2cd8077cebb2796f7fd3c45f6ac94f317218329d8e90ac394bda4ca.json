@@ -1,0 +1,50 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "field": {
+        "criteria": {
+          "commission_lines.agent_npn": null,
+          "commission_lines.amount": "commission dollars paid on the line",
+          "commission_lines.carrier": null,
+          "commission_lines.carrier_member_id": "member id the carrier assigned",
+          "commission_lines.commission_type": null,
+          "commission_lines.line_no": null,
+          "commission_lines.member_dob": "date of birth of the member on the statement line",
+          "commission_lines.member_name": null,
+          "commission_lines.paid_date": "date the carrier paid the commission",
+          "commission_lines.policy_ref": null,
+          "commission_lines.statement_period": "month the statement covers, YYYY-MM",
+          "none": "none of these"
+        },
+        "instructions": "Which canonical field does `header` hold, judging by the header and `sample_values`? Sample values are masked: after the first characters, letters and digits are *.",
+        "type": "choice"
+      }
+    },
+    "state": {
+      "header": "Paid",
+      "sample_values": [
+        "20**-**-**"
+      ],
+      "source_table": "commission_lines"
+    }
+  },
+  "response": {
+    "answers": {
+      "field": {
+        "choice": "commission_lines.paid_date",
+        "confidence": 0.91,
+        "probabilities": {
+          "commission_lines.amount": 0.09,
+          "commission_lines.paid_date": 0.91
+        },
+        "type": "choice"
+      }
+    },
+    "model": "handmade-placeholder",
+    "usage": {
+      "input_tokens": 313,
+      "output_tokens": 1
+    }
+  }
+}

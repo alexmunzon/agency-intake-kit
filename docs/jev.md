@@ -170,3 +170,64 @@ count it asserts and records.
 PII shapes (model `synthetic-hand-made`). They are not recordings. They sit in a subfolder so the
 pipeline, which reads `engine/tests/cassettes/`, can never replay a made-up answer. PR 12 records
 the real ones.
+
+## Header mapping and enum values (PR 7)
+
+**Question 1, header to field** (`intake/mapping/jev_mapping.py`), one per header the synonym
+table left unmapped:
+
+```json
+{
+  "state": {"header": "Birth Dt (mm/dd/yy)", "sample_values": ["10/**/**", "09/**/**"], "source_table": "clients, policies"},
+  "model": "jev-latest",
+  "questions": {"field": {"type": "choice",
+    "instructions": "Which canonical field does `header` hold, judging by the header and `sample_values`? Sample values are masked: after the first characters, letters and digits are *.",
+    "criteria": {"clients.client_id": null, "clients.dob": "date of birth of the client", "...": null, "none": "none of these"}}}
+}
+```
+
+The options are every field of the source's tables (lineage left out, `full_name` added) as
+`table.field`, so the enrollment export can pick a client or a policy field. Samples are up to 5
+distinct values, cut to 24 characters, then masked with `minimize_value`. A column whose values
+average over 40 characters, have more than 3 spaces, or hold any 9-digit number sends
+`"sample_values": []`. A header with the word notes, note, comments, or memo is never sent.
+
+| Confidence | Result |
+|---|---|
+| 0.85 or more (`MAP_AUTO`) | Mapped, method `jev`, confidence saved in `mapping/<key>.yaml` |
+| 0.60 up to 0.85 (`MAP_SUGGEST`) | Mapped, plus MAP-002 each run until a person confirms it |
+| Below 0.60, or `none` | Unmapped, PR 5's MAP-001 stays |
+| No answer (off, spend guard) | Unmapped, MAP-001 plus MAP-002 in the REVIEW lane |
+
+**Question 2, value to enum** (`intake/mapping/enums.py`), one per distinct value the word table
+does not know:
+
+```json
+{"state": {"field": "status", "value": "XFER"}, "model": "jev-latest",
+ "questions": {"value": {"type": "choice",
+   "instructions": "Which of the allowed values does `value` mean for the field `field`?",
+   "criteria": {"ACTIVE": "coverage is in force", "PENDING": "submitted, not yet in force", "TERMINATED": "coverage ended after it started", "CANCELLED": "stopped before coverage started", "unknown": "cannot tell from the value"}}}}
+```
+
+Fields covered: policy and agent status, line of business, commission type, and state. A pick of
+0.85 or more (`ENUM_AUTO`) is used. Anything else stays as written, so STA-001 flags it. Values
+over 24 characters, with more than 3 spaces, or with a 9-digit number are never sent.
+
+**Expected calls for fixtures/agency-a: 7.** Mapping asks 3 header questions ("Birth Dt
+(mm/dd/yy)" in the enrollment export, "Paid" in the Northwind and Cardinal statements). The two
+"Paid" requests are identical (same header, same masked sample `20**-**-**`), so they are sent
+once: 2 calls. The CRM status column has 5 values the word table leaves for Jev (`??`, `N/A`,
+`See notes`, `XFER`, `chk w/ carrier`): 5 calls. Every other status, line of business, commission
+type, and state value is decided by the table. About 1,450 input tokens, so about $0.00006.
+
+**Recording.** The 7 cassettes in `engine/tests/cassettes/mapping/` are hand-made stand-ins with
+`"model": "handmade-placeholder"`. After Alex approves the spend, replace them from the repo root:
+
+```bash
+cd engine && uv run --env-file ../.env env JEV_MODE=record intake jev record-mapping --drop ../fixtures/agency-a
+```
+
+The command refuses unless `JEV_MODE=record`, prints the count and estimated cost before any call,
+deletes only the hand-made cassettes it is about to replace, and never prints the key. Then run
+`npm run verify`: example 2 needs the real answer for "Birth Dt (mm/dd/yy)" to be `clients.dob`
+at 0.85 or more.
