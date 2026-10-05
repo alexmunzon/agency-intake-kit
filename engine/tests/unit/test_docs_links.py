@@ -31,7 +31,7 @@ def test_relative_links_resolve(doc: Path) -> None:
 
 @pytest.mark.parametrize("doc", DOCS, ids=lambda p: p.name)
 def test_no_em_dashes(doc: Path) -> None:
-    assert "—" not in doc.read_text(encoding="utf-8")
+    assert chr(0x2014) not in doc.read_text(encoding="utf-8")
 
 
 def test_demo_gif_under_3_mb() -> None:
