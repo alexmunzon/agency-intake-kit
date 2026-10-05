@@ -290,6 +290,16 @@ One entry per PR.
 - Writes `docs/benchmark-header-mapping.md` and the README table between `<!-- benchmark:start -->` and `<!-- benchmark:end -->`. Recording Jev answers later is one command, after Alex approves the spend: `uv run intake bench header-mapping --jev record --approve-spend`.
 - `config.py` PR 17 section: the 0.60 cutoff the benchmark scores with, the Sonnet model id, and the Sonnet price.
 
+## PR 7: Jev header mapping and enum normalization (2026-10-04)
+
+- `intake/mapping/jev_mapping.py`: Jev question 1 for each header PR 5 left unmapped. The choice options are every canonical field of the source's tables as `table.field`, plus `none`. Sample values: up to 5 distinct, cut to 24 characters, then masked with `minimize_value`. A column that looks like free text or holds a 9-digit value sends its header only, and a notes or comments header is never sent. 0.85 or more maps (method `jev` with the confidence in `mapping/<key>.yaml`), 0.60 up to 0.85 maps with MAP-002 for a person to confirm (raised every run until a person confirms), below 0.60 stays unmapped with PR 5's MAP-001. No answer (off mode or the spend guard) leaves the header unmapped and adds MAP-002 in the REVIEW lane. After Jev's picks are saved, PR 5's mapping runs again so taken fields, MAP-001, and MAP-003 are rechecked.
+- `intake/mapping/enums.py`: question 2 for status, line of business, commission type, and state. A deterministic word table decides first; only leftovers go to Jev. A pick of 0.85 or more is used. Anything else (low confidence, `unknown`, no answer) stays exactly as written, so STA-001 still flags it and a person decides. `fill_drop` runs mapping then enums over a whole drop.
+- Identical requests are sent once per run, keyed by the public request hash (`Asker`).
+- `intake jev record-mapping --drop <fixture>` records the real cassettes. It refuses unless `JEV_MODE=record` is set, prints the request count and estimated cost before any call, and never prints the key.
+- Expected Jev calls for fixtures/agency-a: 7 requests (8 asked; Northwind's and Cardinal's "Paid" are the same request). Estimated cost about $0.00006.
+- 7 hand-made cassettes in `engine/tests/cassettes/mapping/`, built from the real request hashes and marked `"model": "handmade-placeholder"`. The record command replaces them. No Jev spend in this PR: every test uses replay or httpx.MockTransport.
+- `config.py` PR 7 section: MAP_AUTO, MAP_SUGGEST, ENUM_AUTO, sample limits, the 9-digit pattern, and the token estimate for the cost preview.
+
 ## Checks and tie-out review fixes
 
 - #53: The tie-out no longer matches statement lines by row number. Every row gets `_rec`, its position in its table, and that is the only row key the SQL joins on; lineage row numbers (which restart in each carrier file) are never used as keys in the checks or the tie-out. Six per-carrier statement files with overlapping row numbers now give exactly the ground truth (131 TIE-001, 68 TIE-002, 66 TIE-003, 40 TIE-004), and example 4 still lands in leg B.

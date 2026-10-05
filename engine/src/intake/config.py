@@ -138,6 +138,15 @@ JEV_BACKOFF_BASE_S: Final[float] = 1.0  # first wait; doubles each retry, with j
 JEV_TIMEOUT_S: Final[float] = 30.0  # seconds per HTTP request
 
 # PR 7: Jev mapping and enum normalization (confidence cutoffs, MAP-002)
+MAP_AUTO: Final[float] = 0.85  # at or above, Jev's header pick maps on its own
+MAP_SUGGEST: Final[float] = 0.60  # from here up to MAP_AUTO it maps with MAP-002; below, unmapped
+ENUM_AUTO: Final[float] = 0.85  # at or above, Jev's enum pick is used; below, a person decides
+MAP_SAMPLE_VALUES: Final[int] = 5  # distinct masked sample values sent with a header
+MAP_SAMPLE_MAX_CHARS: Final[int] = 24  # each sample (and enum value) is cut to this length
+MAP_FREE_TEXT_AVG_CHARS: Final[int] = 40  # longer on average looks like free text: header only
+MAP_FREE_TEXT_MAX_SPACES: Final[int] = 3  # more spaces in any value also looks like free text
+NINE_DIGIT_PATTERN: Final[str] = r"(?<!\d)\d{3}[- ]?\d{2}[- ]?\d{4}(?!\d)"  # never sampled
+JEV_CHARS_PER_TOKEN: Final[int] = 3  # cautious estimate for the record command's cost preview
 
 # PR 8: row validators (DOB age range, Medicare age, date rules)
 DOB_MIN_AGE: Final[int] = 0  # DOB-002: younger than this means a birth date after the run date
