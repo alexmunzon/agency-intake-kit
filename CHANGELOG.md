@@ -344,3 +344,8 @@ One entry per PR.
 - Each ADR gains a dated "Update 2026-10-05" section instead of a rewrite: the tie-out runs in every run (0001); the spend cap switches Jev off and the run completes, recorded in the new `budget_tripped` field, and placeholder answers are replaced (0002); the demo shows real engine output with the `--as-of` frozen clock and the manifest's `as_of` (0003); 2,680 CRM rows and the end-to-end SSN test (0004); the `jev_client` imports from `intake/config.py` and its default cassette path, which bob-resolve's extraction must cut (0005).
 - New `docs/release-notes-v1.0.0.md`: the scorecard, Jev cost, what shipped per PR, known issues, and what bob-resolve is. No tag or release is created.
 - CLAUDE.md lists `npm run demo-gif`. `docs/jev.md` states the recorded triage answers. `engine/tests/unit/test_docs_links.py` checks every relative link in the README, release notes, and ADRs, no em dashes there, and the GIF size.
+
+## Sweep 3: story drafts (2026-10-05)
+
+- New `docs/outreach.md`, headed "DRAFTS. Alex rewrites these in his own words before anything is sent.": a note to George at Gyde (under 150 words, no ask, says no reply is needed during AEP), a LinkedIn post (under 120 words), three subject lines, a "what this demonstrates" paragraph for the AI Deployment Specialist and M&A Analyst roles, and two resume bullet candidates (107 to 115 characters). Every number comes from the README results, which read `dashboard/public/demo-run/`. Nothing was sent or posted.
+- README gains a "Two-minute tour" near the top: five steps on the live demo, from the Overview answer to the $61.05 Harborline payment on the Tie-out page (SPEC example 4). Nothing else in the README changed.
