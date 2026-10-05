@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add a synthetic single-statement finance review command with separate revenue categories and transaction kinds, exact signed totals, versioned mapping metadata and neutral JSON/CSV exports. Unknown classifications remain unresolved and policy attribution stays empty. Duplicate/replacement ledger selection follows separately.
+
 One entry per PR.
 
 ## PR84 verification repair (2026-10-05)

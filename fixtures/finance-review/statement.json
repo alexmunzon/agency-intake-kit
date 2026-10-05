@@ -1,0 +1,57 @@
+{
+  "agency_id": "synthetic-agency",
+  "carrier": "Synthetic Carrier",
+  "period": "2026-09",
+  "statement_id": "synthetic-september",
+  "revision_id": "r1",
+  "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "expected_row_count": 3,
+  "rows": [
+    {
+      "row_id": "line-1",
+      "amount": "100.00",
+      "raw_amount": "100.00",
+      "raw_category_label": "Renewal",
+      "raw_transaction_label": "Payment",
+      "lineage": {
+        "source_file": "synthetic-statement.csv",
+        "sheet": null,
+        "row_number": 1,
+        "raw_hash": "0000000000000000000000000000000000000000000000000000000000000001",
+        "run_id": "finance-development-example",
+        "mapping_version": "synthetic-v1"
+      }
+    },
+    {
+      "row_id": "line-2",
+      "amount": "-25.00",
+      "raw_amount": "-25.00",
+      "raw_category_label": "Renewal",
+      "raw_transaction_label": "Chargeback",
+      "lineage": {
+        "source_file": "synthetic-statement.csv",
+        "sheet": null,
+        "row_number": 2,
+        "raw_hash": "0000000000000000000000000000000000000000000000000000000000000002",
+        "run_id": "finance-development-example",
+        "mapping_version": "synthetic-v1"
+      }
+    },
+    {
+      "row_id": "line-3",
+      "amount": "0.03",
+      "raw_amount": "0.03",
+      "raw_category_label": "Unknown incentive",
+      "raw_transaction_label": "Payment",
+      "lineage": {
+        "source_file": "synthetic-statement.csv",
+        "sheet": null,
+        "row_number": 3,
+        "raw_hash": "0000000000000000000000000000000000000000000000000000000000000003",
+        "run_id": "finance-development-example",
+        "mapping_version": "synthetic-v1"
+      }
+    }
+  ],
+  "control_total": "75.03"
+}

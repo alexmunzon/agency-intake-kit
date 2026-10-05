@@ -174,3 +174,20 @@ This is the first project built in the Agency Data Trust Series. Next: bob-resol
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+
+## Neutral finance review (synthetic development slice)
+
+Classify one complete structured statement with a versioned mapping:
+
+```sh
+cd engine
+uv run intake finance-review --statement ../fixtures/finance-review/statement.json --mapping ../fixtures/finance-review/mapping.json
+uv run intake finance-review --statement ../fixtures/finance-review/statement.json --mapping ../fixtures/finance-review/mapping.json --format csv
+```
+
+The example retains renewal revenue of 75.00 after a 25.00 reversal, plus 0.03 unclassified. Category and transaction kind are independent. Unknown labels and missing account codes remain visible. The command prints a neutral review artifact; it does not post entries, claim Campfire compatibility or assign customer/policy identity. JSON is the full statement review including totals; CSV contains scoped source rows for review.
+
+This first slice accepts synthetic structured JSON, not carrier spreadsheets. Approval metadata is declared by the caller, not authenticated; the example approver is synthetic. Invalid amounts, unknown fields, duplicate row IDs and mismatched expected row counts refuse the entire package without partial output. A matching control total checks arithmetic, not finance approval or identity correctness. Source digests are declared provenance, not a verified attachment hash. Do not treat concatenated exports as a ledger: persistent duplicate-delivery and replacement selection, raw-file adapters and dashboard integration are subsequent slices. No real PHI is supported. These are development fixtures, not unseen evaluation or measured operational savings.
+
+For future browser testing, use ChatGPT/Codex's in-app browser. Do not launch laptop Chrome, Edge, Chromium or local Playwright browsers. Normal non-browser tests remain required.

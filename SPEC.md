@@ -1,5 +1,32 @@
 # SPEC: agency-intake-kit
 
+## Current review ownership (latest user clarification)
+
+The user removed Anne as a delivery dependency and requested continued work. The current demo repair completed a separate, bounded exact-commit independent review. Root arranges independent review of later completed slices. Do not run a broad code audit. Builder tests are not independent review. Green exact-head hosted verification and a no-blocker review remain merge gates. Root is the sole integration owner. M0/demo is complete. Bounded revenue classification/export is the next active implementation priority; broader M1, M2 and M4 remain planned. All references below that require Anne specifically are superseded. Bob, Plan and Commons implementation remain paused.
+
+## Current contract amendment (2026-10-05)
+
+This section supersedes conflicting historical scope and acceptance below. Implementation remains Intake-only. The synchronized ROADMAP.md defines M0 through M4; execute them in the latest amended order: current demo/M0, bounded finance classification/export (M3), then broader M1, M2 and M4. Earlier completed milestones and decisions remain historical evidence, not claims that these amendments are implemented.
+
+**Business outcome.** Collect agency data once before close, preserve incomplete evidence, reconcile and classify it, and produce a reusable, reviewable package for onboarding, finance and broker visibility. Support GYDE's existing operations without claiming to replace GydeOS or integrate with an unverified API.
+
+**Status.** M0 is complete. PR84 merged at main `54a947f79340dbe90febb3778fd578fe28e18e1e`. Bounded independent review of exact head `475bc729790777fe3727c793177c4ce714600c79` found no remaining findings; hosted run 37367430356 SUCCESS. Production deployment `dpl_X2ouacP8dXTBWLJhovAJRfSoiTC4` is READY at the merged commit. Root verified all six routes on desktop/mobile, matrix next, impact 1.43 / 2, synthetic 10-file import and reset, with no errors or overflow. Bounded M3 finance classification/export is next active implementation; M1, M2 and M4 remain planned, not shipped.
+
+**Scope and acceptance (stable milestone IDs; finance now precedes broader expansion).**
+1. M0: complete through merged PR84, preserving path safety, replay integrity and impact score. Exact-head hosted verification, bounded independent review and production desktop/mobile checks passed as recorded above.
+2. M1: write lineage-preserving unresolved evidence even when CRM is absent or identity cannot be validated. Missing DOB column, blank DOB cell and malformed DOB remain distinct reasons; no invented identifying values and no incomplete customer represented as load-ready. SSN and truncation refusal remain unchanged. Explicit confirmed/provisional/ambiguous/unmatched reconciliation states retain candidate evidence. Duplicate member IDs and two policies sharing name/DOB never select by smallest policy ID; name/DOB-only links stay provisional. Preserve each dollar once, retain unresolved dollars, and compute valid statement totals independently of identity links.
+3. M2: expected-source metadata by agency/carrier/file type/period records received time, source as-of, owner, collection status and next action. Detect missing, stale, duplicate and corrected files; duplicate imports leave totals unchanged, corrections are revisions. Moving from diligence to onboarding requires no re-upload. Synthetic portal/email adapter contracts only; extend current outputs/views, no live carrier login automation.
+4. M3: next active bounded implementation after completed M0. Include minimal statement identity, duplicate/replacement traceability and conservative attribution without requiring broader M1/M2 first. Separate revenue category (new business, renewal, override, bonus, marketing, unclassified) from transaction kind (payment, reversal, adjustment). Renewal chargebacks retain category and signed amount. Preserve carrier labels, mapping versions, source rows and classification method. Finance approves mappings; unknown labels remain unresolved. Category plus unclassified totals exactly equal statement totals by agency/carrier/period. Supply neutral finance-review export and configurable account mapping, not Campfire import claims or journal posting. Replacements revise, duplicates do not add revenue; weak/conflicting identity never authoritatively attributes money.
+5. M4: person-approved package usability is separate from pipeline success. Preserve severity and load rules; Jev cannot override blockers or authorize release. Show source coverage/freshness, accepted/excluded/unresolved counts, enrollments by carrier, known people, unresolved identities, revenue, owners and reasons. Record update time cannot stand in for source freshness.
+
+**Evidence versus load contract.** Existing MAP-003, CMP-001 and SSN-001 blockers remain authoritative for clean output. Preserving safe evidence must not label blocked rows clean or bypass privacy gates. Unavailable tie-out legs remain NOT_RUN, not passed. The current mapping/canonicalization behavior must change through tested slices, not by weakening required identity fields in load-ready schemas.
+
+**Dependencies and measurement.** Bob identity decisions, its saved intake-clean bridge and Commons schema changes are paused dependencies. Document adapter contracts without editing those repositories. Measure manual effort, repeated requests, unresolved items and corrections on the same task/dataset; separate rules-only and incremental model gains. Synthetic development results are not unseen evaluation or real operational savings.
+
+**Review and delivery.** No broad code audit. Separate bounded independent review is allowed; Anne is no longer a delivery dependency. Root arranges review with branch, exact commit, diff scope, tests, limitations and special-review items. New changes await independent approval before merge/deploy. After approved deployment verify the actual commit and desktop/mobile behavior, refresh screenshots and the demo walkthrough. No expired deadline, paid calls, source downloads, PHI, team messages, tags, secret reads or protection changes.
+
+## Historical contract and completed build plan
+
 The contract for every PR. Written 2026-10-04 in the SPEC session, after PR 0 (`bb0c975`).
 From here on, this file overrides BUILD-GUIDE-agency-intake-kit.md wherever they disagree.
 ROADMAP.md section 5 explains why the project exists. This file says what it must do.
