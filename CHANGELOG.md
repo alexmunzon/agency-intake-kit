@@ -331,3 +331,8 @@ One entry per PR.
 - `report.html`: one self-contained page (inline CSS, no scripts, no external assets) with the status banner, the counts, files received, the tie-out, totals by carrier, the first 50 exceptions in fix-first order, and the detection table. Money is exact text.
 - `npm run demo` runs fixtures/agency-a in replay with the frozen clock into `runs/demo` and copies the dashboard files and `report.html` into `dashboard/public/demo-run` (not `clean/` or `mapping/`). A new dashboard test loads the real demo run and renders every page. `fixtures/sample-run*` stay as the contract.
 - Review fixes before opening: report.html autoescapes everything (the `.html.j2` name slipped past `select_autoescape`), with a test; a blocked run never triages, so a warning beside a blocker cannot reach Jev; a drop with no CRM stops before mapping; `--overwrite` keeps the old run until the new one is in place, and a crash leaves no half-written folder (tested); recall credits a client-keyed defect only on the client's own row; clean/ logs any value it cannot type instead of blanking it silently; a bad `--as-of` is a plain error.
+
+## Real triage cassettes and benchmark Jev arm recorded (2026-10-05)
+
+- `intake jev record-run` on fixtures/agency-a: 164 answers, 70,509 input tokens, estimated cost $0.002961, budget guard not tripped, approved by Alex. Replay now answers every triage question; the demo run is refreshed from it.
+- `intake bench header-mapping --jev record`: 38 calls recorded. Synonyms then Jev maps 96.3 percent of the 134 labeled headers with zero wrong mappings, up from 79.9 percent for synonyms alone. README table and docs/benchmark-header-mapping.md updated.

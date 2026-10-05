@@ -1,0 +1,60 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "impact": {
+        "criteria": [
+          "Cosmetic",
+          "Affects reporting",
+          "Affects compliance or money"
+        ],
+        "instructions": "How much does this matter before the agency goes live?",
+        "type": "score"
+      },
+      "is_entry_error": {
+        "criteria": {
+          "false": "A genuine fact about the policy or client",
+          "true": "A typo or keying mistake"
+        },
+        "instructions": "Is this most likely a data-entry error that can be fixed from the surrounding record, rather than a real business event?",
+        "type": "noul"
+      }
+    },
+    "state": {
+      "field": "client_id",
+      "neighbors": {
+        "line_of_business": "ACA"
+      },
+      "rule_id": "REF-001",
+      "value_shape": "A-99999"
+    }
+  },
+  "response": {
+    "answers": {
+      "impact": {
+        "confidence": 0.32,
+        "legend": {
+          "0": "Cosmetic",
+          "1": "Affects reporting",
+          "2": "Affects compliance or money"
+        },
+        "probabilities": {
+          "0": 0.1,
+          "1": 0.25,
+          "2": 0.65
+        },
+        "score": 1.55,
+        "type": "score"
+      },
+      "is_entry_error": {
+        "noul": 0.38,
+        "type": "noul"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 422,
+      "output_tokens": 35
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "impact": {
+        "criteria": [
+          "Cosmetic",
+          "Affects reporting",
+          "Affects compliance or money"
+        ],
+        "instructions": "How much does this matter before the agency goes live?",
+        "type": "score"
+      },
+      "is_entry_error": {
+        "criteria": {
+          "false": "A genuine fact about the policy or client",
+          "true": "A typo or keying mistake"
+        },
+        "instructions": "Is this most likely a data-entry error that can be fixed from the surrounding record, rather than a real business event?",
+        "type": "noul"
+      }
+    },
+    "state": {
+      "field": "zip",
+      "neighbors": {
+        "state": "CA"
+      },
+      "rule_id": "ADR-002",
+      "value_shape": "99999"
+    }
+  },
+  "response": {
+    "answers": {
+      "impact": {
+        "confidence": 0.12,
+        "legend": {
+          "0": "Cosmetic",
+          "1": "Affects reporting",
+          "2": "Affects compliance or money"
+        },
+        "probabilities": {
+          "0": 0.15,
+          "1": 0.29,
+          "2": 0.56
+        },
+        "score": 1.41,
+        "type": "score"
+      },
+      "is_entry_error": {
+        "noul": 0.62,
+        "type": "noul"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 417,
+      "output_tokens": 35
+    }
+  }
+}

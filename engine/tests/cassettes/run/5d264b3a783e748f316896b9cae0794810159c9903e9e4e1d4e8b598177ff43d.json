@@ -1,0 +1,60 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "impact": {
+        "criteria": [
+          "Cosmetic",
+          "Affects reporting",
+          "Affects compliance or money"
+        ],
+        "instructions": "How much does this matter before the agency goes live?",
+        "type": "score"
+      },
+      "is_entry_error": {
+        "criteria": {
+          "false": "A genuine fact about the policy or client",
+          "true": "A typo or keying mistake"
+        },
+        "instructions": "Is this most likely a data-entry error that can be fixed from the surrounding record, rather than a real business event?",
+        "type": "noul"
+      }
+    },
+    "state": {
+      "field": "mbi",
+      "neighbors": {
+        "line_of_business": "PDP"
+      },
+      "rule_id": "MBI-003",
+      "value_shape": null
+    }
+  },
+  "response": {
+    "answers": {
+      "impact": {
+        "confidence": 0.29,
+        "legend": {
+          "0": "Cosmetic",
+          "1": "Affects reporting",
+          "2": "Affects compliance or money"
+        },
+        "probabilities": {
+          "0": 0.13,
+          "1": 0.2,
+          "2": 0.67
+        },
+        "score": 1.53,
+        "type": "score"
+      },
+      "is_entry_error": {
+        "noul": 0.56,
+        "type": "noul"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 416,
+      "output_tokens": 35
+    }
+  }
+}

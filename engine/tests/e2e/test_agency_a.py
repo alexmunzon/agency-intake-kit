@@ -210,7 +210,9 @@ def test_clean_parquet_keeps_money_exact(agency_a: RunResult) -> None:
 def test_manifest_records_inputs_clock_and_jev(agency_a: RunResult) -> None:
     m = Manifest.model_validate_json((agency_a.run_dir / "manifest.json").read_text())
     assert m.as_of == AS_OF and m.started_at == AS_OF and m.budget_tripped is False
-    assert m.jev.mode == "replay" and m.jev.calls == 7
+    # 7 header and enum mapping calls plus 157 triage calls, all answered from the recorded
+    # cassettes (see CHANGELOG: mapping recorded 2026-10-04, triage recorded 2026-10-05).
+    assert m.jev.mode == "replay" and m.jev.calls == 7 + 157
     drop = FIXTURES / "agency-a" / "drop"
     for f in m.inputs:
         assert f.sha256 == hashlib.sha256((drop / f.file_name).read_bytes()).hexdigest()
