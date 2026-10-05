@@ -29,6 +29,7 @@ the load file, a warning passes with a flag, and info is only logged.
 | MBI-003 | Warning | MBI | no | Medicare policy missing MBI |
 | NPN-001 | Error | NPN | no | NPN not 1 to 10 digits |
 | NPN-002 | Error | NPN | no | Writing agent not in roster |
+| PII-001 | Warning | PII | no | Free text appears to contain personal health or identity details |
 | PLN-001 | Error | PLN | no | Medicare plan ID malformed (MA and PDP only) |
 | PLN-002 | Error | PLN | no | HIOS plan ID malformed (ACA only) |
 | PLN-003 | Error | PLN | no | Plan ID prefix disagrees with line of business (MA and PDP only) |

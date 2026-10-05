@@ -203,3 +203,11 @@ One entry per PR.
 - #14: A broken run file now names itself: "manifest.json: not valid JSON (...)", "exceptions.jsonl line 3: not valid JSON (...)", "tie_out/variances.json: not valid JSON (...)".
 - #16: The lineage drawer acts as a real modal. The page behind it is inert, Tab and Shift+Tab stay inside it, and focus returns to the row you opened it from when it closes.
 - #13: On a FAILED run, files without their own problem show "Read, not mapped (run stopped)" and "Mapping not checked. The run stopped first." The Sources header counts files read and says mapping was not checked.
+
+## PR 11: exceptions policy, triage, PII gate (2026-10-04)
+
+- `intake/exceptions/policy.py`: the run status (any of the three blockers MAP-003, CMP-001, SSN-001 means FAILED; any error or warning means PASSED_WITH_WARNINGS; otherwise PASSED), the rows errors keep out of `clean/`, catalog suggested fixes for stages that left one blank, and the lanes triage does not decide (blockers to REVIEW, info stays UNREVIEWED).
+- `intake/exceptions/triage.py`: Jev question 3 for every error and warning. The state is the rule, field, value shape, and a few neighbor fields per family (in `config.py`), never raw values or notes. 0.80 or more goes to SUGGESTED_FIX, 0.20 or less to BUSINESS_EVENT, in between to REVIEW, and no answer (off mode or the spend guard) to UNREVIEWED. Identical requests are sent once, keyed by the public request hash. `queue_order` sorts the fix-first queue deterministically.
+- `intake/exceptions/pii.py`: the PII gate. A regex pre-filter picks notes worth a look, SSN-shaped text and 9 to 11 digit numbers are redacted with no call, other flagged text goes to Jev with digits masked, and 0.50 or more redacts to `[redacted]` and raises PII-001. With no answer the gate redacts (fails closed). PII-001 joins the rule catalog and `docs/rules.md`.
+- Expected Jev calls for fixtures/agency-a today: 105 triage calls for 354 row-rule and cross-record exceptions (354 calls without deduplication), 0 PII calls. Asserted in tests and explained in `docs/jev.md`.
+- Hand-made, clearly synthetic cassettes in `engine/tests/cassettes/synthetic/` (3 files). The pipeline never reads that folder. No Jev spend: every test uses replay or httpx.MockTransport.

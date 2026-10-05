@@ -1,0 +1,61 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "impact": {
+        "criteria": [
+          "Cosmetic",
+          "Affects reporting",
+          "Affects compliance or money"
+        ],
+        "instructions": "How much does this matter before the agency goes live?",
+        "type": "score"
+      },
+      "is_entry_error": {
+        "criteria": {
+          "false": "A genuine fact about the policy or client",
+          "true": "A typo or keying mistake"
+        },
+        "instructions": "Is this most likely a data-entry error that can be fixed from the surrounding record, rather than a real business event?",
+        "type": "noul"
+      }
+    },
+    "state": {
+      "field": "dob",
+      "neighbors": {
+        "eligibility_reason": null,
+        "line_of_business": null
+      },
+      "rule_id": "DOB-002",
+      "value_shape": "9999-99-99"
+    }
+  },
+  "response": {
+    "answers": {
+      "impact": {
+        "confidence": 0.5,
+        "legend": {
+          "0": "Cosmetic",
+          "1": "Reporting",
+          "2": "Compliance or money"
+        },
+        "probabilities": {
+          "0": 0.2,
+          "1": 0.6,
+          "2": 0.2
+        },
+        "score": 0.4,
+        "type": "score"
+      },
+      "is_entry_error": {
+        "noul": 0.94,
+        "type": "noul"
+      }
+    },
+    "model": "synthetic-hand-made",
+    "usage": {
+      "input_tokens": 150,
+      "output_tokens": 4
+    }
+  }
+}
