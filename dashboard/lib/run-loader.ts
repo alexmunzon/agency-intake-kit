@@ -29,6 +29,15 @@ function check(ok: boolean, where: string, problem: string): void {
   if (!ok) throw new Error(`${where}: ${problem}`);
 }
 
+/** JSON.parse that names the file (and line) when the text is broken, so users know what to fix. */
+export function parseJson(text: string, where: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(`${where}: not valid JSON (${(error as Error).message})`);
+  }
+}
+
 function object(value: unknown, where: string, keys: string[]): Record<string, unknown> {
   check(typeof value === "object" && value !== null, where, "expected an object");
   const record = value as Record<string, unknown>;
@@ -37,14 +46,14 @@ function object(value: unknown, where: string, keys: string[]): Record<string, u
 }
 
 export function parseRun(files: RunFiles): Run {
-  const manifest = object(JSON.parse(files.manifest), FILE_NAMES.manifest, [
+  const manifest = object(parseJson(files.manifest, FILE_NAMES.manifest), FILE_NAMES.manifest, [
     "run_id", "status", "started_at", "finished_at", "inputs", "jev",
   ]);
   check(STATUSES.includes(manifest.status as string), FILE_NAMES.manifest, "unknown status");
   const jev = object(manifest.jev, FILE_NAMES.manifest, ["calls", "estimated_cost_usd"]);
   check(typeof jev.estimated_cost_usd === "string", FILE_NAMES.manifest, "estimated_cost_usd must be text");
 
-  const scorecard = object(JSON.parse(files.scorecard), FILE_NAMES.scorecard, [
+  const scorecard = object(parseJson(files.scorecard, FILE_NAMES.scorecard), FILE_NAMES.scorecard, [
     "run_id", "status", "rows_in", "rows_clean", "exceptions_by_severity", "tie_out", "rts_gaps",
   ]);
   check(
@@ -63,12 +72,12 @@ export function parseRun(files: RunFiles): Run {
   const lines = files.exceptions.split("\n").filter((line) => line.trim() !== "");
   const exceptions = lines.map((line, index) => {
     const where = `${FILE_NAMES.exceptions} line ${index + 1}`;
-    const record = object(JSON.parse(line), where, ["id", "rule_id", "severity", "source"]);
+    const record = object(parseJson(line, where), where, ["id", "rule_id", "severity", "source"]);
     check(SEVERITIES.includes(record.severity as string), where, "unknown severity");
     return record as unknown as ExceptionRecord;
   });
 
-  const rts = object(JSON.parse(files.rts), FILE_NAMES.rts, ["cells"]);
+  const rts = object(parseJson(files.rts, FILE_NAMES.rts), FILE_NAMES.rts, ["cells"]);
   check(Array.isArray(rts.cells), FILE_NAMES.rts, "cells must be a list");
 
   return {

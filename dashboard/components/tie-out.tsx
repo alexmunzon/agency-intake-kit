@@ -3,7 +3,7 @@ import { CARD } from "@/components/tiles";
 import { formatMoney } from "@/lib/money";
 import { plural, tieOutSummary } from "@/lib/overview";
 import type { Run } from "@/lib/run-loader";
-import { LEGS, differenceText, isZero, totalsSum, type TieOut } from "@/lib/tie-out";
+import { LEGS, differenceText, isZero, otherDifferences, otherText, totalsSum, type TieOut } from "@/lib/tie-out";
 import type { LegResult, Totals, Variance } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -38,12 +38,14 @@ export function Answer({ tone, text, detail }: { tone: Tone; text: string; detai
 
 function LegCard({ result, title, proves }: { result: LegResult; title: string; proves: string }) {
   const ran = result.status === "RAN";
+  // The loader refuses a leg that ran with a count missing. If one gets here anyway, say so, never 0.
+  const count = (n: number | null) => (n === null ? "Not reported" : n.toLocaleString("en-US"));
   const stats: [string, string][] = ran
     ? [
-        ["Matched", (result.matched ?? 0).toLocaleString("en-US")],
-        ["Unmatched", (result.unmatched ?? 0).toLocaleString("en-US")],
-        ["Weak matches", (result.weak_matched ?? 0).toLocaleString("en-US")],
-        ["Differences", formatMoney(result.variance_dollars ?? "0.00")],
+        ["Matched", count(result.matched)],
+        ["Unmatched", count(result.unmatched)],
+        ["Weak matches", count(result.weak_matched)],
+        ["Differences", result.variance_dollars === null ? "Not reported" : formatMoney(result.variance_dollars)],
       ]
     : [];
   const clean = ran && result.variance_count === 0;
@@ -96,10 +98,17 @@ function VarianceTable({ rows, messages }: { rows: Variance[]; messages: Map<str
               <td className={cn(STICKY, "font-mono")}>{row.carrier_member_id ?? "None"}</td>
               <td>{where(row)}</td>
               <td>
-                <span>{differenceText(row.difference)}</span>
-                <span className={cn("block", MUTED)}>
-                  Paid {row.paid ? formatMoney(row.paid) : "nothing"}, expected {row.expected ? formatMoney(row.expected) : "nothing"}
-                </span>
+                {row.paid === null && row.expected === null ? (
+                  // A status disagreement (TIE-004) is not a money check, so there is no amount to show.
+                  <span>Status only, no amount</span>
+                ) : (
+                  <>
+                    <span>{differenceText(row.difference)}</span>
+                    <span className={cn("block", MUTED)}>
+                      Paid {row.paid ? formatMoney(row.paid) : "nothing"}, expected {row.expected ? formatMoney(row.expected) : "nothing"}
+                    </span>
+                  </>
+                )}
               </td>
               <td className="font-mono">{row.rule_id}</td>
               <td className="min-w-64 whitespace-normal">{messages.get(row.exception_id) ?? `See ${row.exception_id}`}</td>
@@ -156,14 +165,17 @@ function TotalsTable({ totals, title, all }: { totals: Totals; title: string; al
 
 export function TieOutView({ run, tieOut }: { run: Run; tieOut: TieOut }) {
   const summary = tieOutSummary(run);
+  const other = otherDifferences(tieOut.variances);
   const messages = new Map(run.exceptions.map((record) => [record.id, record.message]));
+  // The count matches the table below: leg differences plus the checks that belong to no leg.
+  const total = summary.checked ? summary.count + other.count : 0;
   const answer: [Tone, string, string | null] = !summary.checked
     ? ["blocker", "Not checked. The run stopped before the tie-out.", summary.reason]
-    : summary.count === 0 && summary.ran === summary.legs
+    : total === 0 && summary.ran === summary.legs
       ? ["pass", "Yes. Every check ran and the money agrees.", "Book, statements, and CRM match."]
-      : summary.count === 0
+      : total === 0
         ? ["warning", "Partly. The checks that ran agree.", `Only ${summary.ran} of ${summary.legs} checks ran.`]
-        : ["warning", `Not fully. ${plural(summary.count, "difference")} to review.`, `${formatMoney(summary.dollars)} in differences across ${summary.ran} of ${summary.legs} checks.`];
+        : ["warning", `Not fully. ${plural(total, "difference")} to review.`, `${formatMoney(summary.dollars)} in differences across ${summary.ran} of ${summary.legs} checks${otherText(other)}.`];
   return (
     <div className="space-y-4">
       <PageHeader run={run} question="Does the money agree?" />

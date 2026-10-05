@@ -2,6 +2,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { formatMoney, sumMoney } from "@/lib/money";
+import { plural } from "@/lib/overview";
+import { parseJson, type Run } from "@/lib/run-loader";
 import type { LegResult, TieOutLeg, TotalRow, Totals, Variance } from "@/lib/types";
 
 // Loads tie_out/*.json from one run. Like run-loader, it checks shape only (the engine's models
@@ -21,6 +23,7 @@ export const LEGS: { leg: TieOutLeg; file: string; title: string; proves: string
 const OTHER_FILES = ["variances", "totals_by_carrier", "totals_by_agent"];
 const MONEY_FIELDS = ["paid", "expected", "difference", "variance_dollars", "book_expected", "statement_paid", "unexplained_revenue"];
 const ZERO = /^-?0+(\.0+)?$/;
+const COUNTS = ["matched", "unmatched", "weak_matched", "variance_count", "variance_dollars"] as const;
 
 function checkMoney(value: unknown, where: string): void {
   if (Array.isArray(value)) return value.forEach((item) => checkMoney(item, where));
@@ -34,7 +37,7 @@ function checkMoney(value: unknown, where: string): void {
 }
 
 function parse<T>(files: Record<string, string>, name: string, key: string): T {
-  const value = JSON.parse(files[name]) as Record<string, unknown>;
+  const value = parseJson(files[name], `tie_out/${name}.json`) as Record<string, unknown>;
   if (typeof value !== "object" || value === null || !(key in value)) {
     throw new Error(`${name}.json: missing ${key}`);
   }
@@ -42,16 +45,36 @@ function parse<T>(files: Record<string, string>, name: string, key: string): T {
   return value as T;
 }
 
-export function parseTieOut(files: Record<string, string>): TieOut {
+// Each leg file must hold its own leg. A leg that ran has every count; a leg that did not run has
+// none, because a zero would read as "checked, nothing wrong".
+function checkLeg(result: LegResult, leg: TieOutLeg, where: string): void {
+  if (result.leg !== leg) throw new Error(`${where}: holds ${result.leg}, expected ${leg}`);
+  for (const key of COUNTS) {
+    if (result.status === "RAN" && result[key] === null) throw new Error(`${where}: ran but ${key} is missing`);
+    if (result.status !== "RAN" && result[key] !== null) throw new Error(`${where}: did not run but ${key} is set`);
+  }
+}
+
+/** With a run, also checks that the leg files agree with that run's scorecard. */
+export function parseTieOut(files: Record<string, string>, run?: Run): TieOut {
+  const legs = LEGS.map(({ file, leg }) => {
+    const result = parse<LegResult>(files, file, "status");
+    checkLeg(result, leg, `tie_out/${file}.json`);
+    const summary = run?.scorecard.tie_out.find((item) => item.leg === leg);
+    if (run && (summary?.status !== result.status || summary.variance_count !== result.variance_count || summary.variance_dollars !== result.variance_dollars)) {
+      throw new Error(`tie_out/${file}.json: not from the same run as scorecard.json`);
+    }
+    return result;
+  });
   return {
-    legs: LEGS.map(({ file }) => parse<LegResult>(files, file, "status")),
+    legs,
     variances: parse<{ variances: Variance[] }>(files, "variances", "variances").variances,
     byCarrier: parse<Totals>(files, "totals_by_carrier", "rows"),
     byAgent: parse<Totals>(files, "totals_by_agent", "rows"),
   };
 }
 
-export async function loadTieOut(runDir: string): Promise<TieOut> {
+export async function loadTieOut(runDir: string, run?: Run): Promise<TieOut> {
   const files: Record<string, string> = {};
   for (const name of [...LEGS.map((leg) => leg.file), ...OTHER_FILES]) {
     try {
@@ -60,7 +83,13 @@ export async function loadTieOut(runDir: string): Promise<TieOut> {
       throw new Error(`Could not read tie_out/${name}.json in ${runDir}`);
     }
   }
-  return parseTieOut(files);
+  return parseTieOut(files, run);
+}
+
+/** Dollar checks that belong to no leg (TIE-003 rate table, TIE-005 totals), summed as positive amounts. */
+export function otherDifferences(variances: Variance[]): { count: number; dollars: string } {
+  const rows = variances.filter((row) => row.leg === null);
+  return { count: rows.length, dollars: sumMoney(rows.map((row) => row.difference.replace(/^-/, ""))) };
 }
 
 /** "61.05" becomes "$61.05 more paid". Direction is in words, never only in color. */
@@ -83,4 +112,9 @@ export function totalsSum(rows: TotalRow[]): Omit<TotalRow, "key" | "within_tole
 
 export function isZero(amount: string): boolean {
   return ZERO.test(amount);
+}
+
+/** ", plus 1 commission off the rate table or totals ($6.50)", or "" when there are none. */
+export function otherText(other: { count: number; dollars: string }): string {
+  return other.count === 0 ? "" : `, plus ${plural(other.count, "commission")} off the rate table or totals (${formatMoney(other.dollars)})`;
 }
