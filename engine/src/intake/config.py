@@ -27,6 +27,48 @@ SSN_VALUE_PATTERN: Final[str] = r"^\d{3}[- ]?\d{2}[- ]?\d{4}$"  # dashed, spaced
 SSN_MIN_SHARE: Final[float] = 0.9  # share of non-empty cells matching that makes a column SSNs
 
 # PR 5: synonym mapping (required canonical fields per table, MAP-003)
+# A required field must come from some mapped column, or MAP-003 blocks the run. These are
+# the fields docs/schema.md says may not be empty, minus the ones no column supplies:
+# lineage (added by readers), households (built from clients), and commission_lines.carrier
+# (taken from the statement's file name).
+REQUIRED_FIELDS: Final[dict[str, tuple[str, ...]]] = {
+    "clients": (
+        "client_id",
+        "first_name",
+        "last_name",
+        "dob",
+        "address_line1",
+        "city",
+        "state",
+        "zip",
+    ),
+    "policies": (
+        "policy_id",
+        "client_id",
+        "carrier",
+        "plan_id",
+        "line_of_business",
+        "effective_date",
+        "status",
+        "writing_agent_npn",
+    ),
+    "agents": ("npn", "first_name", "last_name", "license_states", "status"),
+    "rts": (
+        "npn",
+        "carrier",
+        "state",
+        "plan_year",
+        "line_of_business",
+        "appointed",
+        "certified",
+        "effective_date",
+    ),
+    "commission_lines": ("statement_period", "line_no", "amount", "commission_type"),
+}
+# The CRM has one row per policy, so its client id column fills policies.client_id too.
+CARRIED_FIELDS: Final[dict[str, str]] = {"policies.client_id": "clients.client_id"}
+MAP_CANDIDATE_MIN_SCORE: Final[float] = 0.5  # how close a header must be to be offered
+MAP_CANDIDATE_LIMIT: Final[int] = 3  # candidates listed in a MAP-001 suggested fix
 
 # PR 6: Jev client (retry and backoff, the $0.50 per-run budget)
 # Endpoint, model, and price checked on docs.typesafe.ai on 2026-10-04 (see docs/jev.md).
@@ -61,5 +103,34 @@ TIE_LINE_TOLERANCE_PCT: Final[Decimal] = Decimal("0.01")  # ... or 1 percent, wh
 TIE_TOTAL_TOLERANCE_PCT: Final[Decimal] = Decimal("0.005")  # carrier and agent totals: 0.5 percent
 
 # PR 11: exceptions policy and triage (PII gate cutoff)
+TRIAGE_ENTRY_ERROR: Final[float] = 0.80  # at or above: a keying slip, suggested-fix lane
+TRIAGE_BUSINESS_EVENT: Final[float] = 0.20  # at or below: a real event; in between: review
+TRIAGE_SHAPE_MAX_CHARS: Final[int] = 32  # value shapes sent to Jev are cut to this length
+# Fields sent with each triage question, by rule family. Notes are never among them.
+TRIAGE_NEIGHBORS: Final[dict[str, tuple[str, ...]]] = {
+    "DOB": ("line_of_business", "eligibility_reason"),
+    "MBI": ("line_of_business",),
+    "NPN": ("carrier", "agent_in_roster"),
+    "PLN": ("line_of_business", "carrier"),
+    "ADR": ("state",),
+    "DAT": ("status", "line_of_business"),
+    "STA": ("line_of_business",),
+    "DUP": ("line_of_business",),
+    "REF": ("line_of_business",),
+    "RTS": ("carrier", "line_of_business"),
+    "LIC": ("line_of_business",),
+    "TIE": ("carrier", "commission_type"),
+}
+# Closed-vocabulary neighbors are sent as the value itself; every other field as a shape.
+TRIAGE_KEEP_AS_IS: Final[frozenset[str]] = frozenset(
+    {"line_of_business", "eligibility_reason", "status", "carrier", "commission_type"}
+    | {"state", "agent_in_roster"}
+)
+PII_REDACT: Final[float] = 0.50  # PII gate: at or above, the text is redacted
+PII_REDACTED_TEXT: Final[str] = "[redacted]"
+# Word stems the PII pre-filter looks for (diagnosis, diagnosed, conditions, disability, ...)
+PII_HEALTH_WORDS: Final[frozenset[str]] = frozenset(
+    {"diagnos", "condition", "treatment", "prescription", "disabilit"}
+)
 
 # PR 12: run orchestration

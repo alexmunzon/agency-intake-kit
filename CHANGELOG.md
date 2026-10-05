@@ -204,6 +204,23 @@ One entry per PR.
 - #16: The lineage drawer acts as a real modal. The page behind it is inert, Tab and Shift+Tab stay inside it, and focus returns to the row you opened it from when it closes.
 - #13: On a FAILED run, files without their own problem show "Read, not mapped (run stopped)" and "Mapping not checked. The run stopped first." The Sources header counts files read and says mapping was not checked.
 
+## PR 11: exceptions policy, triage, PII gate (2026-10-04)
+
+- `intake/exceptions/policy.py`: the run status (any of the three blockers MAP-003, CMP-001, SSN-001 means FAILED; any error or warning means PASSED_WITH_WARNINGS; otherwise PASSED), the rows errors keep out of `clean/`, catalog suggested fixes for stages that left one blank, and the lanes triage does not decide (blockers to REVIEW, info stays UNREVIEWED).
+- `intake/exceptions/triage.py`: Jev question 3 for every error and warning. The state is the rule, field, value shape, and a few neighbor fields per family (in `config.py`), never raw values or notes. 0.80 or more goes to SUGGESTED_FIX, 0.20 or less to BUSINESS_EVENT, in between to REVIEW, and no answer (off mode or the spend guard) to UNREVIEWED. Identical requests are sent once, keyed by the public request hash. `queue_order` sorts the fix-first queue deterministically.
+- `intake/exceptions/pii.py`: the PII gate. A regex pre-filter picks notes worth a look, SSN-shaped text and 9 to 11 digit numbers are redacted with no call, other flagged text goes to Jev with digits masked, and 0.50 or more redacts to `[redacted]` and raises PII-001. With no answer the gate redacts (fails closed). PII-001 joins the rule catalog and `docs/rules.md`.
+- Expected Jev calls for fixtures/agency-a today: 105 triage calls for 354 row-rule and cross-record exceptions (354 calls without deduplication), 0 PII calls. Asserted in tests and explained in `docs/jev.md`.
+- Hand-made, clearly synthetic cassettes in `engine/tests/cassettes/synthetic/` (3 files). The pipeline never reads that folder. No Jev spend: every test uses replay or httpx.MockTransport.
+
+## PR 5: Synonym mapping and the mapping store (2026-10-04)
+
+- `intake/mapping/synonyms.py`: `normalize_header` is the one normalization for headers and synonyms alike (accents and punctuation dropped, camelCase split, "#" read as "number", abbreviations such as dt, eff, mbr, no, yr expanded). Only an exact match after normalizing maps; a near match is offered as a candidate and never mapped on its own.
+- `intake/data/synonyms.yaml`: the synonym table, by canonical table and field. 77 of the 79 fixture headers map. Two stay unmapped for Jev in PR 7: "Birth Dt (mm/dd/yy)" (SPEC example 2) and the Northwind and Cardinal "Paid" column (a date or an amount; the values decide). A spelling that means two fields of one table is refused when the file loads.
+- `intake/mapping/store.py`: `mapping/<key>.yaml` beside `drop/`, one per source (the roster gets `roster_agents` and `roster_rts`), with header, table, field, method, confidence, and decided_at. A stored decision wins over the synonym table; a person can set `method: manual`, or leave the field empty to ignore a column. Writing what was read gives the same bytes, so a second run leaves the file unchanged.
+- `intake/mapping/headers.py`: `map_table` maps a raw table, saves its mapping, and returns a mapping version for lineage. MAP-001 (warning) names each unmapped header with its closest fields; a second column for a field already mapped is also MAP-001. MAP-003 (blocker) fires once per required field with no mapped column. A combined name column ("Client Name", "Agent Name") covers first and last name. Enrollment is not checked for MAP-003, because it cross-checks the CRM and loads no table of its own.
+- `config.py` PR 5 section: required fields per table, the CRM client id carried into policies, and how close a header must be to be offered as a candidate.
+- fixtures/agency-a maps with three MAP-001 warnings and no MAP-003.
+
 ## PR 16: Load your own run, run diff, dark mode, accessibility (2026-10-04)
 
 - Runs page: pick a run folder's files (or drop the folder) and every page shows that run, with a banner naming it and a "Back to the demo run" button. The files are read in the tab only. Nothing is uploaded or stored, and a reload clears them. `lib/upload.ts` matches files by name, skips anything that is not a run file without reading it, and lists every problem by file ("scorecard.json: missing", "exceptions.jsonl line 2: not valid JSON", files from two runs).
