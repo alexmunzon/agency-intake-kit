@@ -203,3 +203,9 @@ One entry per PR.
 - #14: A broken run file now names itself: "manifest.json: not valid JSON (...)", "exceptions.jsonl line 3: not valid JSON (...)", "tie_out/variances.json: not valid JSON (...)".
 - #16: The lineage drawer acts as a real modal. The page behind it is inert, Tab and Shift+Tab stay inside it, and focus returns to the row you opened it from when it closes.
 - #13: On a FAILED run, files without their own problem show "Read, not mapped (run stopped)" and "Mapping not checked. The run stopped first." The Sources header counts files read and says mapping was not checked.
+
+## SSN gate hardening (#39)
+
+- SSN-001 no longer blocks a run on a column of nine-digit NPNs. The gate now weighs the header and the value shape together: a header naming an SSN (SSN, Social, Soc Sec, Tax ID, TIN) always blocks; a header naming a known id field (NPN, MBI, policy, member, phone, ZIP, plan ids) never blocks on values alone; dashed or spaced SSN text in at least 1 percent of cells blocks, free text included; bare nine digits block only in 90 percent of cells and only when some value cannot be an NPN.
+- The output is unchanged: one file-level blocker record per column, and no value is ever echoed. The decision rule is in `intake/gates/refusal.py` and docs/schema.md; the word lists and shares are in the PR 4 section of `config.py`.
+- New tests in `engine/tests/unit/test_ssn_gate.py`.

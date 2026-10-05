@@ -22,9 +22,44 @@ TOTAL_ROW_WORDS: Final[frozenset[str]] = frozenset(
     {"total", "subtotal", "sub total", "grand total"}
 )
 RAW_MAPPING_VERSION: Final[str] = "unmapped"  # lineage mapping_version before PR 5 maps headers
-SSN_HEADER_WORDS: Final[frozenset[str]] = frozenset({"ssn", "social"})
-SSN_VALUE_PATTERN: Final[str] = r"^\d{3}[- ]?\d{2}[- ]?\d{4}$"  # dashed, spaced, or 9 digits
-SSN_MIN_SHARE: Final[float] = 0.9  # share of non-empty cells matching that makes a column SSNs
+SSN_HEADER_WORDS: Final[frozenset[str]] = frozenset({"ssn", "ssns", "social", "tin", "taxpayer"})
+SSN_HEADER_PHRASES: Final[tuple[str, ...]] = ("tax id", "soc sec", "s s n")  # header text, spaced
+SSN_VALUE_PATTERN: Final[str] = r"^\d{9}$"  # a bare nine-digit cell (weak evidence)
+SSN_MIN_SHARE: Final[float] = 0.9  # share of bare 9-digit cells that makes a column weak evidence
+SSN_SHAPED_MIN_SHARE: Final[float] = 0.01  # share of cells holding dashed or spaced SSN text
+# Header words of known id fields (NPN, MBI, policy, member, phone, ZIP, plan ids). A column
+# named like this is never SSN-001 on its values alone, even when they are nine digits.
+SSN_ID_HEADER_WORDS: Final[frozenset[str]] = frozenset(
+    {
+        "npn",
+        "mbi",
+        "medicare",
+        "policy",
+        "member",
+        "mbr",
+        "subscriber",
+        "insured",
+        "phone",
+        "tel",
+        "mobile",
+        "cell",
+        "fax",
+        "zip",
+        "postal",
+        "plan",
+        "contract",
+        "hios",
+        "line",
+        "seq",
+        "ref",
+        "client",
+        "household",
+        "agent",
+        "producer",
+        "upline",
+        "license",
+    }
+)
 
 # PR 5: synonym mapping (required canonical fields per table, MAP-003)
 
