@@ -220,3 +220,11 @@ One entry per PR.
 - `intake/mapping/headers.py`: `map_table` maps a raw table, saves its mapping, and returns a mapping version for lineage. MAP-001 (warning) names each unmapped header with its closest fields; a second column for a field already mapped is also MAP-001. MAP-003 (blocker) fires once per required field with no mapped column. A combined name column ("Client Name", "Agent Name") covers first and last name. Enrollment is not checked for MAP-003, because it cross-checks the CRM and loads no table of its own.
 - `config.py` PR 5 section: required fields per table, the CRM client id carried into policies, and how close a header must be to be offered as a candidate.
 - fixtures/agency-a maps with three MAP-001 warnings and no MAP-003.
+
+## PII gate fix (#55)
+
+- `intake/exceptions/pii.py`: a new regex layer finds identity shapes with no Jev call: SSN shapes, emails, phone numbers, dates of birth after a DOB label, card numbers, bank and routing numbers (8 to 17 digits, or labeled account, acct, routing, IBAN), driver's license numbers, Medicare and member ids, anything labeled SSN, social, password, or PIN, and a name after a relationship word. Each match is replaced in place by a typed placeholder such as `[REDACTED:phone]`, and PII-001 fires with `value_minimized` from `minimize_value` and the kinds in the message, never the raw value.
+- Text that still holds a date, a drug-like word, or a health word goes to Jev's noul question, already redacted and with digits masked. At or above 0.50 the whole text is redacted; with no answer the gate still fails closed.
+- `config.py`: `PII_RELATION_WORDS`, the relationship words that mark a following name.
+- All 26 planted notes in fixtures/agency-a now raise PII-001 (before: 0), with 0 Jev calls; the 132 clean notes raise nothing. `docs/jev.md` describes both layers.
+- Tests: `engine/tests/unit/test_pii_patterns.py` runs the gate over every fixture note and each shape, and checks no raw value reaches a record, a request, or a cassette. No Jev spend: off mode, replay, and httpx.MockTransport only.
