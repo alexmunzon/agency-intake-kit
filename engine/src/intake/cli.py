@@ -1,12 +1,14 @@
 """Command line entry point for the intake pipeline. Commands arrive in later PRs."""
 
 import json
+import os
 from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from agency_schema import json_schema
+from agency_schema.outputs import JevMode
 from agency_schema.typescript import render_typescript
 from intake import __version__
 
@@ -60,3 +62,43 @@ def rules(
         return
     for m in catalog():
         typer.echo(f"{m.rule_id}  {m.severity:<8}  {m.description}")
+
+
+bench_app = typer.Typer(help="Benchmarks on the synthetic fixtures.", no_args_is_help=True)
+app.add_typer(bench_app, name="bench")
+
+
+@bench_app.command("header-mapping")
+def bench_header_mapping(
+    jev: Annotated[JevMode, typer.Option(help="replay (default) costs nothing.")] = JevMode.REPLAY,
+    approve_spend: Annotated[
+        bool, typer.Option("--approve-spend", help="Allow --jev live or record (Alex approves).")
+    ] = False,
+    sonnet: Annotated[
+        bool, typer.Option("--sonnet", help="Run the Sonnet arm (needs ANTHROPIC_API_KEY).")
+    ] = False,
+    write: Annotated[
+        bool, typer.Option(help="Rewrite the benchmark doc and the README table.")
+    ] = True,
+) -> None:
+    """Score synonyms, synonyms then Jev, and synonyms then Sonnet on the labeled headers."""
+    from intake.bench import header_mapping as bench
+    from jev_client import JevClient, SpendNotApproved
+    from jev_client.client import DEFAULT_CASSETTE_DIR
+
+    try:
+        client = JevClient(
+            mode=jev, api_key=os.environ.get("TYPESAFE_API_KEY"), allow_spend=approve_spend
+        )
+    except SpendNotApproved as error:
+        typer.echo(str(error))
+        raise typer.Exit(2) from error
+    skipped = bench.sonnet_skip_reason(sonnet)
+    ask = bench.anthropic_ask() if skipped is None else None
+    result = bench.run_benchmark(
+        bench.load_labels(), client, DEFAULT_CASSETTE_DIR, ask, skipped or ""
+    )
+    typer.echo("\n".join(bench.table_rows(result)))
+    if write:
+        bench.write_outputs(result)
+        typer.echo(f"wrote {bench.DOC_PATH} and the README table")

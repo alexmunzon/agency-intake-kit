@@ -134,3 +134,13 @@ PII_HEALTH_WORDS: Final[frozenset[str]] = frozenset(
 )
 
 # PR 12: run orchestration
+
+# PR 17: header mapping benchmark
+# The benchmark mirrors SPEC's mapping cutoff: a Jev answer under 0.60 leaves the header
+# unmapped. PR 7 owns the pipeline's own cutoffs; this one only scores the benchmark.
+BENCH_JEV_MIN_CONFIDENCE: Final[float] = 0.60
+BENCH_SONNET_MODEL: Final[str] = "claude-sonnet-5-5"
+BENCH_SONNET_MAX_TOKENS: Final[int] = 2000  # room for brief thinking before a one-word answer
+# Anthropic's published Sonnet price, checked 2026-10-04. An assumption for cost estimates.
+SONNET_USD_PER_MTOK_IN: Final[Decimal] = Decimal("2.00")
+SONNET_USD_PER_MTOK_OUT: Final[Decimal] = Decimal("10.00")

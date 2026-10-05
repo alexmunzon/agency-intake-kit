@@ -220,3 +220,13 @@ One entry per PR.
 - `intake/mapping/headers.py`: `map_table` maps a raw table, saves its mapping, and returns a mapping version for lineage. MAP-001 (warning) names each unmapped header with its closest fields; a second column for a field already mapped is also MAP-001. MAP-003 (blocker) fires once per required field with no mapped column. A combined name column ("Client Name", "Agent Name") covers first and last name. Enrollment is not checked for MAP-003, because it cross-checks the CRM and loads no table of its own.
 - `config.py` PR 5 section: required fields per table, the CRM client id carried into policies, and how close a header must be to be offered as a candidate.
 - fixtures/agency-a maps with three MAP-001 warnings and no MAP-003.
+
+## PR 17: header mapping benchmark
+
+- `intake bench header-mapping` scores three approaches on 134 labeled headers: synonyms only, synonyms then Jev, synonyms then Sonnet. It runs in Jev replay by default and makes no network calls.
+- The labeled set (`engine/src/intake/bench/data/header_labels.yaml`) holds all 79 distinct headers in the agency-a source files (a test checks the list against the files) and 55 synthetic variants, 11 of which hold no canonical field. Small and synthetic; the numbers describe this set only.
+- Per approach: accuracy, coverage, wrong mappings, "not recorded", model calls, and estimated cost per 1,000 headers. A header with no Jev recording is "not recorded", in its own column, never counted as wrong or missed. When no Jev answers are recorded the row says "not measured" instead of a percentage that would really be the synonyms' score.
+- Costs are estimates from token counts at stated prices (Jev $0.042 per million input tokens; Sonnet $2 in and $10 out per million). Latency is measured only for real network calls; replay says so.
+- The Sonnet arm runs only with `ANTHROPIC_API_KEY` set and `--sonnet` passed. Without a key its row says "skipped: no key". Adds the `anthropic` SDK as a dependency (uv.lock changed).
+- Writes `docs/benchmark-header-mapping.md` and the README table between `<!-- benchmark:start -->` and `<!-- benchmark:end -->`. Recording Jev answers later is one command, after Alex approves the spend: `uv run intake bench header-mapping --jev record --approve-spend`.
+- `config.py` PR 17 section: the 0.60 cutoff the benchmark scores with, the Sonnet model id, and the Sonnet price.
