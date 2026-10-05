@@ -10,6 +10,14 @@ Live demo: https://agency-intake-kit.vercel.app
 
 ![Demo: the Overview page, then the Exceptions page, then the Tie-out page](docs/screenshots/demo.gif)
 
+## Two-minute tour
+
+1. Open the [live demo](https://agency-intake-kit.vercel.app), which starts on the Overview page.
+2. Read the answer at the top: "Yes, with fixes to review," with 0 blockers, 308 errors, and 423 warnings.
+3. Open Exceptions to see every problem sorted by severity, with its rule and source file.
+4. Click any row to open the drawer, which shows the suggested fix and the exact file, sheet, and row the problem came from.
+5. Open Tie-out and find the $61.05 that Harborline paid in August for a member who is on no policy in the book.
+
 ## What this is
 
 When an insurance agency is bought, its records arrive as a pile of mismatched files: a CRM export, an enrollment platform export, carrier commission statements, and an agent roster kept by hand. Someone then checks them by hand for weeks, and nothing downstream, human or AI, can act on data nobody has checked. This kit takes that pile and, in one command, answers three questions: can this book go live in our systems, does the money agree, and was every policy sold by an agent allowed to sell it.
