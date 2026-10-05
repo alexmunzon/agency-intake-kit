@@ -1,7 +1,9 @@
-"""Register the canonical frames, the rate table, and the tolerances as DuckDB tables.
+"""Register the prepared frames, the rate table, and the tolerances as DuckDB tables.
 
 No SQL lives here: frames go in through the Arrow stream interface (no pyarrow needed), and
-every query is in sql/*.sql. All values arrive as text, so money is never a float.
+every query is in sql/*.sql. All values arrive as text (dates ISO, amounts plain decimals, see
+prepare.py), so money is never a float. A missing clients table arrives empty, which only
+switches off the weak name plus DOB match.
 """
 
 from collections.abc import Mapping
@@ -12,17 +14,6 @@ import duckdb
 import polars as pl
 
 from intake import config
-
-LINEAGE_COLUMNS = {"_source_file": pl.String, "_row_number": pl.Int64, "_raw_hash": pl.String}
-# The columns the SQL reads from each table. A missing clients table becomes an empty one,
-# which only switches off the weak name plus DOB match.
-COLUMNS = {
-    "policies": ["policy_id", "client_id", "carrier", "carrier_member_id", "line_of_business",
-                 "effective_date", "termination_date", "status", "writing_agent_npn"],
-    "clients": ["client_id", "first_name", "last_name", "dob"],
-    "commission_lines": ["carrier", "statement_period", "line_no", "carrier_member_id",
-                         "member_name", "member_dob", "policy_ref", "agent_npn", "amount"],
-}  # fmt: skip
 
 
 class _ArrowStream:
@@ -44,17 +35,14 @@ def _text(values: Mapping[str, list[str]]) -> pl.DataFrame:
 
 
 def connect(
-    tables: Mapping[str, pl.DataFrame | None],
+    frames: Mapping[str, pl.DataFrame],
     rates: Mapping[tuple[str, str], Decimal],
     new_business_months: int,
 ) -> duckdb.DuckDBPyConnection:
     """An in-memory database with raw_<table>, rates, and settings ready for the views."""
     con = duckdb.connect()
-    for name, columns in COLUMNS.items():
-        frame = tables.get(name)
-        if frame is None:
-            frame = pl.DataFrame(schema={**dict.fromkeys(columns, pl.String), **LINEAGE_COLUMNS})
-        _register(con, f"raw_{name}", frame.select(*columns, *LINEAGE_COLUMNS))
+    for name, frame in frames.items():
+        _register(con, f"raw_{name}", frame)
     _register(
         con,
         "rates",

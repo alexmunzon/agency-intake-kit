@@ -10,10 +10,24 @@ STATEMENT_PREFIX = "statement_"
 
 
 def legs_needing(source: str) -> list[TieOutLeg]:
-    """Tie-out legs that cannot run without this source. The book of policies comes from the CRM."""
-    if source == "crm" or source.startswith(STATEMENT_PREFIX):
-        return list(TieOutLeg)
-    return []
+    """Tie-out legs that cannot run without this source. The book of policies comes from the CRM.
+
+    One missing carrier statement does not stop the tie-out: it runs on the other statements
+    and reports that carrier's periods as missing statements (see tie_out_effect).
+    """
+    return list(TieOutLeg) if source == "crm" else []
+
+
+def tie_out_effect(source: str) -> str:
+    """What the tie-out does about this missing source, for CMP-002's suggested fix."""
+    if source.startswith(STATEMENT_PREFIX):
+        return (
+            "Tie-out reports this carrier's periods as missing statements (TIE-005); "
+            "legs BOOK_VS_STATEMENT, STATEMENT_VS_BOOK, CRM_VS_STATEMENT are NOT_RUN only "
+            "when no statement arrived at all"
+        )
+    legs = ", ".join(leg.value for leg in legs_needing(source)) or "none"
+    return f"Tie-out legs marked NOT_RUN: {legs}"
 
 
 def check_completeness(result: IngestResult) -> list[ExceptionRecord]:
@@ -34,7 +48,6 @@ def check_completeness(result: IngestResult) -> list[ExceptionRecord]:
             )
         )
     for entry in result.missing:
-        legs = ", ".join(leg.value for leg in legs_needing(entry.source)) or "none"
         where = f"{entry.file_name} ({entry.sheet})" if entry.sheet else entry.file_name
         records.append(
             file_exception(
@@ -42,7 +55,7 @@ def check_completeness(result: IngestResult) -> list[ExceptionRecord]:
                 Severity.WARNING,
                 entry.source,
                 f"No {entry.source} file in drop: {where} is missing",
-                f"Tie-out legs marked NOT_RUN: {legs}",
+                tie_out_effect(entry.source),
             )
         )
     return records

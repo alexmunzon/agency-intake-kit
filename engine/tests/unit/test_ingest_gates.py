@@ -69,6 +69,7 @@ def test_missing_source_fires_cmp_002_warning_with_not_run_legs(tmp_path: Path) 
     ]
     assert records[0].suggested_fix == "Tie-out legs marked NOT_RUN: none"
     assert "BOOK_VS_STATEMENT" in (records[1].suggested_fix or "")
+    assert "missing statements (TIE-005)" in (records[1].suggested_fix or "")
     assert not any(r.blocks_load for r in records)
 
 

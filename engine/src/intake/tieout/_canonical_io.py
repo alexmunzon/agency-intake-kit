@@ -13,7 +13,6 @@ from pathlib import Path
 import polars as pl
 
 TABLES = ("policies", "clients", "commission_lines")
-MAPPING_VERSION = "canonical"  # canonical CSVs need no header mapping
 
 
 def frame_from_rows(
