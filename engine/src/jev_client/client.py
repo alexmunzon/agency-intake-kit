@@ -93,6 +93,7 @@ class JevClient:
         sleep: Callable[[float], None] = time.sleep,
         rand: Callable[[], float] = random.random,
     ) -> None:
+        mode = JevMode(mode)
         spends = mode in (JevMode.LIVE, JevMode.RECORD)
         if spends and not allow_spend:
             raise SpendNotApproved(

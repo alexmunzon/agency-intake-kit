@@ -6,6 +6,7 @@ One entry per PR.
 
 - `intake run` refuses an output folder that is the input drop, contains it, or is inside it, so `--overwrite` cannot replace source files.
 - The Exceptions drawer shows Jev impact as a weighted score on its 0-to-2 scale. Probability fields remain percentages.
+- The Jev client rejects unknown modes and replay cassettes with malformed structure or an embedded request that does not match its hash.
 
 ## PR 0: Scaffold (2026-10-04)
 
