@@ -159,6 +159,8 @@ MEDICARE_AGE: Final[int] = 65  # DOB-003: under this, Medicare needs DISABILITY 
 # effective year, so this stays False.
 PLAN_YEAR_DECEMBER_ROLLS_FORWARD: Final[bool] = False
 LIST_SEPARATOR: Final[str] = "|"  # how canonical CSVs join list fields such as license_states
+# What splits a list field when reading it: canonical "|", the roster's "FL, GA, TX", or ; / space
+LIST_SPLIT_PATTERN: Final[str] = r"[|,;/\s]+"
 RTS_TRUE_VALUES: Final[frozenset[str]] = frozenset(
     {"true", "yes", "y", "1"}
 )  # appointed, certified

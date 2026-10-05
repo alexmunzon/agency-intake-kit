@@ -29,5 +29,5 @@ def license_gaps(view: pl.DataFrame) -> list[ExceptionRecord]:
             "Verify license",
             field="writing_agent_npn",
         )
-        for row in hits.sort("_row").iter_rows(named=True)
+        for row in hits.sort("_rec").iter_rows(named=True)
     ]

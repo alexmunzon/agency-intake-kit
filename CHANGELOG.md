@@ -300,6 +300,17 @@ One entry per PR.
 - 7 hand-made cassettes in `engine/tests/cassettes/mapping/`, built from the real request hashes and marked `"model": "handmade-placeholder"`. The record command replaces them. No Jev spend in this PR: every test uses replay or httpx.MockTransport.
 - `config.py` PR 7 section: MAP_AUTO, MAP_SUGGEST, ENUM_AUTO, sample limits, the 9-digit pattern, and the token estimate for the cost preview.
 
+## Checks and tie-out review fixes
+
+- #53: The tie-out no longer matches statement lines by row number. Every row gets `_rec`, its position in its table, and that is the only row key the SQL joins on; lineage row numbers (which restart in each carrier file) are never used as keys in the checks or the tie-out. Six per-carrier statement files with overlapping row numbers now give exactly the ground truth (131 TIE-001, 68 TIE-002, 66 TIE-003, 40 TIE-004), and example 4 still lands in leg B.
+- #42: RTS-001, RTS-002, and DUP-002 read every date through `parse_date_loose` (ISO, US, two-digit years, Excel serials). A policy RTS could not check for want of an effective date is counted in `CrossRecordResult.skipped` and logged; the date itself stays reported once, by DAT-001.
+- #43: License states split on `|`, comma, semicolon, slash, or spaces through one shared splitter (`intake/normalize.py`, pattern `LIST_SPLIT_PATTERN` in `config.py`), so the roster's "FL, GA, TX" works.
+- #44: The tie-out reads policy dates, client DOBs, statement DOBs, and statement periods once in Python (`tieout/prepare.py`) before DuckDB, so mixed date styles stay in leg A and the name plus DOB match works with serial and US dates. Unreadable values are counted in `TieOutResult.skipped` and logged.
+- #45: Amounts go through one money normalizer (`parse_money`: `$`, commas, `(61.05)` as negative, spaces, Decimal out). A blank or non-numeric amount is one TIE-003 on that line with its lineage ("has a blank amount", "has an amount that is not a number"), never a crash or a silent drop.
+- #47: A chargeback (CHARGEBACK type or a negative amount) on a policy that is CANCELLED, TERMINATED, or ended by the period raises no TIE-003 or TIE-004, and the book side of the totals expects it. On an active policy it still raises TIE-003. Chargebacks never count as the carrier paying in leg C. OVERRIDE lines are checked only against an OVERRIDE rate.
+- #48: A carrier and period the book expected money for, with no statement, is a TIE-005 (error) "No <carrier> statement was received for <period>" carrying the expected dollars, and the carrier stays in the totals (paid 0). CMP-002's suggested fix for a missing statement now says what the tie-out does.
+- #49: Tie-out and cross-record exceptions carry the row's own lineage from the reader (file, sheet, row, hash, run, mapping version), not `sheet: null` and `"canonical"`. Both stages accept reader frames with the `lineage` struct column.
+
 ## Real Jev mapping cassettes recorded (2026-10-05)
 
 - The seven hand-made mapping cassettes are replaced by real TypeSafe answers recorded with `intake jev record-mapping` on fixtures/agency-a: 7 requests, 3,239 input tokens, estimated cost $0.000136, approved by Alex. No key or header is stored. The recording test now seeds hand-made placeholders explicitly.

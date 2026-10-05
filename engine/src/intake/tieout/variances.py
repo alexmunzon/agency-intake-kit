@@ -1,7 +1,7 @@
 """Turn the tie-out views into the six tie_out/*.json models and their TIE ExceptionRecords."""
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -22,8 +22,8 @@ from agency_schema.outputs import (
     VarianceReport,
 )
 from intake import config
-from intake.tieout._canonical_io import MAPPING_VERSION
 from intake.tieout.load import connect
+from intake.tieout.prepare import prepare
 from intake.tieout.views import create_views, rows
 from synth_agency_data.rates import MONTHLY_RATES, NEW_BUSINESS_MONTHS
 
@@ -39,6 +39,7 @@ RULES = {
     "TIE-003": (Severity.WARNING, "Check commission type or rate"),
     "TIE-004": (Severity.WARNING, "Update CRM"),
     "TIE-005": (Severity.ERROR, "Investigate legs A and B"),
+    "MISSING_STATEMENT": (Severity.ERROR, "Get the missing carrier statement and rerun"),
     "TIE-006": (Severity.INFO, "Add carrier_member_id to CRM"),
 }
 
@@ -49,10 +50,19 @@ def _message(f: Mapping[str, Any]) -> str:
             return f"An active policy has no commission line in {f['statement_period']}"
         case "TIE-002":
             return f"{f['carrier']} paid a commission for a member who is not in the book"
+        case "TIE-003" if f["reason_code"] == "AMOUNT_BLANK":
+            return f"Line {f['line_no'] or '(no number)'} has a blank amount"
+        case "TIE-003" if f["reason_code"] == "AMOUNT_NOT_A_NUMBER":
+            return f"Line {f['line_no'] or '(no number)'} has an amount that is not a number"
         case "TIE-003":
             return "The commission amount is off the rate schedule beyond the tolerance"
         case "TIE-004":
             return "The CRM status disagrees with the carrier statement"
+        case "TIE-005" if f["reason_code"] == "MISSING_STATEMENT":
+            return (
+                f"No {f['carrier']} statement was received for {f['statement_period']}, so "
+                "its policies for that period were not tied out"
+            )
         case "TIE-005":
             who = f["carrier"] or "An agent"
             return f"{who}: the statement total is off the book by more than {TOTAL_PCT}"
@@ -67,28 +77,23 @@ class TieOutResult:
     totals_by_carrier: Totals
     totals_by_agent: Totals
     exceptions: tuple[ExceptionRecord, ...]
+    # Non-blank values that could not be read, by "table.field" (each also logged). A policy
+    # date is reported once, by DAT-001; a bad amount is also its own TIE-003.
+    skipped: Mapping[str, int] = field(default_factory=dict)
 
 
 def _cents(value: Decimal | None) -> Decimal | None:
     return None if value is None else value.quantize(CENT)
 
 
-def _record(ex_id: str, f: Mapping[str, Any], run_id: str) -> ExceptionRecord:
-    severity, fix = RULES[f["rule_id"]]
-    row = f.get("_row_number")
-    lineage = None
-    if row is not None:
-        lineage = Lineage(
-            source_file=f["_source_file"],
-            sheet=None,
-            row_number=row,
-            raw_hash=f["_raw_hash"],
-            run_id=run_id,
-            mapping_version=MAPPING_VERSION,
-        )
+def _record(ex_id: str, f: Mapping[str, Any], lineage: Lineage | None) -> ExceptionRecord:
+    """lineage is the row's own, exactly as the reader attached it (None for a total)."""
+    severity, fix = RULES[f["reason_code"] if f["reason_code"] in RULES else f["rule_id"]]
+    row = lineage.row_number if lineage else None
     return ExceptionRecord(
         id=ex_id, rule_id=f["rule_id"], severity=severity, family=Family.TIE,
-        source=f["source"], row_number=row, raw_hash=f.get("_raw_hash"), field=f["field"],
+        source=f["source"], row_number=row, raw_hash=lineage.raw_hash if lineage else None,
+        field=f["field"],
         value_minimized=minimize_value(f["raw_value"]), message=_message(f), suggested_fix=fix,
         blocks_load=False, lane=Lane.UNREVIEWED, jev=None, lineage=lineage,
     )  # fmt: skip
@@ -108,7 +113,8 @@ def _variance(ex_id: str, f: Mapping[str, Any]) -> Variance:
 def _totals_finding(group_by: str, row: TotalRow) -> dict[str, Any]:
     by_carrier = group_by == "carrier"
     return {
-        "rule_id": "TIE-005", "carrier": row.key if by_carrier else None,
+        "rule_id": "TIE-005", "reason_code": "TOTAL_OFF", "_rec": None,
+        "carrier": row.key if by_carrier else None,
         "agent_npn": None if by_carrier else row.key, "statement_period": None,
         "line_no": None, "policy_id": None, "carrier_member_id": None,
         "paid": row.statement_paid, "expected": row.book_expected, "source": "commission_lines",
@@ -149,7 +155,8 @@ def run_tieout(
         return _not_run("No commission statements were received, so there is nothing to tie out")
     if tables.get("policies") is None:
         return _not_run("No policy book was received, so statements cannot be tied out")
-    con = connect(tables, rates, NEW_BUSINESS_MONTHS)
+    prepared = prepare(tables, run_id)
+    con = connect(prepared.frames, rates, NEW_BUSINESS_MONTHS)
     create_views(con)
     totals = {g: [] for g in ("carrier", "agent")}  # type: dict[str, list[TotalRow]]
     for row in rows(con, "totals"):
@@ -162,7 +169,9 @@ def run_tieout(
     exceptions, variances = [], []
     for n, f in enumerate(findings, start=1):
         ex_id = f"EX-TIE-{n:06d}"
-        exceptions.append(_record(ex_id, f, run_id))
+        rec = f["_rec"]
+        lineage = None if rec is None else prepared.lineage[f["source"]][rec]
+        exceptions.append(_record(ex_id, f, lineage))
         if f["rule_id"] in RULE_LEG:  # TIE-006 is an exception only
             variances.append(_variance(ex_id, f))
     counts = {c["leg"]: c for c in rows(con, "leg_counts")}
@@ -191,6 +200,7 @@ def run_tieout(
         totals_by_agent=Totals(group_by="agent", status=LegStatus.RAN, not_run_reason=None,
                                rows=tuple(totals["agent"])),
         exceptions=tuple(exceptions),
+        skipped=prepared.skipped,
     )  # fmt: skip
 
 
