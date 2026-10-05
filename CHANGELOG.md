@@ -227,6 +227,11 @@ One entry per PR.
   test now requires its TIE-005 findings to equal ground truth exactly.
 - Issue 29: example 3 (P-00417, NPN 1884412, Harborline, TX, 2026, no RTS, TX licensed) and
   example 4's line 212 are now checked after every injector runs and in the committed fixture.
+- Issue 54: the CRM writer rotated date styles and status casing by row, so none of the 26
+  exact duplicate rows was byte-identical in `crm_export.csv` and DUP-001 could not fire on the
+  real drop (they all looked like DUP-003). An exact duplicate now repeats its original row's
+  cells byte for byte; every other row keeps the rotation, and the 8 DUP-003 copies still
+  differ. A test reads the real CRM file and checks all 26 pairs match and all 8 differ.
 - Locking the DUP-002 originals changes which clients the near-duplicate injector copies, so
   `canonical-defected/clients.csv` and the CRM exports changed. No rule or check logic changed.
 - Defect counts: agency-a 819 to 877 (scored 659 to 717; DUP-002 10 to 20; TIE-005 0 to 48).

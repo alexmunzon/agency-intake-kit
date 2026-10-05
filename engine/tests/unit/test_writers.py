@@ -213,3 +213,25 @@ def test_pii_notes_are_one_percent_scored_and_obviously_fake() -> None:
     for d in pii:
         sentence = d["injected_values"]["to"]
         assert not re.search(r"\d{3}-?\d{2}-?\d{4}", sentence.replace("555-01", "")), sentence
+
+
+def test_exact_duplicate_rows_are_byte_identical_in_the_crm_file() -> None:
+    """Issue 54: a DUP-001 copy repeats its original's bytes (same date style, same casing).
+
+    DUP-003 copies differ in content, so they must still differ in the file.
+    """
+    raw, rows = crm("agency-a")
+    lines = raw[3:].split(b"\r\n")[1:-1]  # drop the BOM, the header, and the final empty piece
+    assert len(lines) == len(rows)  # no cell holds a line break, so line i is row i
+    planted = {"exact_duplicate_row": 0, "duplicate_policy_id": 0}
+    for d in truth("agency-a"):
+        if d["defect_type"] not in planted:
+            continue
+        planted[d["defect_type"]] += 1
+        pid = d["record_key"]["policy_id"]
+        first, copy = [lines[i] for i, r in enumerate(rows) if r["Policy #"] == pid]
+        if d["defect_type"] == "exact_duplicate_row":
+            assert first == copy, pid
+        else:
+            assert first != copy, pid
+    assert planted == {"exact_duplicate_row": 26, "duplicate_policy_id": 8}
