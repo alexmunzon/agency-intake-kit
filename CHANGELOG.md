@@ -344,3 +344,10 @@ One entry per PR.
 - Each ADR gains a dated "Update 2026-10-05" section instead of a rewrite: the tie-out runs in every run (0001); the spend cap switches Jev off and the run completes, recorded in the new `budget_tripped` field, and placeholder answers are replaced (0002); the demo shows real engine output with the `--as-of` frozen clock and the manifest's `as_of` (0003); 2,680 CRM rows and the end-to-end SSN test (0004); the `jev_client` imports from `intake/config.py` and its default cassette path, which bob-resolve's extraction must cut (0005).
 - New `docs/release-notes-v1.0.0.md`: the scorecard, Jev cost, what shipped per PR, known issues, and what bob-resolve is. No tag or release is created.
 - CLAUDE.md lists `npm run demo-gif`. `docs/jev.md` states the recorded triage answers. `engine/tests/unit/test_docs_links.py` checks every relative link in the README, release notes, and ADRs, no em dashes there, and the GIF size.
+
+## Sweep 2: artifact fixes (2026-10-05)
+
+- README and release notes: the tie-out line now adds the 114 commissions off the rate table or statement totals ($7,018.44), so it matches the 353 differences on the Tie-out page. The 7 mapping questions are described as column headers and messy status words, not headers only. The Runs page sentence no longer says it shows what changed; comparing runs is `intake diff`.
+- docs/jev.md: the mapping and triage cassettes are described as the real recordings from 2026-10-05, the recorded mapping cost (3,239 input tokens, about $0.000136) replaces the old estimate, and the spend cap note points at the shipped `budget_tripped` field.
+- docs/outputs.md and docs/schema.md: stale "in PR 12" and "from PR 4 onward" notes removed; the ZIP prefix table has 938 rows, not 939 (the header was counted). ADR 0004's dated update notes 27 defect classes in the scorecard.
+- Findings that need a decision are filed as "[sweep 2]" issues. Docs only; no code changed.

@@ -62,11 +62,11 @@ Recall is the share of planted mistakes the kit found. A false alarm is a proble
 | Policy id reused with different details | DUP-003 | 8 | 8 |
 | Ready-to-sell status had expired | RTS-002 | 8 | 8 |
 
-The tie-out found $5,085.55 in dollar differences across 239 items. The generator also plants identity mistakes (name typos, nicknames, swapped birth dates) for the next project, bob-resolve. This kit reports them but does not score them, by design.
+The tie-out found $5,085.55 in dollar differences across 239 items, plus 114 commissions off the rate table or statement totals ($7,018.44), so the Tie-out page lists 353 differences to review. The generator also plants identity mistakes (name typos, nicknames, swapped birth dates) for the next project, bob-resolve. This kit reports them but does not score them, by design.
 
 ## The five dashboard questions
 
-Every page answers its question at the top before showing detail. A check that did not run says "Not checked", never 0, so a missing check can never look clean. A sixth page, Runs, loads a run of your own in the browser (nothing is uploaded) and shows what changed.
+Every page answers its question at the top before showing detail. A check that did not run says "Not checked", never 0, so a missing check can never look clean. A sixth page, Runs, loads a run of your own in the browser (nothing is uploaded). To compare two runs, use `cd engine && uv run intake diff <run_a> <run_b>`.
 
 | Page | Question it answers |
 |---|---|
@@ -102,7 +102,7 @@ npm run demo                                    # run the synthetic agency, refr
 
 Jev is TypeSafe's decision model. It answers small, bounded questions (yes or no, or pick one of a list) with a probability instead of free text. It answers four questions here, and only where the rules run out: which standard field a column header holds, which standard value a messy word means, whether a problem looks like a typo or a real business event, and whether a note holds personal details. Below its confidence cutoff, the item goes to a person. **Jev never overrides a rule: rules decide, and Jev only fills gaps and orders the queue.**
 
-- **Cost.** A run of the synthetic agency asks Jev 164 questions (7 about column headers, 157 to triage problems), 70,509 input tokens, an estimated **$0.002961** if paid live (`dashboard/public/demo-run/manifest.json`). Every answer is recorded in the repo, so a replay run, the default, costs $0.
+- **Cost.** A run of the synthetic agency asks Jev 164 questions (7 to map column headers and messy status words, 157 to triage problems), 70,509 input tokens, an estimated **$0.002961** if paid live (`dashboard/public/demo-run/manifest.json`). Every answer is recorded in the repo, so a replay run, the default, costs $0.
 - **Without a key.** Replay mode reads the recorded answers, so the demo, the tests, and CI never call the network. With Jev off, every Jev question goes to the person queue and the run still completes.
 - **Spend cap.** A run stops asking Jev when estimated spend reaches $0.50. The rest goes to a person, the run completes, and the manifest records that the cap tripped.
 

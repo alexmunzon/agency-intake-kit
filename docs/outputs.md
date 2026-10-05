@@ -43,7 +43,7 @@ The files in `runs/<run_id>/` that the dashboard and report read. Code: `engine/
 
 ## Checking a whole run
 
-`agency_schema.run_dir.check_run_dir(path)` validates every file and checks that they agree: manifest and scorecard share run_id and status; scorecard counts match `exceptions.jsonl`; scorecard leg summaries match the leg files; `variances.json` and the leg files list the same leg variances; every variance and RTS gap points at an exception with the right rule; each totals file is grouped the way its name says; a FAILED run has no `clean/`. The sample tests use it now, and the end-to-end tests run it on real output in PR 12.
+`agency_schema.run_dir.check_run_dir(path)` validates every file and checks that they agree: manifest and scorecard share run_id and status; scorecard counts match `exceptions.jsonl`; scorecard leg summaries match the leg files; `variances.json` and the leg files list the same leg variances; every variance and RTS gap points at an exception with the right rule; each totals file is grouped the way its name says; a FAILED run has no `clean/`. The sample tests use it now, and the end-to-end tests run it on real output.
 
 ## Sample runs (the contract)
 
