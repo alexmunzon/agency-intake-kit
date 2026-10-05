@@ -1,5 +1,9 @@
--- 01 Match keys: type the raw text, then tie each commission line to one policy in the book.
--- Money is DECIMAL(12,2) everywhere, never a float, so cents are never lost.
+-- 01 Match keys: type the text, then tie each commission line to one policy in the book.
+-- Money is DECIMAL(12,2) everywhere, never a float, so cents are never lost. prepare.py has
+-- already read dates (ISO), periods (YYYY-MM), and amounts (plain decimals), so a cast here
+-- only fails on a value prepare.py counted as unreadable, and that value is NULL, never a crash.
+-- _rec is a row's position in its table. It is the only row key: lineage row numbers repeat
+-- across statement files, and carrier, period, and line_no repeat when a line is duplicated.
 
 -- The tolerances and the rate table, typed once.
 CREATE OR REPLACE VIEW tolerances AS
@@ -19,23 +23,28 @@ FROM (
            TRY_CAST(termination_date AS DATE) AS termination_date,
            upper(trim(status)) AS status,
            coalesce(nullif(trim(writing_agent_npn), ''), '(blank)') AS agent_npn,
-           _source_file, _row_number, _raw_hash,
-           row_number() OVER (PARTITION BY policy_id ORDER BY _row_number) AS copy_number
+           _rec,
+           row_number() OVER (PARTITION BY policy_id ORDER BY _rec) AS copy_number
     FROM raw_policies
 )
 WHERE copy_number = 1;
 
--- Statement lines as the carrier sent them.
+-- Statement lines as the carrier sent them. A chargeback is a CHARGEBACK line or any negative
+-- amount (a clawback). amount is NULL when amount_problem says it was BLANK or NOT_A_NUMBER.
 CREATE OR REPLACE VIEW statement_lines AS
 SELECT carrier, statement_period,
-       CAST(statement_period || '-01' AS DATE) AS period_start,
-       CAST(line_no AS INTEGER) AS line_no,
+       TRY_CAST(statement_period || '-01' AS DATE) AS period_start,
+       TRY_CAST(line_no AS INTEGER) AS line_no,
        carrier_member_id, member_name,
        TRY_CAST(member_dob AS DATE) AS member_dob,
        policy_ref,
        coalesce(nullif(trim(agent_npn), ''), '(blank)') AS agent_npn,
-       CAST(amount AS DECIMAL(12, 2)) AS amount,
-       _source_file, _row_number, _raw_hash
+       TRY_CAST(amount AS DECIMAL(12, 2)) AS amount,
+       amount_problem,
+       upper(trim(commission_type)) AS commission_type,
+       coalesce(upper(trim(commission_type)) = 'CHARGEBACK', false)
+           OR coalesce(TRY_CAST(amount AS DECIMAL(12, 2)) < 0, false) AS is_chargeback,
+       _rec
 FROM raw_commission_lines;
 
 -- A name key keeps lower case letters only, so "Ann  Lee" and "ann lee" agree.
@@ -55,23 +64,23 @@ JOIN raw_clients AS c ON c.client_id = b.client_id;
 -- A line no key can place has policy_id NULL: an orphan payment (TIE-002).
 CREATE OR REPLACE VIEW line_match AS
 WITH by_member AS (
-    SELECT s._row_number, min(b.policy_id) AS policy_id
+    SELECT s._rec, min(b.policy_id) AS policy_id
     FROM statement_lines AS s
     JOIN book AS b ON b.carrier = s.carrier AND b.carrier_member_id = s.carrier_member_id
-    GROUP BY s._row_number
+    GROUP BY s._rec
 ),
 by_ref AS (
-    SELECT s._row_number, min(b.policy_id) AS policy_id
+    SELECT s._rec, min(b.policy_id) AS policy_id
     FROM statement_lines AS s
     JOIN book AS b ON b.policy_id = s.policy_ref
-    GROUP BY s._row_number
+    GROUP BY s._rec
 ),
 by_name AS (
-    SELECT s._row_number, min(p.policy_id) AS policy_id
+    SELECT s._rec, min(p.policy_id) AS policy_id
     FROM statement_lines AS s
     JOIN book_people AS p
       ON p.carrier = s.carrier AND p.person = name_key(s.member_name) AND p.dob = s.member_dob
-    GROUP BY s._row_number
+    GROUP BY s._rec
 )
 SELECT s.*,
        coalesce(m.policy_id, r.policy_id, n.policy_id) AS policy_id,
@@ -79,6 +88,6 @@ SELECT s.*,
             WHEN r.policy_id IS NOT NULL THEN 'POLICY_REF'
             WHEN n.policy_id IS NOT NULL THEN 'NAME_DOB' END AS match_method
 FROM statement_lines AS s
-LEFT JOIN by_member AS m USING (_row_number)
-LEFT JOIN by_ref AS r USING (_row_number)
-LEFT JOIN by_name AS n USING (_row_number);
+LEFT JOIN by_member AS m USING (_rec)
+LEFT JOIN by_ref AS r USING (_rec)
+LEFT JOIN by_name AS n USING (_rec);

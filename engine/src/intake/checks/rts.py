@@ -13,7 +13,7 @@ from agency_schema.exceptions import ExceptionRecord
 from agency_schema.outputs import RtsCell, RtsCellState, RtsCoverage
 from agency_schema.registry import rule
 from intake.checks._policy_view import held_rts
-from intake.checks._records import record
+from intake.checks._records import record, record_id
 
 CELL = ["_npn", "_carrier", "_state", "_plan_year"]
 
@@ -36,7 +36,7 @@ def rts_gaps(view: pl.DataFrame) -> list[ExceptionRecord]:
             "Obtain RTS or reassign writing agent",
             field="writing_agent_npn",
         )
-        for row in view.filter(pl.col("_rts") == "MISSING").sort("_row").iter_rows(named=True)
+        for row in view.filter(pl.col("_rts") == "MISSING").sort("_rec").iter_rows(named=True)
     ]
 
 
@@ -52,7 +52,7 @@ def rts_expired(view: pl.DataFrame) -> list[ExceptionRecord]:
             "Renew RTS",
             field="writing_agent_npn",
         )
-        for row in view.filter(pl.col("_rts") == "EXPIRED").sort("_row").iter_rows(named=True)
+        for row in view.filter(pl.col("_rts") == "EXPIRED").sort("_rec").iter_rows(named=True)
     ]
 
 
@@ -65,7 +65,7 @@ def build_rts_coverage(
     held, and RTS-002 flags the lapse). A cell with any RTS-001 policy is USED_WITHOUT_RTS and
     its policy_count is the uncovered policies only, one exception id each.
     """
-    gap_ids = {(r.source, r.row_number): r.id for r in gaps}
+    gap_ids = {r.id for r in gaps}
     labels: dict[str, str] = {}  # normalized carrier -> carrier as first written
     held: set[tuple[str, str, str, int]] = set()
     if rts is not None:
@@ -74,11 +74,11 @@ def build_rts_coverage(
         held = set(held_rts(rts).drop_nulls(CELL).select(CELL).iter_rows())
     used: dict[tuple[str, str, str, int], int] = dict.fromkeys(held, 0)
     gap: dict[tuple[str, str, str, int], list[str]] = {}
-    for row in view.filter(pl.col("_rts").is_not_null()).sort("_row").iter_rows(named=True):
+    for row in view.filter(pl.col("_rts").is_not_null()).sort("_rec").iter_rows(named=True):
         key = (row["_npn"], row["_carrier"], row["_state"], row["_plan_year"])
         labels.setdefault(row["_carrier"], row["carrier"].strip())
-        ex_id = gap_ids.get((row["_source"], row["_row"]))
-        if ex_id is None:
+        ex_id = record_id("RTS-001", row)
+        if ex_id not in gap_ids:
             used[key] = used.get(key, 0) + 1
         else:
             gap.setdefault(key, []).append(ex_id)

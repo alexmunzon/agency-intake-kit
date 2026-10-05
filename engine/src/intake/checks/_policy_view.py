@@ -8,7 +8,8 @@ when no row matches, null when the policy cannot be evaluated) with _ended.
 
 import polars as pl
 
-from intake.config import LIST_SEPARATOR, PLAN_YEAR_DECEMBER_ROLLS_FORWARD, RTS_TRUE_VALUES
+from intake.config import PLAN_YEAR_DECEMBER_ROLLS_FORWARD, RTS_TRUE_VALUES
+from intake.normalize import loose_date, split_list
 
 RTS_COLUMNS = "npn carrier state plan_year line_of_business appointed certified end_date".split()
 RTS_KEY = ["_npn", "_carrier", "_state", "_plan_year", "_lob"]
@@ -24,7 +25,8 @@ def _text(name: str, upper: bool = False) -> pl.Expr:
 
 
 def _date(name: str) -> pl.Expr:
-    return pl.col(name).str.strip_chars().str.to_date("%Y-%m-%d", strict=False)
+    """Every date goes through parse_date_loose: the CRM rotates ISO, US, and two-digit years."""
+    return loose_date(name)
 
 
 def held_rts(rts: pl.DataFrame) -> pl.DataFrame:
@@ -59,7 +61,9 @@ def policy_view(tables: dict[str, pl.DataFrame]) -> pl.DataFrame:
     ).unique("_cid", keep="first")
     roster = agents.select(
         _text("npn").alias("_npn"),
-        pl.col("license_states").str.split(LIST_SEPARATOR).alias("_licenses"),
+        pl.col("license_states")
+        .map_elements(split_list, return_dtype=pl.List(pl.String), skip_nulls=True)
+        .alias("_licenses"),
         pl.lit(True).alias("_agent_known"),
     ).unique("_npn", keep="first")
     eff = _date("effective_date")
@@ -81,11 +85,7 @@ def policy_view(tables: dict[str, pl.DataFrame]) -> pl.DataFrame:
             pl.coalesce(_text("state", upper=True), pl.col("_client_state")).alias("_state"),
         )
         .with_columns(
-            pl.col("_licenses")
-            .list.eval(pl.element().str.strip_chars().str.to_uppercase())
-            .list.contains(pl.col("_state"))
-            .fill_null(False)
-            .alias("_licensed")
+            pl.col("_licenses").list.contains(pl.col("_state")).fill_null(False).alias("_licensed")
         )
     )
     view = view.join(held_rts(rts), on=RTS_KEY, how="left", nulls_equal=False)

@@ -26,6 +26,6 @@ def orphan_policies(view: pl.DataFrame) -> list[ExceptionRecord]:
         )
         for row in view.filter(~pl.col("_client_found"))
         .with_columns(pl.col("policy_id").str.strip_chars().alias("_pid"))
-        .sort("_row")
+        .sort("_rec")
         .iter_rows(named=True)
     ]
