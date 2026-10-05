@@ -1,0 +1,11 @@
+{
+  "leg": "CRM_VS_STATEMENT",
+  "status": "NOT_RUN",
+  "not_run_reason": "The CRM export has no policy status column, so CRM status could not be compared with the statements.",
+  "matched": null,
+  "unmatched": null,
+  "weak_matched": null,
+  "variance_count": null,
+  "variance_dollars": null,
+  "variances": []
+}

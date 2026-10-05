@@ -229,6 +229,16 @@ One entry per PR.
 - #51: when a file has no header row, an SSN in the first row became the column name and the message printed it in full. A header that looks like an SSN (dashed, spaced, or nine or more digits) is now masked with `minimize_value` and labeled "header value masked"; the message names the column by position.
 - New tests in `engine/tests/unit/test_ssn_gate.py`, including a headerless file in dashed, spaced, and bare forms.
 
+## PR 16: Load your own run, run diff, dark mode, accessibility (2026-10-04)
+
+- Runs page: pick a run folder's files (or drop the folder) and every page shows that run, with a banner naming it and a "Back to the demo run" button. The files are read in the tab only. Nothing is uploaded or stored, and a reload clears them. `lib/upload.ts` matches files by name, skips anything that is not a run file without reading it, and lists every problem by file ("scorecard.json: missing", "exceptions.jsonl line 2: not valid JSON", files from two runs).
+- `lib/run-loader.ts` and `lib/tie-out.ts` now only parse text, so the browser can reuse them. Reading the demo run from disk moved to `lib/run-dir.ts`. Pages still render the demo run on the server; a small client wrapper swaps in a loaded run.
+- Dark mode is a class on the page. An inline script applies the saved choice (or the system setting) before the first paint, and a header toggle switches it.
+- `intake diff <run_a> <run_b>` prints the status change, exception counts by severity, new and resolved exceptions by rule, and each tie-out leg's dollar change.
+- `fixtures/sample-run-partial`: two tie-out legs ran, CRM vs statement did not. `check_run_dir` covers it, and the Overview and Tie-out tests check "2 of 3 checks ran", the partial answer, and that the card that did not run shows "Not checked" with no numbers (#18).
+- `e2e/a11y.spec.ts`: axe on every page in light and dark, with the lineage drawer open, and on a loaded run; every page at 375 wide in both schemes (#17). Run by hand; it needs the Playwright browser.
+- Shared `PageHeader` now used by Overview, Sources, and Exceptions. Removed the unused `next-themes` and `recharts` packages and the dead "(soon)" nav branch (part of #19). Added `@axe-core/playwright` as a dev dependency.
+
 ## Checks and tie-out review fixes
 
 - #53: The tie-out no longer matches statement lines by row number. Every row gets `_rec`, its position in its table, and that is the only row key the SQL joins on; lineage row numbers (which restart in each carrier file) are never used as keys in the checks or the tie-out. Six per-carrier statement files with overlapping row numbers now give exactly the ground truth (131 TIE-001, 68 TIE-002, 66 TIE-003, 40 TIE-004), and example 4 still lands in leg B.
