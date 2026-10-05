@@ -78,3 +78,20 @@ def test_free_text_with_a_tenth_dashed_ssns_blocks(tmp_path: Path) -> None:
 
 def test_zero_led_bare_nine_digits_that_cannot_be_npns_block(tmp_path: Path) -> None:
     assert gate(tmp_path, "Number", [f"0{v[1:]}" for v in NINE_DIGIT_NPNS]) == ["SSN-001"]
+
+
+@pytest.mark.parametrize("first", ["000-12-3456", "000123456", "000 12 3456"])
+def test_a_headerless_file_never_prints_the_ssn_used_as_a_header(
+    tmp_path: Path, first: str
+) -> None:
+    ssns = [first] + [
+        f"000-{i:02d}-{4000 + i}" if "-" in first else f"0001{i:05d}" for i in range(1, 12)
+    ]
+    lines = [f"Ann{i},Lee,ann{i}@example.com,Active,Northwind,{s}" for i, s in enumerate(ssns)]
+    (tmp_path / "roster_noheader.csv").write_text("\n".join(lines) + "\n")
+    records = check_ssn(ingest(tmp_path, run_id="r").tables)
+    assert [r.rule_id for r in records] == ["SSN-001"]
+    text = json.dumps([r.model_dump(mode="json") for r in records])
+    digits = first.replace("-", "").replace(" ", "")
+    assert first not in text and digits not in text and digits[2:] not in text
+    assert "header value masked" in records[0].message

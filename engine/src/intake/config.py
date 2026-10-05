@@ -27,8 +27,29 @@ SSN_HEADER_PHRASES: Final[tuple[str, ...]] = ("tax id", "soc sec", "s s n")  # h
 SSN_VALUE_PATTERN: Final[str] = r"^\d{9}$"  # a bare nine-digit cell (weak evidence)
 SSN_MIN_SHARE: Final[float] = 0.9  # share of bare 9-digit cells that makes a column weak evidence
 SSN_SHAPED_MIN_SHARE: Final[float] = 0.01  # share of cells holding dashed or spaced SSN text
-# Header words of known id fields (NPN, MBI, policy, member, phone, ZIP, plan ids). A column
-# named like this is never SSN-001 on its values alone, even when they are nine digits.
+# Canonical id fields. A header the PR 5 synonym table maps to one of these is never SSN-001
+# on its values alone, even when they are nine digits.
+SSN_ID_FIELDS: Final[frozenset[str]] = frozenset(
+    {
+        "client_id",
+        "household_id",
+        "phone",
+        "zip",
+        "mbi",
+        "policy_id",
+        "plan_id",
+        "npn",
+        "writing_agent_npn",
+        "agent_npn",
+        "upline_npn",
+        "carrier_member_id",
+        "policy_ref",
+        "line_no",
+    }
+)
+SSN_HEADER_MASK_DIGITS: Final[int] = 9  # a header with this many digits is masked in messages
+# Header words of known id fields (NPN, MBI, policy, member, phone, ZIP, plan ids), for
+# headers the synonym table does not know. Same effect as SSN_ID_FIELDS.
 SSN_ID_HEADER_WORDS: Final[frozenset[str]] = frozenset(
     {
         "npn",
