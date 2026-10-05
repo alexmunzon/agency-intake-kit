@@ -1,0 +1,61 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "impact": {
+        "criteria": [
+          "Cosmetic",
+          "Affects reporting",
+          "Affects compliance or money"
+        ],
+        "instructions": "How much does this matter before the agency goes live?",
+        "type": "score"
+      },
+      "is_entry_error": {
+        "criteria": {
+          "false": "A genuine fact about the policy or client",
+          "true": "A typo or keying mistake"
+        },
+        "instructions": "Is this most likely a data-entry error that can be fixed from the surrounding record, rather than a real business event?",
+        "type": "noul"
+      }
+    },
+    "state": {
+      "field": "writing_agent_npn",
+      "neighbors": {
+        "agent_in_roster": "FALSE",
+        "carrier": "BLUEPEAK"
+      },
+      "rule_id": "NPN-001",
+      "value_shape": "99A9999"
+    }
+  },
+  "response": {
+    "answers": {
+      "impact": {
+        "confidence": 0.73,
+        "legend": {
+          "0": "Cosmetic",
+          "1": "Affects reporting",
+          "2": "Affects compliance or money"
+        },
+        "probabilities": {
+          "0": 0.03,
+          "1": 0.12,
+          "2": 0.85
+        },
+        "score": 1.82,
+        "type": "score"
+      },
+      "is_entry_error": {
+        "noul": 0.57,
+        "type": "noul"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 437,
+      "output_tokens": 35
+    }
+  }
+}

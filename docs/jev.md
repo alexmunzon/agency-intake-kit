@@ -132,8 +132,11 @@ cd engine && JEV_MODE=record uv run intake jev record-run --drop ../fixtures/age
 It refuses unless `JEV_MODE=record` is set. It first runs the drop in replay, prints the number of
 unrecorded requests and the estimated cost, then runs again in record mode, which pays only for
 requests with no cassette. The key is read from the environment and never printed. For agency-a
-today: 157 triage requests, about 31,768 input tokens by the cautious 3 characters per token
-estimate, so about $0.0013.
+the estimate was 157 triage requests, about 31,768 input tokens by the cautious 3 characters per
+token estimate, so about $0.0013. Recorded 2026-10-05 with Alex's approval: replay now answers
+all 164 questions of an agency-a run (7 mapping, 157 triage), 70,509 input tokens, estimated
+$0.002961, budget not tripped (CHANGELOG "Real triage cassettes"). The real token count is about
+twice the estimate.
 
 ## Triage and the PII gate (PR 11)
 

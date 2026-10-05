@@ -1,0 +1,53 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "field": {
+        "criteria": {
+          "none": "The column holds none of the listed fields",
+          "rts.appointed": null,
+          "rts.carrier": null,
+          "rts.certified": null,
+          "rts.effective_date": null,
+          "rts.end_date": null,
+          "rts.line_of_business": null,
+          "rts.npn": null,
+          "rts.plan_year": null,
+          "rts.state": null
+        },
+        "instructions": "A column header from an insurance agency's source export is given with the kind of export. Which canonical field does the column hold? Choose none if it holds none of them.",
+        "type": "choice"
+      }
+    },
+    "state": {
+      "header": "Ready to Sell Start",
+      "source": "roster_rts"
+    }
+  },
+  "response": {
+    "answers": {
+      "field": {
+        "choice": "none",
+        "confidence": 0.5,
+        "probabilities": {
+          "none": 0.54,
+          "rts.appointed": 0.1,
+          "rts.carrier": 0.01,
+          "rts.certified": 0.03,
+          "rts.effective_date": 0.24,
+          "rts.end_date": 0.01,
+          "rts.line_of_business": 0.01,
+          "rts.npn": 0.03,
+          "rts.plan_year": 0.02,
+          "rts.state": 0.01
+        },
+        "type": "choice"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 437,
+      "output_tokens": 119
+    }
+  }
+}

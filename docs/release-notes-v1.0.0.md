@@ -21,7 +21,7 @@ These are synthetic results. Real agency files will hold mistakes the generator 
 
 ## Jev cost
 
-Jev is TypeSafe's decision model; it answers small yes-or-no and pick-one questions, only where rules run out, and never overrides a rule. Every answer the demo needs is recorded in the repo: 7 mapping answers ($0.000136) and 164 triage answers ($0.002961), about $0.003 in total, with the $0.50 spend cap never reached. A replay run, the default, costs $0 and needs no key.
+Jev is TypeSafe's decision model; it answers small yes-or-no and pick-one questions, only where rules run out, and never overrides a rule. A run of the synthetic agency asks Jev 164 questions (7 about column headers, 157 to triage problems), 70,509 input tokens, an estimated $0.002961 if paid live, far under the $0.50 spend cap, which did not trip (`dashboard/public/demo-run/manifest.json`). Every answer is recorded in the repo, so a replay run, the default, costs $0 and needs no key. On the header benchmark, adding Jev after the dictionary lifts accuracy from 79.9 to 96.3 percent of 134 labeled headers, with zero wrong mappings.
 
 ## What shipped, by pull request
 

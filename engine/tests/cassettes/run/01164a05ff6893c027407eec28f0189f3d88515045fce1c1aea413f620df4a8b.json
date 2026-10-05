@@ -1,0 +1,60 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "impact": {
+        "criteria": [
+          "Cosmetic",
+          "Affects reporting",
+          "Affects compliance or money"
+        ],
+        "instructions": "How much does this matter before the agency goes live?",
+        "type": "score"
+      },
+      "is_entry_error": {
+        "criteria": {
+          "false": "A genuine fact about the policy or client",
+          "true": "A typo or keying mistake"
+        },
+        "instructions": "Is this most likely a data-entry error that can be fixed from the surrounding record, rather than a real business event?",
+        "type": "noul"
+      }
+    },
+    "state": {
+      "field": "policy_id",
+      "neighbors": {
+        "line_of_business": "MEDSUPP"
+      },
+      "rule_id": "DUP-003",
+      "value_shape": "A-99999"
+    }
+  },
+  "response": {
+    "answers": {
+      "impact": {
+        "confidence": 0.18,
+        "legend": {
+          "0": "Cosmetic",
+          "1": "Affects reporting",
+          "2": "Affects compliance or money"
+        },
+        "probabilities": {
+          "0": 0.15,
+          "1": 0.24,
+          "2": 0.61
+        },
+        "score": 1.45,
+        "type": "score"
+      },
+      "is_entry_error": {
+        "noul": 0.46,
+        "type": "noul"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 425,
+      "output_tokens": 35
+    }
+  }
+}

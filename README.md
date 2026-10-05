@@ -102,7 +102,7 @@ npm run demo                                    # run the synthetic agency, refr
 
 Jev is TypeSafe's decision model. It answers small, bounded questions (yes or no, or pick one of a list) with a probability instead of free text. It answers four questions here, and only where the rules run out: which standard field a column header holds, which standard value a messy word means, whether a problem looks like a typo or a real business event, and whether a note holds personal details. Below its confidence cutoff, the item goes to a person. **Jev never overrides a rule: rules decide, and Jev only fills gaps and orders the queue.**
 
-- **Cost.** Every Jev answer the demo needs is recorded in the repo. Recording them cost about $0.003 in total: $0.000136 for 7 mapping answers and $0.002961 for 164 triage answers (CHANGELOG). A live run of the synthetic agency would cost about the same. A replay run, the default, costs $0.
+- **Cost.** A run of the synthetic agency asks Jev 164 questions (7 about column headers, 157 to triage problems), 70,509 input tokens, an estimated **$0.002961** if paid live (`dashboard/public/demo-run/manifest.json`). Every answer is recorded in the repo, so a replay run, the default, costs $0.
 - **Without a key.** Replay mode reads the recorded answers, so the demo, the tests, and CI never call the network. With Jev off, every Jev question goes to the person queue and the run still completes.
 - **Spend cap.** A run stops asking Jev when estimated spend reaches $0.50. The rest goes to a person, the run completes, and the manifest records that the cap tripped.
 
@@ -138,7 +138,7 @@ Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 s
 | Approach | Accuracy | Coverage | Wrong mappings | Not recorded | Model calls | Est. cost per 1,000 headers |
 |---|---|---|---|---|---|---|
 | Synonyms only | 79.9% (107 of 134) | 71.6% | 0 | 0 | 0 | $0 |
-| Synonyms then Jev | not measured: no recordings yet | n/a | 0 | 38 | 0 | n/a |
+| Synonyms then Jev | 96.3% (129 of 134) | 88.1% | 0 | 0 | 38 | $0.0063 (estimate) |
 | Synonyms then Sonnet | skipped: no key | n/a | n/a | n/a | 0 | n/a |
 <!-- benchmark:end -->
 

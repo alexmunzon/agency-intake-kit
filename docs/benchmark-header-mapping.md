@@ -8,7 +8,7 @@ The labeled set has 134 headers: all 79 distinct headers in the agency-a fixture
 | Approach | Accuracy | Coverage | Wrong mappings | Not recorded | Model calls | Est. cost per 1,000 headers |
 |---|---|---|---|---|---|---|
 | Synonyms only | 79.9% (107 of 134) | 71.6% | 0 | 0 | 0 | $0 |
-| Synonyms then Jev | not measured: no recordings yet | n/a | 0 | 38 | 0 | n/a |
+| Synonyms then Jev | 96.3% (129 of 134) | 88.1% | 0 | 0 | 38 | $0.0063 (estimate) |
 | Synonyms then Sonnet | skipped: no key | n/a | n/a | n/a | 0 | n/a |
 
 ## How to read it
@@ -25,8 +25,8 @@ Synonyms come first in every approach, as in the pipeline: the header is normali
 
 | Approach | Model calls | Wall time | Latency |
 |---|---|---|---|
-| Synonyms only | 0 | 0.07 s | not measured (no model calls) |
-| Synonyms then Jev | 0 | 0.07 s | not measured (replay reads recordings, so latency is not measured) |
+| Synonyms only | 0 | 0.06 s | not measured (no model calls) |
+| Synonyms then Jev | 38 | 7.01 s | p50 0.17 s, p95 0.28 s |
 | Synonyms then Sonnet | n/a | n/a | skipped: no key |
 
 Wall time is for this machine and this run. In replay it measures reading files, not the network, so it says nothing about Jev's real speed.
@@ -71,7 +71,7 @@ cd engine && uv run intake bench header-mapping --jev record --approve-spend
 | crm | `Notes` | clients.notes | right | right | skipped |
 | enrollment | `member_first` | clients.first_name | right | right | skipped |
 | enrollment | `member_last` | clients.last_name | right | right | skipped |
-| enrollment | `Birth Dt (mm/dd/yy)` | clients.dob | **none** | not recorded | skipped |
+| enrollment | `Birth Dt (mm/dd/yy)` | clients.dob | **none** | right | skipped |
 | enrollment | `mbi` | clients.mbi | right | right | skipped |
 | enrollment | `carrier` | policies.carrier | right | right | skipped |
 | enrollment | `contract_plan` | policies.plan_id | right | right | skipped |
@@ -87,7 +87,7 @@ cd engine && uv run intake bench header-mapping --jev record --approve-spend
 | statement | `Policy` | commission_lines.policy_ref | right | right | skipped |
 | statement | `Writing Agent` | commission_lines.agent_npn | right | right | skipped |
 | statement | `Type` | commission_lines.commission_type | right | right | skipped |
-| statement | `Paid` | commission_lines.paid_date | **none** | not recorded | skipped |
+| statement | `Paid` | commission_lines.paid_date | **none** | **none** | skipped |
 | statement | `Commission` | commission_lines.amount | right | right | skipped |
 | statement | `Stmt Period` | commission_lines.statement_period | right | right | skipped |
 | statement | `Seq #` | commission_lines.line_no | right | right | skipped |
@@ -124,58 +124,58 @@ cd engine && uv run intake bench header-mapping --jev record --approve-spend
 | roster_rts | `Certified?` | rts.certified | right | right | skipped |
 | roster_rts | `RTS Start` | rts.effective_date | right | right | skipped |
 | roster_rts | `RTS End` | rts.end_date | right | right | skipped |
-| crm | `Cust ID` | clients.client_id | **none** | not recorded | skipped |
-| crm | `Customer #` | clients.client_id | **none** | not recorded | skipped |
+| crm | `Cust ID` | clients.client_id | **none** | right | skipped |
+| crm | `Customer #` | clients.client_id | **none** | right | skipped |
 | crm | `First Name` | clients.first_name | right | right | skipped |
 | crm | `Last Name` | clients.last_name | right | right | skipped |
 | crm | `Date of Birth` | clients.dob | right | right | skipped |
-| crm | `DOB (MM/DD/YYYY)` | clients.dob | **none** | not recorded | skipped |
-| crm | `Cell Phone` | clients.phone | **none** | not recorded | skipped |
+| crm | `DOB (MM/DD/YYYY)` | clients.dob | **none** | right | skipped |
+| crm | `Cell Phone` | clients.phone | **none** | right | skipped |
 | crm | `Phone #` | clients.phone | right | right | skipped |
-| crm | `E-Mail Address` | clients.email | **none** | not recorded | skipped |
+| crm | `E-Mail Address` | clients.email | **none** | right | skipped |
 | crm | `Street Address` | clients.address_line1 | right | right | skipped |
-| crm | `Mailing Address 1` | clients.address_line1 | **none** | not recorded | skipped |
-| crm | `ZIP+4` | clients.zip | **none** | not recorded | skipped |
+| crm | `Mailing Address 1` | clients.address_line1 | **none** | right | skipped |
+| crm | `ZIP+4` | clients.zip | **none** | right | skipped |
 | crm | `Postal Code` | clients.zip | right | right | skipped |
-| crm | `MBI #` | clients.mbi | **none** | not recorded | skipped |
-| crm | `Medicare Beneficiary ID` | clients.mbi | **none** | not recorded | skipped |
-| crm | `HH ID` | clients.household_id | **none** | not recorded | skipped |
+| crm | `MBI #` | clients.mbi | **none** | right | skipped |
+| crm | `Medicare Beneficiary ID` | clients.mbi | **none** | right | skipped |
+| crm | `HH ID` | clients.household_id | **none** | right | skipped |
 | crm | `Policy Number` | policies.policy_id | right | right | skipped |
 | crm | `Carrier` | policies.carrier | right | right | skipped |
-| crm | `Contract-PBP` | policies.plan_id | **none** | not recorded | skipped |
+| crm | `Contract-PBP` | policies.plan_id | **none** | **none** | skipped |
 | crm | `LOB` | policies.line_of_business | right | right | skipped |
 | crm | `Effective Dt` | policies.effective_date | right | right | skipped |
-| crm | `Cancel Date` | policies.termination_date | **none** | not recorded | skipped |
+| crm | `Cancel Date` | policies.termination_date | **none** | right | skipped |
 | crm | `Policy Status` | policies.status | right | right | skipped |
 | crm | `Agent NPN` | policies.writing_agent_npn | right | right | skipped |
-| crm | `Monthly Prem` | policies.monthly_premium | **none** | not recorded | skipped |
-| crm | `Carrier Member #` | policies.carrier_member_id | **none** | not recorded | skipped |
+| crm | `Monthly Prem` | policies.monthly_premium | **none** | right | skipped |
+| crm | `Carrier Member #` | policies.carrier_member_id | **none** | right | skipped |
 | crm | `Comments` | clients.notes | right | right | skipped |
-| crm | `Lead Source` | none | right | not recorded | skipped |
-| crm | `Last Contact Date` | none | right | not recorded | skipped |
-| crm | `Preferred Language` | none | right | not recorded | skipped |
-| crm | `Created By` | none | right | not recorded | skipped |
-| enrollment | `Applicant First Name` | clients.first_name | **none** | not recorded | skipped |
-| enrollment | `Applicant Last Name` | clients.last_name | **none** | not recorded | skipped |
-| enrollment | `Signature Date` | none | right | not recorded | skipped |
-| enrollment | `Confirmation #` | none | right | not recorded | skipped |
-| statement | `Commission Period` | commission_lines.statement_period | **none** | not recorded | skipped |
+| crm | `Lead Source` | none | right | right | skipped |
+| crm | `Last Contact Date` | none | right | right | skipped |
+| crm | `Preferred Language` | none | right | right | skipped |
+| crm | `Created By` | none | right | right | skipped |
+| enrollment | `Applicant First Name` | clients.first_name | **none** | right | skipped |
+| enrollment | `Applicant Last Name` | clients.last_name | **none** | right | skipped |
+| enrollment | `Signature Date` | none | right | right | skipped |
+| enrollment | `Confirmation #` | none | right | right | skipped |
+| statement | `Commission Period` | commission_lines.statement_period | **none** | right | skipped |
 | statement | `Line #` | commission_lines.line_no | right | right | skipped |
-| statement | `Policyholder` | commission_lines.member_name | **none** | not recorded | skipped |
-| statement | `Net Commission` | commission_lines.amount | **none** | not recorded | skipped |
-| statement | `Check Date` | commission_lines.paid_date | **none** | not recorded | skipped |
-| statement | `Chargeback Reason` | none | right | not recorded | skipped |
-| statement | `Statement Total` | none | right | not recorded | skipped |
-| statement | `Payee` | none | right | not recorded | skipped |
+| statement | `Policyholder` | commission_lines.member_name | **none** | **none** | skipped |
+| statement | `Net Commission` | commission_lines.amount | **none** | right | skipped |
+| statement | `Check Date` | commission_lines.paid_date | **none** | **none** | skipped |
+| statement | `Chargeback Reason` | none | right | right | skipped |
+| statement | `Statement Total` | none | right | right | skipped |
+| statement | `Payee` | none | right | right | skipped |
 | roster_agents | `Producer Name` | agents.full_name | right | right | skipped |
 | roster_agents | `National Producer #` | agents.npn | right | right | skipped |
-| roster_agents | `States Licensed In` | agents.license_states | **none** | not recorded | skipped |
+| roster_agents | `States Licensed In` | agents.license_states | **none** | right | skipped |
 | roster_agents | `Manager NPN` | agents.upline_npn | right | right | skipped |
 | roster_agents | `Agent Status` | agents.status | right | right | skipped |
-| roster_agents | `Hire Date` | none | right | not recorded | skipped |
-| roster_rts | `Writing NPN` | rts.npn | **none** | not recorded | skipped |
+| roster_agents | `Hire Date` | none | right | right | skipped |
+| roster_rts | `Writing NPN` | rts.npn | **none** | right | skipped |
 | roster_rts | `Plan Year` | rts.plan_year | right | right | skipped |
-| roster_rts | `Ready to Sell Start` | rts.effective_date | **none** | not recorded | skipped |
-| roster_rts | `Ready to Sell End` | rts.end_date | **none** | not recorded | skipped |
-| roster_rts | `Is Certified` | rts.certified | **none** | not recorded | skipped |
-| roster_rts | `Region` | none | right | not recorded | skipped |
+| roster_rts | `Ready to Sell Start` | rts.effective_date | **none** | **none** | skipped |
+| roster_rts | `Ready to Sell End` | rts.end_date | **none** | right | skipped |
+| roster_rts | `Is Certified` | rts.certified | **none** | right | skipped |
+| roster_rts | `Region` | none | right | right | skipped |

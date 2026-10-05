@@ -1,0 +1,61 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "impact": {
+        "criteria": [
+          "Cosmetic",
+          "Affects reporting",
+          "Affects compliance or money"
+        ],
+        "instructions": "How much does this matter before the agency goes live?",
+        "type": "score"
+      },
+      "is_entry_error": {
+        "criteria": {
+          "false": "A genuine fact about the policy or client",
+          "true": "A typo or keying mistake"
+        },
+        "instructions": "Is this most likely a data-entry error that can be fixed from the surrounding record, rather than a real business event?",
+        "type": "noul"
+      }
+    },
+    "state": {
+      "field": "plan_id",
+      "neighbors": {
+        "carrier": "HARBORLINE",
+        "line_of_business": "MA"
+      },
+      "rule_id": "PLN-001",
+      "value_shape": "A9999999"
+    }
+  },
+  "response": {
+    "answers": {
+      "impact": {
+        "confidence": 0.22,
+        "legend": {
+          "0": "Cosmetic",
+          "1": "Affects reporting",
+          "2": "Affects compliance or money"
+        },
+        "probabilities": {
+          "0": 0.13,
+          "1": 0.26,
+          "2": 0.61
+        },
+        "score": 1.48,
+        "type": "score"
+      },
+      "is_entry_error": {
+        "noul": 0.36,
+        "type": "noul"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 435,
+      "output_tokens": 35
+    }
+  }
+}

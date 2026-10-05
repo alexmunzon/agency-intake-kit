@@ -1,0 +1,57 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "field": {
+        "criteria": {
+          "commission_lines.agent_npn": null,
+          "commission_lines.amount": null,
+          "commission_lines.carrier": null,
+          "commission_lines.carrier_member_id": null,
+          "commission_lines.commission_type": null,
+          "commission_lines.line_no": null,
+          "commission_lines.member_dob": null,
+          "commission_lines.member_name": null,
+          "commission_lines.paid_date": null,
+          "commission_lines.policy_ref": null,
+          "commission_lines.statement_period": null,
+          "none": "The column holds none of the listed fields"
+        },
+        "instructions": "A column header from an insurance agency's source export is given with the kind of export. Which canonical field does the column hold? Choose none if it holds none of them.",
+        "type": "choice"
+      }
+    },
+    "state": {
+      "header": "Paid",
+      "source": "statement"
+    }
+  },
+  "response": {
+    "answers": {
+      "field": {
+        "choice": "none",
+        "confidence": 0.68,
+        "probabilities": {
+          "commission_lines.agent_npn": 0.0,
+          "commission_lines.amount": 0.03,
+          "commission_lines.carrier": 0.0,
+          "commission_lines.carrier_member_id": 0.0,
+          "commission_lines.commission_type": 0.03,
+          "commission_lines.line_no": 0.0,
+          "commission_lines.member_dob": 0.0,
+          "commission_lines.member_name": 0.0,
+          "commission_lines.paid_date": 0.21,
+          "commission_lines.policy_ref": 0.01,
+          "commission_lines.statement_period": 0.0,
+          "none": 0.72
+        },
+        "type": "choice"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 452,
+      "output_tokens": 142
+    }
+  }
+}
