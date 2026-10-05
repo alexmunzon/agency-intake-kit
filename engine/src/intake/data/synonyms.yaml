@@ -1,0 +1,65 @@
+# Header synonyms: canonical table, then field, then the header spellings that mean it.
+# Spellings go through normalize_header before matching, so case, spacing, punctuation,
+# "#", and the abbreviations in synonyms.py (dt, eff, mbr, no, yr, ...) do not matter.
+# A header must match a spelling exactly after normalizing, or it stays unmapped (MAP-001).
+# Never add a spelling that could mean two fields of one table, such as "paid" (a date or
+# an amount). "Birth Dt (mm/dd/yy)" is left out on purpose: SPEC example 2 maps it with Jev.
+# full_name is a combined "Last, First" column; the table builder splits it.
+clients:
+  client_id: [client id, customer id, client number, contact id]
+  full_name: [client name, full name, name]
+  first_name: [first name, member first, given name, fname]
+  last_name: [last name, member last, surname, lname]
+  dob: [dob, mbr dob, date of birth, birth date, birthdate, birth_dt]
+  phone: [phone, primary phone, phone number, home phone, mobile phone]
+  email: [email, e-mail, email address]
+  address_line1: [address, address 1, address line 1, street, street address]
+  city: [city]
+  state: [state, client state, home state]
+  zip: [zip, zip code, zipcode, postal code]
+  mbi: [mbi, medicare id, medicare number, medicare beneficiary identifier]
+  household_id: [household, household id, household number]
+  notes: [notes, note, comments]
+policies:
+  policy_id: ["policy #", policy id, policy number]
+  carrier: [carrier, carrier name, insurance company]
+  plan_id: [plan, plan id, contract plan, contract plan id, plan code]
+  line_of_business: [product, line of business, lob, product type]
+  state: [policy state]
+  eligibility_reason: [eligibility, eligibility reason]
+  effective_date: [eff date, effective, effective date, start date]
+  termination_date: [term date, termination date, end date]
+  status: [status, policy status, application status, app status]
+  writing_agent_npn: [writing agent npn, agent npn, writing npn, producer npn]
+  monthly_premium: [premium, monthly premium]
+  carrier_member_id: [member id, carrier member id, subscriber id]
+agents:
+  npn: [npn, "npn #", agent npn, producer number, national producer number]
+  full_name: [agent name, name, producer name, full name]
+  first_name: [first name, agent first name]
+  last_name: [last name, agent last name]
+  email: [email, e-mail, email address, agent email]
+  license_states: [licensed states, license states, states licensed]
+  upline_npn: [upline npn, upline, manager npn]
+  status: [status, agent status]
+rts:
+  npn: [npn, agent npn, producer npn, writing agent npn]
+  carrier: [carrier, carrier name]
+  state: [state]
+  plan_year: [plan yr, plan year]
+  line_of_business: [line, lob, line of business, product]
+  appointed: [appointed]
+  certified: [certified]
+  effective_date: [rts start, rts start date, rts effective date, start date, effective date]
+  end_date: [rts end, rts end date, end date]
+commission_lines:
+  statement_period: [stmt period, period, statement period, statement month]
+  line_no: [line, line no, "seq #", line number, sequence]
+  carrier_member_id: [member id, "member #", subscriber id]
+  member_name: [member name, subscriber name, insured, insured name]
+  member_dob: [dob, date of birth, birth date, member dob]
+  policy_ref: [policy, ref, agency policy ref, policy ref, policy number]
+  agent_npn: [agent npn, writing agent, producer npn, npn, writing agent npn]
+  amount: [commission, amount, amount paid, comp $, commission amount]
+  commission_type: [type, txn type, comm type, commission type]
+  paid_date: [pay date, payment date, paid date]
