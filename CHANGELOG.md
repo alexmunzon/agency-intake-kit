@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Preserve optional unresolved-evidence row references for absent CRM and missing, blank or malformed DOB. Keep raw safety gates, load exclusions and unavailable comparisons unchanged.
+
 - Show neutral statement finance reviews in Runs, with an optional validated finance.json sidecar and a clearly separate synthetic example. Preserve exact decimal strings, unresolved classifications and source mapping provenance.
 
 - Add a deterministic statement receipt ledger with duplicate evidence, explicit revisions, historical provenance, grouped active totals and separate unresolved correction amounts. Canonical structured content is hashed internally before deduplication.

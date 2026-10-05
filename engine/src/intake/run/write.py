@@ -31,6 +31,7 @@ from intake import __version__, config
 from intake.ingest import IngestResult
 from intake.readers import RawTable
 from intake.run.clean import clean_row_count, clean_tables, write_clean
+from intake.run.unresolved_evidence import UnresolvedEvidence, serialize_unresolved_evidence
 from intake.tieout import TieOutResult, write_tieout
 from jev_client import RunUsage
 
@@ -63,6 +64,7 @@ class RunOutputs:
     coverage: RtsCoverage
     usage: RunUsage
     detection: DetectionSummary | None
+    unresolved: tuple[UnresolvedEvidence, ...] = ()
 
 
 def sha256_file(path: Path) -> str:
@@ -176,3 +178,6 @@ def write_run(o: RunOutputs, run_dir: Path) -> None:
     write_tieout(o.tie, run_dir)
     lines = "".join(r.model_dump_json() + "\n" for r in o.records)
     (run_dir / "exceptions.jsonl").write_text(lines, encoding="utf-8")
+    (run_dir / "unresolved_evidence.jsonl").write_text(
+        serialize_unresolved_evidence(o.unresolved, o.run_id), encoding="utf-8"
+    )

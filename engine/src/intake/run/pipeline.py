@@ -45,6 +45,7 @@ from intake.run.canonicalize import (
 )
 from intake.run.jev import RunJevClient
 from intake.run.scoring import Score, load_ground_truth, score
+from intake.run.unresolved_evidence import collect_unresolved_evidence
 from intake.run.write import RunOutputs, write_run
 from intake.tieout import TieOutResult, run_tieout
 from intake.tieout.variances import _not_run as tieout_not_run
@@ -245,6 +246,8 @@ def _run_into(
 ) -> RunResult:
     raw = ingest(drop, run_id=out.name)
     records = list(raw.exceptions) + run_raw_gates(raw)  # before any model call
+    raw_blocked = _blocked(records)
+    sources: list[MappedSource] = []
     tables: dict[str, pl.DataFrame] = {}
     tie: TieOutResult | None = None
     coverage = RtsCoverage(cells=())
@@ -295,6 +298,7 @@ def _run_into(
         coverage=coverage,
         usage=client.usage,
         detection=result_score.summary if result_score else None,
+        unresolved=collect_unresolved_evidence(raw, sources, out.name, raw_blocked),
     )
     write_run(outputs, tmp)
     check_run_dir(tmp)
