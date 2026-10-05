@@ -1,0 +1,70 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "field": {
+        "criteria": {
+          "clients.address_line1": null,
+          "clients.city": null,
+          "clients.client_id": null,
+          "clients.dob": "date of birth of the client",
+          "clients.email": null,
+          "clients.first_name": null,
+          "clients.full_name": "first and last name in one column",
+          "clients.household_id": null,
+          "clients.last_name": null,
+          "clients.mbi": "Medicare Beneficiary Identifier, 11 characters",
+          "clients.notes": null,
+          "clients.phone": null,
+          "clients.state": "two-letter US state",
+          "clients.zip": null,
+          "none": "none of these",
+          "policies.carrier": null,
+          "policies.carrier_member_id": "member id the carrier assigned",
+          "policies.client_id": null,
+          "policies.effective_date": "date coverage or appointment starts",
+          "policies.eligibility_reason": null,
+          "policies.line_of_business": null,
+          "policies.monthly_premium": "monthly premium in dollars",
+          "policies.plan_id": null,
+          "policies.policy_id": null,
+          "policies.state": "two-letter US state",
+          "policies.status": null,
+          "policies.termination_date": "date coverage ends",
+          "policies.writing_agent_npn": null
+        },
+        "instructions": "Which canonical field does `header` hold, judging by the header and `sample_values`? Sample values are masked: after the first characters, letters and digits are *.",
+        "type": "choice"
+      }
+    },
+    "state": {
+      "header": "Birth Dt (mm/dd/yy)",
+      "sample_values": [
+        "03/**/**",
+        "05/**/**",
+        "11/**/**",
+        "09/**/**",
+        "10/**/**"
+      ],
+      "source_table": "clients, policies"
+    }
+  },
+  "response": {
+    "answers": {
+      "field": {
+        "choice": "clients.dob",
+        "confidence": 0.93,
+        "probabilities": {
+          "clients.dob": 0.93,
+          "clients.full_name": 0.07
+        },
+        "type": "choice"
+      }
+    },
+    "model": "handmade-placeholder",
+    "usage": {
+      "input_tokens": 454,
+      "output_tokens": 1
+    }
+  }
+}
