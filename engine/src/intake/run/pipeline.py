@@ -203,6 +203,8 @@ def run(options: RunOptions) -> RunResult:
     drop, out = options.drop.resolve(), options.out.resolve()
     if not drop.is_dir():
         raise RunRefused(f"{drop} is not a folder. Pass the drop folder with --in.")
+    if drop == out or drop in out.parents or out in drop.parents:
+        raise RunRefused(f"{out} overlaps input folder {drop}. Choose a separate output folder.")
     if not (drop / MANIFEST_NAME).is_file():
         raise RunRefused(
             f"{drop} has no {MANIFEST_NAME}. A run needs the drop's manifest to know which "

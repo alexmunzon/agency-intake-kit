@@ -2,6 +2,11 @@
 
 One entry per PR.
 
+## Audit fixes (2026-10-05)
+
+- `intake run` refuses an output folder that is the input drop, contains it, or is inside it, so `--overwrite` cannot replace source files.
+- The Exceptions drawer shows Jev impact as a weighted score on its 0-to-2 scale. Probability fields remain percentages.
+
 ## PR 0: Scaffold (2026-10-04)
 
 - Repo layout per BUILD-GUIDE section 1.3. No feature code yet.

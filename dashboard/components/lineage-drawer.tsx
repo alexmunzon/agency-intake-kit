@@ -10,9 +10,9 @@ import type { ExceptionRecord } from "@/lib/types";
 // It acts as a modal: the page behind it is inert, Tab stays inside, and focus returns on close.
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 const JEV_SCORES = [
-  ["entry_error_probability", "Chance this is a typing error"],
-  ["impact_score", "Impact on the load"],
-  ["pii_probability", "Chance this is private data"],
+  { key: "entry_error_probability", label: "Chance this is a typing error", max: 1, format: percent },
+  { key: "impact_score", label: "Impact score on the load (0 to 2)", max: 2, format: (score: number) => `${score.toFixed(2)} / 2` },
+  { key: "pii_probability", label: "Chance this is private data", max: 1, format: percent },
 ] as const;
 
 function Row({ term, value }: { term: string; value: ReactNode }) {
@@ -100,16 +100,16 @@ export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; on
       <h3 className="mt-4 font-medium">Jev AI review</h3>
       {jev ? (
         <dl>
-          {JEV_SCORES.filter(([key]) => jev[key] !== null).map(([key, label]) => (
+          {JEV_SCORES.filter(({ key }) => jev[key] !== null).map(({ key, label, max, format }) => (
             <Row
               key={key}
               term={label}
               value={
                 <span className="flex items-center gap-2 tabular-nums">
                   <span aria-hidden className="h-2 w-24 rounded bg-slate-100 dark:bg-slate-800">
-                    <span className="block h-2 rounded bg-indigo-600 dark:bg-indigo-400" style={{ width: percent(jev[key] as number) }} />
+                    <span className="block h-2 rounded bg-indigo-600 dark:bg-indigo-400" style={{ width: `${((jev[key] as number) / max) * 100}%` }} />
                   </span>
-                  {percent(jev[key] as number)}
+                  {format(jev[key] as number)}
                 </span>
               }
             />
