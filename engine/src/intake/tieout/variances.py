@@ -22,6 +22,7 @@ from agency_schema.outputs import (
     VarianceReport,
 )
 from intake import config
+from intake.tieout.link_evidence import LinkEvidence, collect_links
 from intake.tieout.load import connect
 from intake.tieout.prepare import prepare
 from intake.tieout.views import create_views, rows
@@ -82,6 +83,7 @@ class TieOutResult:
     # Non-blank values that could not be read, by "table.field" (each also logged). A policy
     # date is reported once, by DAT-001; a bad amount is also its own TIE-003.
     skipped: Mapping[str, int] = field(default_factory=dict)
+    links: tuple[LinkEvidence, ...] = ()
 
 
 def _cents(value: Decimal | None) -> Decimal | None:
@@ -203,6 +205,7 @@ def run_tieout(
                                rows=tuple(totals["agent"])),
         exceptions=tuple(exceptions),
         skipped=prepared.skipped,
+        links=collect_links(con, prepared),
     )  # fmt: skip
 
 
@@ -220,3 +223,6 @@ def write_tieout(result: TieOutResult, run_dir: Path) -> None:
     }
     for name, model in files.items():
         (out / name).write_text(model.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    (out / "links.jsonl").write_text(
+        "".join(link.model_dump_json() + "\n" for link in result.links), encoding="utf-8"
+    )

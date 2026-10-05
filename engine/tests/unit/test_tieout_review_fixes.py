@@ -137,6 +137,7 @@ def test_name_and_dob_match_reads_a_serial_dob_against_a_us_dob() -> None:
     """#44: CRM DOB as an Excel serial, statement DOB as 01/01/60: still a weak match."""
     result = tie([policy("P1")], [line(1, None, "26.25", dob="01/01/60")], dob="21916")
     assert [r.rule_id for r in result.exceptions] == ["TIE-001", "TIE-002", "TIE-006"]
+    assert result.links[0].state == "provisional"
 
 
 @pytest.mark.parametrize("amount", ["$26.25", " 26.25 ", "$1,026.25"])

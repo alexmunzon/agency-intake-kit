@@ -1,5 +1,12 @@
 # Agency Data Trust Series: Roadmap
 
+## Bounded M1 reconciliation links (2026-10-05)
+
+The tie-out retains every matching candidate and source lineage in optional `tie_out/links.jsonl`. Each statement row is confirmed, provisional, ambiguous or unmatched, with a reason and exact signed amount. Confirmed means a deterministic strong-key link, not human approval or verified customer identity. Name/DOB alone never confirms. Duplicate or conflicting strong keys and incompatible weak evidence remain unresolved; compatible same-person weak alternatives do not override a unique strong match. Policy references are carrier-scoped and blank keys never match.
+
+Only confirmed links drive policy payment, status and rate checks. Statement totals still count each row once, and non-confirmed signed amounts remain in unexplained revenue. Existing safety/load gates remain authoritative. Without a book the tie-out stays NOT_RUN; independent absent-book statement totals, candidate dashboard and authenticated resolution remain later work. Existing imports skip the optional links artifact. Local verification, exact-commit review and green exact-head hosted verification remain delivery gates.
+
+
 ## Bounded conservative matching (2026-10-05)
 
 Reconciliation attributes a policy only when supplied strong keys consistently identify it.
