@@ -8,5 +8,6 @@ export const metadata: Metadata = { title: "Tie-out | Agency Intake Kit" };
 
 // Read at build time from public/demo-run. The dashboard makes no network calls.
 export default async function TieOutPage() {
-  return <TieOutView run={await loadRunDir(DEMO_RUN_DIR)} tieOut={await loadTieOut(DEMO_RUN_DIR)} />;
+  const run = await loadRunDir(DEMO_RUN_DIR);
+  return <TieOutView run={run} tieOut={await loadTieOut(DEMO_RUN_DIR, run)} />;
 }

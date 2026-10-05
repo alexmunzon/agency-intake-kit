@@ -44,7 +44,7 @@ describe("source summaries", () => {
     expect([crm.file.rows_expected, crm.file.rows_received]).toEqual([2600, 2574]);
     expect([crm.tone, crm.status]).toEqual(["blocker", "Blocked the run"]);
     expect(crm.gates.map((r) => r.rule_id)).toEqual(["CMP-001", "ING-001"]);
-    expect(rest.every((s) => s.status === "Read cleanly")).toBe(true);
+    expect(rest.every((s) => s.status === "Read, not mapped (run stopped)" && s.tone === "info")).toBe(true);
   });
 
   it("reads encoding, delimiter, and header row from the reading rules", async () => {

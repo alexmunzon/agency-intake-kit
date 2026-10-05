@@ -47,6 +47,24 @@ describe("Exceptions page", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
+  it("keeps focus inside the drawer, makes the page behind it inert, and returns focus on close", async () => {
+    render(<ExceptionsView records={(await load("sample-run")).exceptions} />);
+    const row = bodyRows().find((r) => within(r).queryByText("DOB-002"))!;
+    row.focus();
+    fireEvent.keyDown(row, { key: "Enter" });
+    const close = within(screen.getByRole("dialog")).getByRole("button", { name: "Close" });
+    expect(close).toHaveFocus();
+    // fireEvent returns false when the drawer stops the browser from moving focus out.
+    expect(fireEvent.keyDown(close, { key: "Tab" })).toBe(false);
+    expect(close).toHaveFocus();
+    expect(fireEvent.keyDown(close, { key: "Tab", shiftKey: true })).toBe(false);
+    expect(close).toHaveFocus();
+    expect(screen.getByLabelText("Severity").closest("[inert]")).not.toBeNull();
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(row).toHaveFocus();
+    expect(document.querySelector("[inert]")).toBeNull();
+  });
+
   it("explains a whole-file exception in the drawer on the passed sample", async () => {
     render(<ExceptionsView records={(await load("sample-run-passed")).exceptions} />);
     fireEvent.keyDown(bodyRows()[0], { key: "Enter" });
@@ -70,11 +88,15 @@ describe("Sources page", () => {
     expect(crm.getByText("2,600")).toBeInTheDocument();
     expect(crm.getByText("2,574")).toBeInTheDocument();
     expect(crm.getByText("Blocked the run")).toBeInTheDocument();
-    expect(screen.getByText("4 of 5 files read cleanly.")).toBeInTheDocument();
+    expect(screen.getByText("4 of 5 files read. Mapping not checked, because the run stopped first.")).toBeInTheDocument();
+    const enrollment = within(screen.getByRole("region", { name: "enrollment_export.csv" }));
+    expect(enrollment.getByText("Read, not mapped (run stopped)")).toBeInTheDocument();
+    expect(enrollment.getByText("Mapping not checked. The run stopped first.")).toBeInTheDocument();
+    expect(enrollment.queryByText("None")).toBeNull();
   });
 
   it("reads all five files cleanly on the passed sample", async () => {
     render(<Sources run={await load("sample-run-passed")} />);
-    expect(screen.getByText("5 of 5 files read cleanly.")).toBeInTheDocument();
+    expect(screen.getByText("5 of 5 files read and mapped cleanly.")).toBeInTheDocument();
   });
 });

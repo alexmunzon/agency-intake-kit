@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 
 import { SeverityBadge } from "@/components/severity-badge";
 import { percent, toneOf } from "@/lib/exceptions";
 import type { ExceptionRecord } from "@/lib/types";
 
 // One exception in full: what it is, where it came from, and how to fix it. Closes on Escape.
+// It acts as a modal: the page behind it is inert, Tab stays inside, and focus returns on close.
+const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 const JEV_SCORES = [
   ["entry_error_probability", "Chance this is a typing error"],
   ["impact_score", "Impact on the load"],
@@ -24,12 +26,41 @@ function Row({ term, value }: { term: string; value: ReactNode }) {
 
 export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLElement>(null);
   useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    // Mark everything outside the drawer inert, walking up from the drawer to <body>.
+    const inerted: Element[] = [];
+    for (let node = panel.current as Element | null; node?.parentElement; node = node.parentElement) {
+      for (const sibling of node.parentElement.children) {
+        if (sibling !== node && !sibling.hasAttribute("inert")) {
+          sibling.setAttribute("inert", "");
+          inerted.push(sibling);
+        }
+      }
+    }
     closeButton.current?.focus();
+    return () => {
+      inerted.forEach((element) => element.removeAttribute("inert"));
+      opener?.focus();
+    };
+  }, []);
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  const trapTab = (event: ReactKeyboardEvent) => {
+    if (event.key !== "Tab" || !panel.current) return;
+    const items = [...panel.current.querySelectorAll<HTMLElement>(FOCUSABLE)];
+    const [first, last] = [items[0], items[items.length - 1]];
+    const edge = event.shiftKey ? first : last;
+    if (document.activeElement === edge || !panel.current.contains(document.activeElement)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first)?.focus();
+    }
+  };
 
   const { lineage, jev } = record;
   // The engine never writes raw notes, but a notes value is hidden here too, just in case.
@@ -37,6 +68,8 @@ export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; on
   const mono = (text: string | number | null) => (text === null ? null : <span className="font-mono">{text}</span>);
   return (
     <aside
+      ref={panel}
+      onKeyDown={trapTab}
       role="dialog"
       aria-modal="true"
       aria-labelledby="drawer-title"

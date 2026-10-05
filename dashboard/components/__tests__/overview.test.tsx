@@ -3,12 +3,16 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { Overview } from "@/components/overview";
-import { loadRunDir } from "@/lib/run-loader";
+import { loadRunDir, type Run } from "@/lib/run-loader";
+import { loadTieOut } from "@/lib/tie-out";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
 
-async function show(name: string) {
-  render(<Overview run={await loadRunDir(path.join(FIXTURES, name))} />);
+async function show(name: string, change?: (run: Run) => void) {
+  const dir = path.join(FIXTURES, name);
+  const run = await loadRunDir(dir);
+  change?.(run);
+  render(<Overview run={run} tieOut={await loadTieOut(dir)} />);
 }
 
 function tile(label: string) {
@@ -26,7 +30,7 @@ describe("Overview", () => {
     expect(tile("Clean rows").getByText("7,761")).toBeInTheDocument();
     expect(tile("Clean rows").getByText("of 7,765 rows read")).toBeInTheDocument();
     expect(tile("Tie-out differences").getByText("$85.55")).toBeInTheDocument();
-    expect(tile("Tie-out differences").getByText("3 items, all 3 checks ran")).toBeInTheDocument();
+    expect(tile("Tie-out differences").getByText("3 items, all 3 checks ran, plus 1 commission off the rate table or totals ($6.50)")).toBeInTheDocument();
     expect(tile("RTS gaps").getByText("1")).toBeInTheDocument();
     expect(tile("Jev AI review").getByText("38 calls")).toBeInTheDocument();
     expect(tile("Jev AI review").getByText("$0.000901 estimated, replay mode")).toBeInTheDocument();
@@ -56,5 +60,16 @@ describe("Overview", () => {
     expect(tile("Tie-out differences").getByText("$0.00")).toBeInTheDocument();
     expect(tile("RTS gaps").getByText("0")).toBeInTheDocument();
     expect(tile("Errors").getByText("0")).toBeInTheDocument();
+  });
+
+  it("shows warnings found before a blocker stopped the run, with honest context", async () => {
+    await show("sample-run-failed", (run) => {
+      run.exceptions.push({ ...run.exceptions[1], id: "EX-000003", rule_id: "CMP-002", severity: "WARNING", family: "CMP", source: "statement_crestview" });
+      run.scorecard.exceptions_by_severity.warning = 1;
+    });
+    expect(tile("Warnings").getByText("1")).toBeInTheDocument();
+    expect(tile("Warnings").getByText("Found before the run stopped. Row checks did not run.")).toBeInTheDocument();
+    expect(tile("Errors").getByText("Not checked")).toBeInTheDocument();
+    expect(tile("Info").getByText("Found before the run stopped. Row checks did not run.")).toBeInTheDocument();
   });
 });

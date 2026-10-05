@@ -15,6 +15,8 @@ export interface SourceSummary {
   headerRow: string;
   gates: ExceptionRecord[];
   rowIssues: number;
+  /** False when a blocker stopped the run before mapping, so mapping was never checked. */
+  mapped: boolean;
 }
 
 function messageOf(records: ExceptionRecord[], rule: string): string | undefined {
@@ -45,6 +47,8 @@ export function summarizeSource(run: Run, file: InputFile): SourceSummary {
   } else if (gates.some((record) => record.severity !== "INFO")) {
     [tone, status] = ["warning", "Read with warnings"];
   }
+  const mapped = run.manifest.status !== "FAILED";
+  if (!mapped && tone === "pass") [tone, status] = ["info", "Read, not mapped (run stopped)"];
   return {
     file,
     tone,
@@ -55,6 +59,7 @@ export function summarizeSource(run: Run, file: InputFile): SourceSummary {
     headerRow: rowOf(messageOf(records, "ING-002")) ?? "Row 1",
     gates,
     rowIssues: records.length - gates.length,
+    mapped,
   };
 }
 
