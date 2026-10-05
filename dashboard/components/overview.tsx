@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SeverityBadge, SeverityIcon, TONES, type Tone } from "@/components/severity-badge";
+import { PageHeader } from "@/components/tie-out";
 import { CARD, Tile } from "@/components/tiles";
 import { formatMoney } from "@/lib/money";
 import {
@@ -93,12 +94,7 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
   const jevOff = manifest.jev.mode === "off";
   return (
     <div className="space-y-4">
-      <header>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Run <span className="font-mono text-xs">{manifest.run_id}</span>. Synthetic data only.
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight">Can this agency go live?</h1>
-      </header>
+      <PageHeader run={run} question="Can this agency go live?" />
       <StatusBanner run={run} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {SEVERITY_TILES.map(({ key, tone, label, context }) => {

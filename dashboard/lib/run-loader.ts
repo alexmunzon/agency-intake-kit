@@ -1,9 +1,6 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-
 import type { ExceptionRecord, Manifest, RtsCoverage, Scorecard } from "@/lib/types";
 
-// Loads one run directory written by the engine. Basic shape checks only: the engine's models
+// Parses one run's files from text, so the server (demo run) and the browser (your run) share it. Basic shape checks only: the engine's models
 // are the real validator. These catch a wrong folder, a mixed-up run, or money written as a number.
 export interface Run {
   manifest: Manifest;
@@ -14,7 +11,7 @@ export interface Run {
 
 export type RunFiles = Record<"manifest" | "scorecard" | "exceptions" | "rts", string>;
 
-const FILE_NAMES: RunFiles = {
+export const FILE_NAMES: RunFiles = {
   manifest: "manifest.json",
   scorecard: "scorecard.json",
   exceptions: "exceptions.jsonl",
@@ -22,8 +19,6 @@ const FILE_NAMES: RunFiles = {
 };
 const STATUSES = ["PASSED", "PASSED_WITH_WARNINGS", "FAILED"];
 const SEVERITIES = ["BLOCKER", "ERROR", "WARNING", "INFO"];
-
-export const DEMO_RUN_DIR = path.join(process.cwd(), "public", "demo-run");
 
 function check(ok: boolean, where: string, problem: string): void {
   if (!ok) throw new Error(`${where}: ${problem}`);
@@ -86,16 +81,4 @@ export function parseRun(files: RunFiles): Run {
     exceptions,
     rts: rts as unknown as RtsCoverage,
   };
-}
-
-export async function loadRunDir(dir: string): Promise<Run> {
-  const files = {} as RunFiles;
-  for (const [key, name] of Object.entries(FILE_NAMES) as [keyof RunFiles, string][]) {
-    try {
-      files[key] = await readFile(path.join(dir, name), "utf8");
-    } catch {
-      throw new Error(`Could not read ${name} in ${dir}`);
-    }
-  }
-  return parseRun(files);
 }

@@ -153,6 +153,7 @@ A leg whose source is missing is NOT_RUN, never silently passed. Each leg report
 - `fixtures/sample-run/`: PASSED_WITH_WARNINGS, with exceptions at error, warning, and info severity across several rule families, all three tie-out legs RAN, and named cases from examples 3 and 4.
 - `fixtures/sample-run-failed/`: FAILED on CMP-001, with expected vs received counts. A raw-gate failure stops before mapping, so all three tie-out legs are NOT_RUN, `rts_coverage.json` is empty, and there is no `clean/`.
 - `fixtures/sample-run-passed/`: PASSED, zero exceptions above info.
+- `fixtures/sample-run-partial/`: sample-run with the CRM vs statement leg NOT_RUN (two legs RAN, one did not), added in PR 16.
 
 Each contains manifest.json, scorecard.json, exceptions.jsonl, tie_out/*.json, and rts_coverage.json. A PR 1b test validates every file against the models' JSON schema. In PR 12, the end-to-end test validates real run output against the same schema, so engine and dashboard cannot drift. PR 13 copies `fixtures/sample-run/` into `dashboard/public/demo-run/` so the dashboard and Vercel show it. After PR 12, `npm run demo` replaces it with the real demo run, and the samples stay as test fixtures.
 
