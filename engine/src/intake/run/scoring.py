@@ -30,7 +30,7 @@ Key = tuple[tuple[str, str], ...]
 Unit = tuple[str, str | None, int]  # source_file, sheet, row_number
 # (key field in ground truth, column in the canonical table)
 KEY_COLUMNS: dict[str, tuple[tuple[tuple[str, str], ...], ...]] = {
-    "policies": ((("policy_id", "policy_id"),), (("client_id", "client_id"),)),
+    "policies": ((("policy_id", "policy_id"),),),
     "clients": ((("client_id", "client_id"),),),
     "agents": ((("npn", "npn"),),),
     "rts": ((("npn", "npn"),),),  # no defect is keyed by an RTS row, but its rows still count
@@ -39,6 +39,9 @@ KEY_COLUMNS: dict[str, tuple[tuple[tuple[str, str], ...], ...]] = {
         (("policy_id", "policy_ref"),),
     ),
 }
+# A CRM policy row also carries its client, so a client defect makes the row not clean. It
+# never earns recall there: a client-keyed defect is found only on the client's own row.
+NOT_CLEAN_ALSO = {"policies": ((("client_id", "client_id"),),)}
 LOUD = frozenset({Severity.BLOCKER, Severity.ERROR, Severity.WARNING})
 
 
@@ -56,10 +59,13 @@ def unit_of(record: ExceptionRecord) -> Unit | None:
     return None if lin is None else (lin.source_file, lin.sheet, lin.row_number)
 
 
-def row_keys(tables: Mapping[str, pl.DataFrame]) -> dict[Unit, set[Key]]:
+def row_keys(
+    tables: Mapping[str, pl.DataFrame],
+    columns: Mapping[str, tuple[tuple[tuple[str, str], ...], ...]] = KEY_COLUMNS,
+) -> dict[Unit, set[Key]]:
     """Every source row behind a canonical row, with the record keys it holds."""
     keys: dict[Unit, set[Key]] = {}
-    for table, key_sets in KEY_COLUMNS.items():
+    for table, key_sets in columns.items():
         if table not in tables:
             continue
         for row in tables[table].iter_rows(named=True):
@@ -125,7 +131,8 @@ def score(
             missed.setdefault(name, []).append(key_of(d["record_key"]))
 
     planted = {key_of(d["record_key"]) for d in defects}
-    clean = {u for u, keys in units.items() if not keys & planted}
+    also = row_keys(tables, NOT_CLEAN_ALSO)
+    clean = {u for u, keys in units.items() if not (keys | also.get(u, set())) & planted}
     flagged: dict[Unit, set[str]] = {}
     for r in records:
         unit = unit_of(r)

@@ -96,12 +96,12 @@ def status_reason(status: RunStatus, records: list[ExceptionRecord]) -> str | No
     counts = Counter(r.severity for r in records)
     if status == RunStatus.FAILED:
         first = next(r for r in records if r.severity == Severity.BLOCKER)
-        return f"Blocked by {first.rule_id}. {first.message}. Nothing was loaded."
+        return f"Blocked by {first.rule_id}. {first.message.rstrip('.')}. Nothing was loaded."
     if status == RunStatus.PASSED:
         return None
     return (
-        f"No blockers. {counts[Severity.ERROR]:,} errors kept their rows out of the load files "
-        f"and {counts[Severity.WARNING]:,} warnings passed with a flag."
+        f"No blockers. {counts[Severity.ERROR]:,} errors keep their rows out of the load files "
+        f"and {counts[Severity.WARNING]:,} warnings pass with a flag."
     )
 
 

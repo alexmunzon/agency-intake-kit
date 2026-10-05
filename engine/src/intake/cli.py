@@ -92,7 +92,10 @@ def diff(
 def _clock(as_of: str | None) -> datetime | None:
     if as_of is None:
         return None
-    clock = datetime.fromisoformat(as_of)
+    try:
+        clock = datetime.fromisoformat(as_of)
+    except ValueError as error:
+        raise typer.BadParameter(f"--as-of is not a date and time: {as_of}") from error
     if clock.tzinfo is None:
         raise typer.BadParameter("--as-of needs a time zone, for example 2026-10-01T09:00:00Z")
     return clock

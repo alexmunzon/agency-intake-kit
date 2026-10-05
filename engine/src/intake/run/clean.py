@@ -9,6 +9,7 @@ rule ids in a `warnings` column. Each row keeps its lineage as lineage_* columns
 real dates and money is Decimal(12, 2) in Parquet, never a float; CSV holds the same values.
 """
 
+import logging
 from collections.abc import Iterable, Mapping
 from collections.abc import Set as AbstractSet
 from pathlib import Path
@@ -20,6 +21,7 @@ from agency_schema.exceptions import ExceptionRecord
 from intake.config import LIST_SEPARATOR
 from intake.run.canonicalize import DATES, FIELDS, MONEY
 
+log = logging.getLogger(__name__)
 LINEAGE_FIELDS = ("source_file", "sheet", "row_number", "raw_hash", "run_id", "mapping_version")
 UNIT = ["_file", "_sheet", "_row"]
 CLIENT_RULES = frozenset({"DOB-001", "DOB-002", "MBI-001", "ADR-001", "ADR-002", "ADR-003"})
@@ -92,25 +94,40 @@ def clean_tables(
                 *FIELDS[name],
                 "warnings",
                 *(lin.field(f).alias(f"lineage_{f}") for f in LINEAGE_FIELDS),
-            )
+            ),
+            name,
         )
         for name, frame in out.items()
     }
 
 
-def _typed(frame: pl.DataFrame) -> pl.DataFrame:
-    """Dates as Date, money as Decimal(12, 2), whole numbers as Int64, flags as Boolean."""
-    casts = []
+def _typed(frame: pl.DataFrame, table: str = "") -> pl.DataFrame:
+    """Dates as Date, money as Decimal(12, 2), whole numbers as Int64, flags as Boolean.
+
+    A value that does not cast (money no rule judges, such as a premium that is not a number)
+    becomes null in clean/; each such column is counted and logged so the loss is never silent.
+    A flag that is not a recognized yes is false, which never grants RTS by accident.
+    """
+    casts = {}
     for column in frame.columns:
         if column in DATES:
-            casts.append(pl.col(column).str.to_date("%Y-%m-%d", strict=False))
+            casts[column] = pl.col(column).str.to_date("%Y-%m-%d", strict=False)
         elif column in MONEY:
-            casts.append(pl.col(column).cast(pl.Decimal(12, 2), strict=False))
+            casts[column] = pl.col(column).cast(pl.Decimal(12, 2), strict=False)
         elif column in WHOLE:
-            casts.append(pl.col(column).cast(WHOLE[column], strict=False))
+            casts[column] = pl.col(column).cast(WHOLE[column], strict=False)
         elif column in FLAGS:
-            casts.append(pl.col(column) == "true")
-    return frame.with_columns(casts)
+            casts[column] = pl.col(column) == "true"
+    typed = frame.with_columns(expr.alias(c) for c, expr in casts.items())
+    for column in casts:
+        if column in FLAGS:
+            continue
+        lost = typed.filter(pl.col(column).is_null() & frame[column].is_not_null()).height
+        if lost:
+            log.warning(
+                "clean/%s: %d %s values could not be typed and are blank", table, lost, column
+            )
+    return typed
 
 
 def write_clean(clean: Mapping[str, pl.DataFrame], run_dir: Path) -> None:

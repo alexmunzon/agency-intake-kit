@@ -17,6 +17,7 @@ from agency_schema.exceptions import ExceptionRecord, minimize_value
 from agency_schema.outputs import JevMode
 from intake.exceptions.triage import (
     TriageItem,
+    attach_rows,
     needs_triage,
     planned_requests,
     queue_order,
@@ -181,20 +182,17 @@ def test_queue_order_is_deterministic(tmp_path: Path, exception_kwargs: dict[str
 def test_agency_a_expected_call_count(tmp_path: Path) -> None:
     """The distinct triage requests a real run of fixtures/agency-a sends (PR 12 records these).
 
-    Measured on the real pipeline in replay, where none is recorded yet, so each one is a miss
-    that goes to a person, and no PII text needs Jev (the regex layer catches all 26).
+    Counted from the run's own records and frames, so the number holds before and after the
+    triage cassettes are recorded. Before recording each one is a replay miss; no PII text
+    needs Jev, because the regex layer catches all 26 planted notes.
     """
     from datetime import datetime
 
-    from intake.run.pipeline import RunOptions, run
+    from intake.run.pipeline import RunOptions, run, triage_frames
 
     as_of = datetime.fromisoformat("2026-10-01T09:00:00+00:00")
     result = run(RunOptions(drop=FIXTURE / "drop", out=tmp_path / "count", as_of=as_of))
     triaged = [r for r in result.records if needs_triage(r)]
-    kinds = {tuple(sorted(req.questions)) for req in result.client.misses.values()}
-    assert kinds == {("impact", "is_entry_error")}  # triage only: no PII request
-    assert (len(triaged), len(result.client.misses)) == (
-        AGENCY_A_TRIAGE_EXCEPTIONS,
-        AGENCY_A_TRIAGE_CALLS,
-    )
-    assert all(r.lane == Lane.UNREVIEWED for r in triaged)  # no recording yet: a person decides
+    planned = planned_requests(attach_rows(result.records, triage_frames(result.tables)))
+    assert (len(triaged), len(planned)) == (AGENCY_A_TRIAGE_EXCEPTIONS, AGENCY_A_TRIAGE_CALLS)
+    assert set(result.client.misses) <= set(planned)  # every miss is a triage request

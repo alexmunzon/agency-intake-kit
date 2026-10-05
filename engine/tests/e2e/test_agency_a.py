@@ -21,7 +21,6 @@ from intake.ingest import ingest
 from intake.mapping.jev_mapping import Asker
 from intake.rules.dob import dob_unparseable
 from intake.run.canonicalize import canonicalize
-from intake.run.clean import CLIENT_RULES
 from intake.run.jev import MAPPING_CASSETTES, RunJevClient, cassette_dir_for
 from intake.run.pipeline import RunOptions, RunRefused, RunResult, map_drop, run
 
@@ -164,10 +163,11 @@ def test_example_4_orphan_payment(agency_a: RunResult) -> None:
 
 def test_clean_keeps_one_copy_and_drops_exactly_the_error_rows(agency_a: RunResult) -> None:
     """#63: expected policy rows computed independently from the exceptions."""
+    client_rules = {"DOB-001", "DOB-002", "MBI-001", "ADR-001", "ADR-002", "ADR-003"}
     found = records(agency_a.run_dir)
     errors = [r for r in found if r.severity == Severity.ERROR and r.lineage]
-    client_out = {unit(r) for r in errors if r.rule_id in CLIENT_RULES}
-    policy_out = {unit(r) for r in errors if r.rule_id not in CLIENT_RULES}
+    client_out = {unit(r) for r in errors if r.rule_id in client_rules}
+    policy_out = {unit(r) for r in errors if r.rule_id not in client_rules}
     clients = agency_a.tables["clients"]
     kept_clients = {
         cid
@@ -189,6 +189,14 @@ def test_clean_keeps_one_copy_and_drops_exactly_the_error_rows(agency_a: RunResu
     assert clean["policy_id"].n_unique() == clean.height
     dropped = set(_policy_rows(agency_a).values()) - set(got)
     assert "P-00417" in dropped and len(dropped) < 300
+    # A client rule removes the client and every policy it holds (the first planted MBI-001 client).
+    truth = json.loads((FIXTURES / "agency-a" / "ground_truth.json").read_text())["defects"]
+    bad = next(d["record_key"]["client_id"] for d in truth if d["defect_type"] == "invalid_mbi")
+    clean_clients = pl.read_csv(agency_a.run_dir / "clean" / "clients.csv", infer_schema=False)
+    assert bad not in clean_clients["client_id"].to_list()
+    assert bad not in clean["client_id"].to_list()
+    held = agency_a.tables["policies"].filter(pl.col("client_id") == bad)["policy_id"].to_list()
+    assert held and not set(held) & set(got)
 
 
 def test_clean_parquet_keeps_money_exact(agency_a: RunResult) -> None:
@@ -213,13 +221,7 @@ def test_replay_answers_every_mapping_question(agency_a: RunResult) -> None:
     """Mapping cassettes are recorded; only triage and PII may lack a recording (PR 12)."""
     dirs = {cassette_dir_for(request) for request in agency_a.client.misses.values()}
     assert MAPPING_CASSETTES not in dirs
-    triaged = [r for r in agency_a.records if r.severity in (Severity.ERROR, Severity.WARNING)]
-    assert {r.lane.value for r in triaged} <= {
-        "UNREVIEWED",
-        "REVIEW",
-        "SUGGESTED_FIX",
-        "BUSINESS_EVENT",
-    }
+    assert not [r for r in agency_a.records if r.rule_id == "MAP-002"]
 
 
 def test_frozen_clock_makes_two_runs_byte_identical(

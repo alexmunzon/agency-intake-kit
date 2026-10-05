@@ -1,6 +1,7 @@
 """SPEC examples 5 and 6 end to end, refusals (#59), and the clean world through the pipeline."""
 
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -134,3 +135,66 @@ def test_the_spend_cap_switches_jev_off_and_the_run_completes(tmp_path: Path) ->
     assert m.budget_tripped is True and m.jev.mode == "replay" and m.jev.calls == 1
     assert result.status == RunStatus.PASSED_WITH_WARNINGS
     assert any(r.rule_id == "MAP-002" and "budget_tripped" in r.message for r in result.records)
+
+
+def test_a_blocked_run_with_a_warning_makes_no_triage_call(tmp_path: Path) -> None:
+    """CMP-001 plus a CMP-002 warning: the warning is not triaged, so Jev is never asked."""
+    drop = tmp_path / "drop"
+    shutil.copytree(FIXTURES / "agency-a-truncated" / "drop", drop)
+    (drop / "enrollment_export.csv").unlink()
+    result = run(RunOptions(drop=drop, out=tmp_path / "run"))
+    rules = {r.rule_id for r in result.records}
+    assert {"CMP-001", "CMP-002"} <= rules and result.status == RunStatus.FAILED
+    assert result.client.usage.calls == 0 and result.client.misses == {}
+
+
+def test_a_crash_mid_run_leaves_no_run_folder_and_keeps_the_old_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import intake.run.pipeline as pipeline
+
+    drop = FIXTURES / "agency-a-truncated" / "drop"
+    first = run(RunOptions(drop=drop, out=tmp_path / "run"))
+    before = (first.run_dir / "manifest.json").read_bytes()
+
+    def boom(*_: object) -> None:
+        raise RuntimeError("disk full")
+
+    monkeypatch.setattr(pipeline, "write_run", boom)
+    with pytest.raises(RuntimeError, match="disk full"):
+        run(RunOptions(drop=drop, out=tmp_path / "run", overwrite=True))
+    with pytest.raises(RuntimeError, match="disk full"):
+        run(RunOptions(drop=drop, out=tmp_path / "fresh"))
+    assert (tmp_path / "run" / "manifest.json").read_bytes() == before
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["run"]  # no half-written folder
+
+
+def test_record_run_prints_the_count_and_cost_before_spending_and_never_the_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The spending client is faked: no network. The plan run is the real replay run."""
+    import intake.run.pipeline as pipeline
+    from intake.exceptions.pii import pii_request
+
+    monkeypatch.setenv("JEV_MODE", "record")
+    monkeypatch.setenv("TYPESAFE_API_KEY", "sk-test-not-a-real-key-123456")
+    real_run = pipeline.run
+    calls: list[str] = []
+
+    def fake(options: RunOptions) -> RunResult:
+        calls.append(options.jev_mode.value)
+        if options.jev_mode == "record":
+            raise RuntimeError("stop before any request")
+        result = real_run(options)
+        unrecorded = pii_request("a question no cassette will ever hold")
+        result.client.misses["0" * 64] = unrecorded  # holds even after triage is recorded
+        return result
+
+    monkeypatch.setattr(pipeline, "run", fake)
+    drop = str(FIXTURES / "agency-a")
+    result = CliRunner().invoke(app, ["jev", "record-run", "--drop", drop])
+    assert calls == ["replay", "record"]
+    assert re.match(
+        r"\d+ requests to record, about \d+ input tokens, estimated cost \$0\.", result.output
+    )
+    assert "sk-test" not in result.output and "sk-test" not in str(result.exception)

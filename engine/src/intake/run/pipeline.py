@@ -96,8 +96,6 @@ def map_drop(
         result, _ = map_with_jev(table, map_table(table, mapping_dir, now), mapping_dir, now, asker)
         sources.append(MappedSource(table, result))
         records += result.exceptions
-    if not any(t.source == "crm" for t in raw.tables):  # #59: no CRM means no book to load
-        records += _missing_required("crm", SOURCE_TABLES["crm"], set())
     return sources, records
 
 
@@ -184,7 +182,9 @@ def _with_sources(records: list[ExceptionRecord], raw: IngestResult) -> list[Exc
 
 def _unique(records: list[ExceptionRecord]) -> list[ExceptionRecord]:
     """One record per id. A repeat that is the same record is dropped (a duplicated CRM row
-    makes MBI-003 report its client twice); a different record with the same id gets -2, -3."""
+    makes MBI-003 report its client twice); a different record with the same id gets -2, -3.
+    Tie-out ids (EX-TIE-n) and RTS-001 ids (one per policy row) are unique where they are made,
+    so a renamed record is never one that tie_out/ or rts_coverage.json points at."""
     seen: dict[str, ExceptionRecord] = {}
     out = []
     for r in records:
@@ -215,14 +215,20 @@ def run(options: RunOptions) -> RunResult:
     asker = Asker(client)
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = Path(tempfile.mkdtemp(prefix=f".{out.name}-", dir=out.parent))
+    tmp.chmod(0o755)  # mkdtemp makes it private; a run folder reads like any other
+    old = out.parent / f".{out.name}-replaced"
     try:
         result = _run_into(tmp, drop, out, started, options.as_of, client, asker)
-        if out.exists():
-            shutil.rmtree(out)
+        if out.exists():  # --overwrite: keep the old run until the new one is in place
+            if old.exists():
+                shutil.rmtree(old)
+            out.rename(old)
         tmp.rename(out)
     finally:
         if tmp.exists():
             shutil.rmtree(tmp)
+        if old.exists() and out.exists():
+            shutil.rmtree(old)
     return result
 
 
@@ -241,6 +247,8 @@ def _run_into(
     tie: TieOutResult | None = None
     coverage = RtsCoverage(cells=())
     enrollment = None
+    if not any(t.source == "crm" for t in raw.tables):  # #59: no book, so stop before mapping
+        records += _missing_required("crm", SOURCE_TABLES["crm"], set())
     if not _blocked(records):
         mapping_dir = tmp / "mapping"
         stored = mapping_dir_for(drop)
@@ -263,7 +271,9 @@ def _run_into(
         tie = tieout_not_run(_stop_reason(records))
         tables = {}
     records = apply_policy(_unique(_with_sources(records, raw)))
-    records = queue_order(triage(attach_rows(records, triage_frames(tables)), client))
+    if not _blocked(records):  # a blocked run makes no model call, triage included
+        records = triage(attach_rows(records, triage_frames(tables)), client)
+    records = queue_order(records)
     status = run_status(records)
     truth = drop.parent / GROUND_TRUTH
     result_score = None

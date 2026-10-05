@@ -5,7 +5,7 @@
   "as_of": "2026-10-01T09:00:00Z",
   "engine_version": "0.0.0",
   "status": "PASSED_WITH_WARNINGS",
-  "status_reason": "No blockers. 308 errors kept their rows out of the load files and 423 warnings passed with a flag.",
+  "status_reason": "No blockers. 308 errors keep their rows out of the load files and 423 warnings pass with a flag.",
   "inputs": [
     {
       "source": "crm",

@@ -8,7 +8,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import Environment, PackageLoader
 
 from agency_schema.exceptions import ExceptionRecord
 from agency_schema.outputs import (
@@ -76,7 +76,7 @@ def _load(run_dir: Path) -> dict[str, Any]:
 def render_report(run_dir: Path) -> str:
     env = Environment(
         loader=PackageLoader("intake.report", "templates"),
-        autoescape=select_autoescape(["html"]),
+        autoescape=True,  # the template is .html.j2, which select_autoescape would miss
         trim_blocks=True,
         lstrip_blocks=True,
         keep_trailing_newline=True,
