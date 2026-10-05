@@ -77,7 +77,7 @@ def test_failed_sample_stops_at_the_raw_gate() -> None:
     records = exceptions(sample)
     assert [r.rule_id for r in records if r.blocks_load] == ["CMP-001"]
     crm = next(f for f in load(sample, "manifest.json").inputs if f.source == "crm")
-    assert (crm.rows_expected, crm.rows_received) == (2600, 2574)
+    assert (crm.rows_expected, crm.rows_received) == (2680, 2574)
     for stem in TieOutLeg.file_stems():
         assert load(sample, f"tie_out/leg_{stem}.json").status == LegStatus.NOT_RUN
     for stem in ("carrier", "agent"):

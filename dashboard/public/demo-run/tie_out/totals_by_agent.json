@@ -4,28 +4,380 @@
   "not_run_reason": null,
   "rows": [
     {
-      "key": "1773019",
-      "book_expected": "12400.00",
-      "statement_paid": "12461.05",
+      "key": "(blank)",
+      "book_expected": "0.00",
+      "statement_paid": "61.05",
       "difference": "61.05",
       "unexplained_revenue": "61.05",
+      "within_tolerance": false
+    },
+    {
+      "key": "10583482",
+      "book_expected": "6469.15",
+      "statement_paid": "6390.37",
+      "difference": "-78.78",
+      "unexplained_revenue": "78.40",
+      "within_tolerance": false
+    },
+    {
+      "key": "11576383",
+      "book_expected": "5491.65",
+      "statement_paid": "5471.30",
+      "difference": "-20.35",
+      "unexplained_revenue": "0.00",
       "within_tolerance": true
+    },
+    {
+      "key": "13981052",
+      "book_expected": "5838.00",
+      "statement_paid": "5901.27",
+      "difference": "63.27",
+      "unexplained_revenue": "61.25",
+      "within_tolerance": false
+    },
+    {
+      "key": "13O81052",
+      "book_expected": "157.50",
+      "statement_paid": "0.00",
+      "difference": "-157.50",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
     },
     {
       "key": "1884412",
-      "book_expected": "7960.00",
-      "statement_paid": "7960.00",
-      "difference": "0.00",
+      "book_expected": "8641.35",
+      "statement_paid": "8951.27",
+      "difference": "309.92",
+      "unexplained_revenue": "71.50",
+      "within_tolerance": false
+    },
+    {
+      "key": "18O4412",
+      "book_expected": "91.35",
+      "statement_paid": "0.00",
+      "difference": "-91.35",
       "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "29898923",
+      "book_expected": "7319.70",
+      "statement_paid": "7199.47",
+      "difference": "-120.23",
+      "unexplained_revenue": "54.85",
+      "within_tolerance": false
+    },
+    {
+      "key": "29O98923",
+      "book_expected": "48.00",
+      "statement_paid": "0.00",
+      "difference": "-48.00",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "32244663",
+      "book_expected": "7423.20",
+      "statement_paid": "7311.69",
+      "difference": "-111.51",
+      "unexplained_revenue": "54.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "33857966",
+      "book_expected": "9126.65",
+      "statement_paid": "8997.02",
+      "difference": "-129.63",
+      "unexplained_revenue": "8.40",
+      "within_tolerance": false
+    },
+    {
+      "key": "3502049",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "35278047",
+      "book_expected": "25.20",
+      "statement_paid": "0.00",
+      "difference": "-25.20",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "37231783",
+      "book_expected": "5537.85",
+      "statement_paid": "6029.47",
+      "difference": "491.62",
+      "unexplained_revenue": "116.75",
+      "within_tolerance": false
+    },
+    {
+      "key": "3798272",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "37O31783",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "39032271",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "43339391",
+      "book_expected": "7372.85",
+      "statement_paid": "7509.96",
+      "difference": "137.11",
+      "unexplained_revenue": "66.25",
+      "within_tolerance": false
+    },
+    {
+      "key": "4356886",
+      "book_expected": "5864.00",
+      "statement_paid": "6027.05",
+      "difference": "163.05",
+      "unexplained_revenue": "123.95",
+      "within_tolerance": false
+    },
+    {
+      "key": "43O6886",
+      "book_expected": "66.00",
+      "statement_paid": "0.00",
+      "difference": "-66.00",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "44524491",
+      "book_expected": "6016.50",
+      "statement_paid": "6082.85",
+      "difference": "66.35",
+      "unexplained_revenue": "101.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "5265799",
+      "book_expected": "6643.95",
+      "statement_paid": "6662.10",
+      "difference": "18.15",
+      "unexplained_revenue": "105.25",
       "within_tolerance": true
     },
     {
-      "key": "2210457",
-      "book_expected": "7755.50",
-      "statement_paid": "7724.50",
-      "difference": "-31.00",
+      "key": "54100814",
+      "book_expected": "7408.60",
+      "statement_paid": "7586.10",
+      "difference": "177.50",
+      "unexplained_revenue": "44.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "61291817",
+      "book_expected": "8756.80",
+      "statement_paid": "8554.10",
+      "difference": "-202.70",
+      "unexplained_revenue": "41.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "61855700",
+      "book_expected": "4905.50",
+      "statement_paid": "4797.34",
+      "difference": "-108.16",
+      "unexplained_revenue": "30.40",
+      "within_tolerance": false
+    },
+    {
+      "key": "66419307",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
       "unexplained_revenue": "0.00",
-      "within_tolerance": true
+      "within_tolerance": false
+    },
+    {
+      "key": "6831819",
+      "book_expected": "6500.05",
+      "statement_paid": "7165.12",
+      "difference": "665.07",
+      "unexplained_revenue": "72.65",
+      "within_tolerance": false
+    },
+    {
+      "key": "68O1819",
+      "book_expected": "37.80",
+      "statement_paid": "0.00",
+      "difference": "-37.80",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "7150444",
+      "book_expected": "6944.70",
+      "statement_paid": "7005.72",
+      "difference": "61.02",
+      "unexplained_revenue": "34.65",
+      "within_tolerance": false
+    },
+    {
+      "key": "74197857",
+      "book_expected": "7509.70",
+      "statement_paid": "7559.64",
+      "difference": "49.94",
+      "unexplained_revenue": "79.90",
+      "within_tolerance": false
+    },
+    {
+      "key": "77125617",
+      "book_expected": "7265.30",
+      "statement_paid": "7420.37",
+      "difference": "155.07",
+      "unexplained_revenue": "68.50",
+      "within_tolerance": false
+    },
+    {
+      "key": "77803264",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "78490893",
+      "book_expected": "6563.90",
+      "statement_paid": "6629.12",
+      "difference": "65.22",
+      "unexplained_revenue": "26.20",
+      "within_tolerance": false
+    },
+    {
+      "key": "78508051",
+      "book_expected": "157.50",
+      "statement_paid": "0.00",
+      "difference": "-157.50",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "78O90893",
+      "book_expected": "66.00",
+      "statement_paid": "0.00",
+      "difference": "-66.00",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "86411466",
+      "book_expected": "157.50",
+      "statement_paid": "0.00",
+      "difference": "-157.50",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "86822412",
+      "book_expected": "0.00",
+      "statement_paid": "63.20",
+      "difference": "63.20",
+      "unexplained_revenue": "63.20",
+      "within_tolerance": false
+    },
+    {
+      "key": "90949389",
+      "book_expected": "6837.45",
+      "statement_paid": "6918.69",
+      "difference": "81.24",
+      "unexplained_revenue": "178.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "90O49389",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "92646676",
+      "book_expected": "157.50",
+      "statement_paid": "0.00",
+      "difference": "-157.50",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "94702683",
+      "book_expected": "6570.95",
+      "statement_paid": "6714.59",
+      "difference": "143.64",
+      "unexplained_revenue": "26.25",
+      "within_tolerance": false
+    },
+    {
+      "key": "94O02683",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "97102525",
+      "book_expected": "7652.45",
+      "statement_paid": "7799.41",
+      "difference": "146.96",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "97O02525",
+      "book_expected": "157.50",
+      "statement_paid": "0.00",
+      "difference": "-157.50",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "9934332",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "99366868",
+      "book_expected": "78.75",
+      "statement_paid": "0.00",
+      "difference": "-78.75",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
+    },
+    {
+      "key": "99847493",
+      "book_expected": "5376.30",
+      "statement_paid": "5346.64",
+      "difference": "-29.66",
+      "unexplained_revenue": "0.00",
+      "within_tolerance": false
     }
   ]
 }

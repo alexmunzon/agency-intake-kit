@@ -17,7 +17,7 @@ from agency_schema.exceptions import ExceptionRecord, minimize_value
 from agency_schema.outputs import JevMode
 from intake.exceptions.triage import (
     TriageItem,
-    attach_rows,
+    needs_triage,
     planned_requests,
     queue_order,
     triage,
@@ -28,10 +28,11 @@ from jev_client import CassetteMiss, JevClient, request_hash
 
 SYNTHETIC = Path(__file__).resolve().parents[1] / "cassettes" / "synthetic"
 FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "agency-a"
-# Row rules (PR 8) and cross-record checks (PR 9) on the agency-a defected copy: 354 errors
-# and warnings, 105 distinct requests. Stated in docs/jev.md; PR 12 adds the tie-out ones.
-AGENCY_A_TRIAGE_EXCEPTIONS = 354
-AGENCY_A_TRIAGE_CALLS = 105
+# A real run of fixtures/agency-a (PR 12): 705 errors and warnings from row rules, cross-record
+# checks, and the tie-out (PII-001 is the gate's own), sent as 157 distinct requests. Stated in
+# docs/jev.md.
+AGENCY_A_TRIAGE_EXCEPTIONS = 705
+AGENCY_A_TRIAGE_CALLS = 157
 
 
 def item(base: dict[str, Any], rule_id: str, field: str, row: dict[str, Any]) -> TriageItem:
@@ -178,22 +179,22 @@ def test_queue_order_is_deterministic(tmp_path: Path, exception_kwargs: dict[str
 
 
 def test_agency_a_expected_call_count(tmp_path: Path) -> None:
-    from intake.checks import run_cross_record_checks
-    from intake.checks._canonical_io import load_canonical as load_flat
-    from intake.rules import run_row_rules
-    from intake.rules._canonical_io import load_canonical
-    from intake.rules.frames import client_frame, policy_frame
-    from synth_agency_data.world import AS_OF
+    """The distinct triage requests a real run of fixtures/agency-a sends (PR 12 records these).
 
-    folder = FIXTURE / "canonical-defected"
-    tables, flat = load_canonical(folder), load_flat(folder)
-    clients = client_frame(tables["clients"], AS_OF)
-    policies = policy_frame(tables["policies"], clients, tables["agents"], AS_OF)
-    items = attach_rows(run_row_rules(clients, policies), [clients, policies])
-    items += attach_rows(run_cross_record_checks(flat).records, flat.values())
-    triaged = [i for i in items if i.record.severity in (Severity.ERROR, Severity.WARNING)]
-    assert all(i.row is not None for i in triaged)
-    sent: list[Any] = []
-    triage(items, mock_client(tmp_path, lambda _: answer(0.5), sent))
-    assert (len(triaged), len(sent)) == (AGENCY_A_TRIAGE_EXCEPTIONS, AGENCY_A_TRIAGE_CALLS)
-    assert len(planned_requests(items)) == AGENCY_A_TRIAGE_CALLS
+    Measured on the real pipeline in replay, where none is recorded yet, so each one is a miss
+    that goes to a person, and no PII text needs Jev (the regex layer catches all 26).
+    """
+    from datetime import datetime
+
+    from intake.run.pipeline import RunOptions, run
+
+    as_of = datetime.fromisoformat("2026-10-01T09:00:00+00:00")
+    result = run(RunOptions(drop=FIXTURE / "drop", out=tmp_path / "count", as_of=as_of))
+    triaged = [r for r in result.records if needs_triage(r)]
+    kinds = {tuple(sorted(req.questions)) for req in result.client.misses.values()}
+    assert kinds == {("impact", "is_entry_error")}  # triage only: no PII request
+    assert (len(triaged), len(result.client.misses)) == (
+        AGENCY_A_TRIAGE_EXCEPTIONS,
+        AGENCY_A_TRIAGE_CALLS,
+    )
+    assert all(r.lane == Lane.UNREVIEWED for r in triaged)  # no recording yet: a person decides

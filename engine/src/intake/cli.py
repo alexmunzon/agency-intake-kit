@@ -1,9 +1,10 @@
-"""Command line entry point for the intake pipeline. Commands arrive in later PRs."""
+"""Command line entry point for the intake pipeline."""
 
 import json
 import math
 import os
 import tempfile
+from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated
@@ -11,7 +12,7 @@ from typing import Annotated
 import typer
 
 from agency_schema import json_schema
-from agency_schema.outputs import JevMode
+from agency_schema.outputs import JevMode, RunStatus
 from agency_schema.typescript import render_typescript
 from intake import __version__
 from intake.config import JEV_CHARS_PER_TOKEN
@@ -86,6 +87,65 @@ def diff(
         typer.echo(f"Could not compare these runs. {error}", err=True)
         raise typer.Exit(1) from None
     typer.echo("\n".join(lines))
+
+
+def _clock(as_of: str | None) -> datetime | None:
+    if as_of is None:
+        return None
+    clock = datetime.fromisoformat(as_of)
+    if clock.tzinfo is None:
+        raise typer.BadParameter("--as-of needs a time zone, for example 2026-10-01T09:00:00Z")
+    return clock
+
+
+@app.command("run")
+def run_command(
+    drop: Annotated[Path, typer.Option("--in", help="The drop folder (holds manifest.json).")],
+    out: Annotated[Path, typer.Option("--out", help="The run folder; its name is the run id.")],
+    jev: Annotated[
+        JevMode, typer.Option(help="replay (recorded answers, the default) or off (no model).")
+    ] = JevMode.REPLAY,
+    as_of: Annotated[
+        str | None, typer.Option("--as-of", help="Freeze the clock, e.g. 2026-10-01T09:00:00Z.")
+    ] = None,
+    overwrite: Annotated[bool, typer.Option(help="Replace an existing run folder.")] = False,
+) -> None:
+    """Run the whole pipeline on one drop. Exits 1 when the run FAILED, 2 when it cannot start."""
+    from intake.run.pipeline import RunOptions, RunRefused, run
+
+    if jev not in (JevMode.REPLAY, JevMode.OFF):
+        raise typer.BadParameter(
+            "intake run uses replay or off; recording is intake jev record-run"
+        )
+    try:
+        result = run(RunOptions(drop, out, jev, _clock(as_of), overwrite))
+    except RunRefused as refused:
+        typer.echo(str(refused), err=True)
+        raise typer.Exit(2) from refused
+    by_severity = Counter(r.severity.value.lower() for r in result.records)
+    typer.echo(f"{result.status.value}: {result.run_dir}")
+    typer.echo(
+        "Exceptions: "
+        + ", ".join(f"{by_severity[s]} {s}" for s in ("blocker", "error", "warning", "info"))
+    )
+    usage = result.client.usage
+    typer.echo(
+        f"Jev {usage.mode.value}: {usage.calls} calls, estimated ${usage.estimated_cost_usd}; "
+        f"{len(result.client.misses)} questions had no recording and went to a person"
+    )
+    if result.enrollment is not None:
+        e = result.enrollment
+        typer.echo(
+            f"Enrollment birth dates vs CRM: {e.agree} of {e.compared} agree, "
+            f"{len(e.disagree)} differ, {e.unreadable} unreadable"
+        )
+    if result.score is not None:
+        typer.echo(
+            f"Detection: false positives {result.score.summary.false_positive_rate:.4%} of "
+            f"{result.score.clean_rows} clean rows"
+        )
+    if result.status == RunStatus.FAILED:
+        raise typer.Exit(1)
 
 
 bench_app = typer.Typer(help="Benchmarks on the synthetic fixtures.", no_args_is_help=True)
@@ -176,4 +236,41 @@ def record_mapping(
     typer.echo(
         f"Done. Answers {usage.calls}, input tokens {usage.input_tokens}, "
         f"estimated cost ${usage.estimated_cost_usd}"
+    )
+
+
+@jev_app.command("record-run")
+def record_run(
+    drop: Annotated[Path, typer.Option(help="A fixture folder or its drop/ folder.")],
+    as_of: Annotated[str, typer.Option("--as-of", help="The run clock.")] = "2026-10-01T09:00:00Z",
+) -> None:
+    """Record the triage and PII cassettes a real run asks for. Needs JEV_MODE=record; spends money.
+
+    First a replay run finds the questions with no recording and prints how many and the
+    estimated cost. Then a record run asks only those (recorded answers are reused).
+    """
+    from intake.run.jev import RunJevClient, estimate_cost, estimate_tokens
+    from intake.run.pipeline import RunOptions, run
+
+    if os.environ.get("JEV_MODE") != "record":
+        typer.echo("Refusing: set JEV_MODE=record, and only after Alex approves the spend.")
+        raise typer.Exit(2)
+    drop = drop / "drop" if (drop / "drop").is_dir() else drop
+    clock = _clock(as_of)
+    with tempfile.TemporaryDirectory() as tmp:
+        plan = run(RunOptions(drop, Path(tmp) / "plan", JevMode.REPLAY, clock)).client.misses
+    typer.echo(
+        f"{len(plan)} requests to record, about {estimate_tokens(plan)} input tokens, "
+        f"estimated cost ${estimate_cost(plan)}"
+    )
+    if not plan:
+        return
+    key = os.environ.get("TYPESAFE_API_KEY")  # read here, never printed
+    client = RunJevClient(mode=JevMode.RECORD, api_key=key, allow_spend=True)
+    with tempfile.TemporaryDirectory() as tmp:
+        run(RunOptions(drop, Path(tmp) / "record", JevMode.RECORD, clock, client=client))
+    usage = client.usage
+    typer.echo(
+        f"Done. Answers {usage.calls}, input tokens {usage.input_tokens}, "
+        f"estimated cost ${usage.estimated_cost_usd}, budget tripped {usage.budget_tripped}"
     )

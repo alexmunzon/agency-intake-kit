@@ -2,15 +2,16 @@
   "run_id": "sample-run-failed",
   "started_at": "2026-10-01T09:00:00Z",
   "finished_at": "2026-10-01T09:00:02Z",
+  "as_of": "2026-10-01T09:00:00Z",
   "engine_version": "0.0.0",
   "status": "FAILED",
-  "status_reason": "crm: expected 2,600 rows, received 2,574. The file looks cut off.",
+  "status_reason": "crm: expected 2,680 rows, received 2,574. The file looks cut off.",
   "inputs": [
     {
       "source": "crm",
       "file_name": "crm_export.csv",
       "sha256": "cbd6c640b21d61df3d66cf8ddbafd5479fc0a2ce92f41630c8a47b9a3c5089a3",
-      "rows_expected": 2600,
+      "rows_expected": 2680,
       "rows_received": 2574
     },
     {
@@ -49,6 +50,7 @@
     "output_tokens": 0,
     "estimated_cost_usd": "0.000000"
   },
+  "budget_tripped": false,
   "thresholds": {
     "jev_budget_usd": 0.5,
     "map_auto_confidence": 0.85,

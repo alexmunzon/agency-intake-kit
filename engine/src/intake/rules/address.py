@@ -8,7 +8,7 @@ from agency_schema.enums import Family, Severity
 from agency_schema.exceptions import ExceptionRecord
 from agency_schema.formats import ZIP_PATTERN, zip3_matches_state, zip3_table
 from agency_schema.registry import rule
-from intake.rules.frames import client_rows, hit, norm, shown
+from intake.rules.frames import client_rows, hit, norm, raw, shown
 
 
 def _zip5(value: str) -> str | None:
@@ -46,15 +46,16 @@ def zip_state(frame: pl.DataFrame) -> list[ExceptionRecord]:
 
 @rule("ADR-003", Severity.ERROR, Family.ADR, "State code invalid")
 def state_code(frame: pl.DataFrame) -> list[ExceptionRecord]:
+    """Judged on the state as written, even when the word table or Jev normalized it."""
     return [
         hit(
             "ADR-003",
             r,
             "state",
-            r["state"],
-            f'"{shown(r["state"])}" is not a state',
+            raw(r, "state"),
+            f'"{shown(raw(r, "state"))}" is not a state',
             "Correct the state",
         )
         for r in client_rows(frame)
-        if r["state"] and not _is_state(r["state"])
+        if raw(r, "state") and not _is_state(raw(r, "state") or "")
     ]

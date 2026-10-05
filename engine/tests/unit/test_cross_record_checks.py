@@ -1,6 +1,5 @@
 """PR 9: duplicates, references, RTS, and licenses, scored against ground_truth.json."""
 
-import csv
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -11,11 +10,14 @@ from agency_schema.exceptions import ExceptionRecord, minimize_value
 from agency_schema.outputs import RtsCellState, RtsCoverage
 from agency_schema.registry import catalog
 from intake.checks import CrossRecordResult, run_cross_record_checks
-from intake.checks._canonical_io import load_canonical
-from synth_agency_data.canonical_writer import load_ground_truth, write_world
+from intake.run.canonicalize import frame_from_rows
+from intake.run.pipeline import canonical_from_drop
+from synth_agency_data.canonical_writer import load_ground_truth
 from synth_agency_data.world import build_world
+from synth_agency_data.writers import write_drop
 
 FIXTURE = Path(__file__).parents[3] / "fixtures" / "agency-a"
+DROP = FIXTURE / "drop"
 RULES = {
     "DUP-001": "WARNING",
     "DUP-002": "WARNING",
@@ -30,7 +32,7 @@ Key = tuple[str, tuple[tuple[str, str], ...]]
 
 @cache
 def defected() -> tuple[dict[str, Any], CrossRecordResult]:
-    tables = load_canonical(FIXTURE / "canonical-defected")
+    tables = canonical_from_drop(DROP).tables
     return tables, run_cross_record_checks(tables)
 
 
@@ -40,8 +42,17 @@ def truth() -> list[dict[str, Any]]:
 
 
 def record_key(tables: dict[str, Any], r: ExceptionRecord, fields: list[str]) -> Key:
-    assert r.row_number is not None
-    row = tables[r.source].filter(tables[r.source]["_row"] == r.row_number).row(0, named=True)
+    assert r.lineage is not None
+    frame = tables[r.source]
+    where = (r.lineage.source_file, r.lineage.sheet, r.lineage.row_number)
+    hits = [
+        row
+        for row in frame.iter_rows(named=True)
+        if (row["lineage"]["source_file"], row["lineage"]["sheet"], row["lineage"]["row_number"])
+        == where
+    ]
+    assert len(hits) == 1, f"{where} is not exactly one row of {r.source}"
+    row = hits[0]
     return r.source, tuple((f, str(row[f])) for f in fields)
 
 
@@ -79,16 +90,24 @@ def test_dup_002_fires_only_on_labeled_clients() -> None:
 def test_unknown_agents_are_left_to_the_npn_rules() -> None:
     tables, result = defected()
     npn_rows = {
-        d["row_ref"] for d in truth() if {"NPN-001", "NPN-002"} & set(d["expected_rule_ids"])
+        (d["source_file"], d["sheet"], d["source_row"])
+        for d in truth()
+        if {"NPN-001", "NPN-002"} & set(d["expected_rule_ids"])
     }
-    hits = [r for r in result.records if r.row_number in npn_rows and r.source == "policies"]
+    hits = [
+        r
+        for r in result.records
+        if r.lineage
+        and (r.lineage.source_file, r.lineage.sheet, r.lineage.row_number) in npn_rows
+        and r.source == "policies"
+    ]
     assert not [r for r in hits if r.rule_id in ("RTS-001", "RTS-002", "LIC-001")]
 
 
 def test_example_3_rts_gap_by_exact_id() -> None:
     _, result = defected()
     by_id = {r.id: r for r in result.records}
-    gap = by_id["RTS-001:policies:426"]
+    gap = by_id["RTS-001:policies:crm_export:426"]
     assert (gap.rule_id, gap.severity, gap.field) == ("RTS-001", "ERROR", "writing_agent_npn")
     assert gap.value_minimized == minimize_value("1884412")
     assert gap.message == "The writing agent is not ready to sell Harborline in TX for 2026"
@@ -97,7 +116,7 @@ def test_example_3_rts_gap_by_exact_id() -> None:
     cells = {(c.npn, c.carrier, c.state, c.plan_year): c for c in result.coverage.cells}
     cell = cells[("1884412", "Harborline", "TX", 2026)]
     assert cell.coverage == RtsCellState.USED_WITHOUT_RTS
-    assert "RTS-001:policies:426" in cell.exception_ids
+    assert "RTS-001:policies:crm_export:426" in cell.exception_ids
 
 
 def test_coverage_cells_match_ground_truth() -> None:
@@ -109,11 +128,13 @@ def test_coverage_cells_match_ground_truth() -> None:
     for d in truth():
         if d["defect_type"] != "rts_gap":
             continue
-        p = policies.filter(policies["_row"] == d["row_ref"]).row(0, named=True)
+        p = policies.filter(policies["policy_id"] == d["record_key"]["policy_id"]).row(
+            0, named=True
+        )
         year = int(p["effective_date"][:4])  # plan year is the effective year
         cell = cells[(p["writing_agent_npn"], p["carrier"], p["state"], year)]
         assert cell.coverage == RtsCellState.USED_WITHOUT_RTS
-        assert f"RTS-001:policies:{d['row_ref']}" in cell.exception_ids
+        assert f"RTS-001:policies:crm_export:{d['source_row']}" in cell.exception_ids
     for cell in coverage.cells:
         for ex_id in cell.exception_ids:
             assert by_id[ex_id].rule_id == "RTS-001"
@@ -122,22 +143,13 @@ def test_coverage_cells_match_ground_truth() -> None:
     assert all(c.coverage == RtsCellState.HELD_UNUSED for c in idle)
 
 
-def write_tables(folder: Path, tables: dict[str, list[dict[str, str]]]) -> None:
-    folder.mkdir()
-    for name, rows in tables.items():
-        with (folder / f"{name}.csv").open("w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator="\n")
-            writer.writeheader()
-            writer.writerows(rows)
-
-
-def test_small_world_precedence_fallback_and_idle_agent(tmp_path: Path) -> None:
+def test_small_world_precedence_fallback_and_idle_agent() -> None:
     rts = dict(appointed="true", certified="true", effective_date="2026-01-01", end_date="")
     rts_row = dict(npn="111", carrier="Bluepeak", state="TX", plan_year="2026")
     policy = dict(carrier="Bluepeak", line_of_business="MA", effective_date="2026-03-01")
-    write_tables(
-        tmp_path / "w",
-        {
+    tables = {
+        name: frame_from_rows(f"{name}.csv", rows)
+        for name, rows in {
             "clients": [
                 dict(
                     client_id="C-1", first_name="Ann", last_name="Lee", dob="1950-01-02", state="TX"
@@ -168,9 +180,8 @@ def test_small_world_precedence_fallback_and_idle_agent(tmp_path: Path) -> None:
                     policy_id="P-3", client_id="C-9", state="TX", writing_agent_npn="999", **policy
                 ),
             ],
-        },
-    )
-    tables = load_canonical(tmp_path / "w")
+        }.items()
+    }
     result = run_cross_record_checks(tables)
     got = sorted((r.rule_id, r.row_number) for r in result.records)
     assert got == [
@@ -191,8 +202,8 @@ def test_small_world_precedence_fallback_and_idle_agent(tmp_path: Path) -> None:
 
 
 def test_clean_world_is_silent(tmp_path: Path) -> None:
-    write_world(build_world(seed=42, n_clients=2000), tmp_path)
-    result = run_cross_record_checks(load_canonical(tmp_path / "canonical"))
+    write_drop(build_world(seed=42, n_clients=2000), [], tmp_path / "drop", plant_pii=False)
+    result = run_cross_record_checks(canonical_from_drop(tmp_path / "drop").tables)
     assert result.records == []
     states = {c.coverage for c in result.coverage.cells}
     assert RtsCellState.USED_WITHOUT_RTS not in states

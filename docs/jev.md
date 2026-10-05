@@ -119,6 +119,22 @@ also refuses any request whose state still holds a notes field unless `pii_clear
 2. Run with `JEV_MODE=record` and `allow_spend=True` set by the caller.
 3. Commit the new cassettes and say so in the PR.
 
+**In a run (PR 12).** One client and one $0.50 budget serve the whole run. Header and enum
+questions read `engine/tests/cassettes/mapping/`; triage and PII questions read
+`engine/tests/cassettes/run/`. In replay a question with no recording is answered "not recorded":
+it goes to the human queue (lane UNREVIEWED, or MAP-002 for a header), is counted, and the run
+still completes. The CLI prints how many. To record them, after Alex approves the spend:
+
+```bash
+cd engine && JEV_MODE=record uv run intake jev record-run --drop ../fixtures/agency-a
+```
+
+It refuses unless `JEV_MODE=record` is set. It first runs the drop in replay, prints the number of
+unrecorded requests and the estimated cost, then runs again in record mode, which pays only for
+requests with no cassette. The key is read from the environment and never printed. For agency-a
+today: 157 triage requests, about 31,768 input tokens by the cautious 3 characters per token
+estimate, so about $0.0013.
+
 ## Triage and the PII gate (PR 11)
 
 **Triage** (`intake/exceptions/triage.py`) asks one request per error or warning with two
@@ -155,22 +171,20 @@ goes to the noul question, already redacted and with every digit replaced by `#`
 mode or the spend guard) the text is redacted too: the gate fails closed. Identical texts are
 asked once. The gate's returned text is what every output writes.
 
-**Expected calls for fixtures/agency-a** (asserted in `tests/unit/test_triage.py`):
+**Expected calls for fixtures/agency-a** (a real `intake run` in replay, asserted in
+`tests/unit/test_triage.py`):
 
 | Part | Exceptions | Calls |
 |---|---|---|
-| Triage, row rules (PR 8) | 239 errors and warnings | 68 |
-| Triage, cross-record checks (PR 9) | 115 errors and warnings | 37 |
+| Header and enum mapping (PR 7, recorded) | 8 questions asked | 7 |
+| Triage: row rules, cross-record checks, tie-out (PR 8, 9, 10) | 705 errors and warnings | 157 |
 | PII gate (26 planted notes, all caught by the regex layer) | 26 | 0 |
-| **Total today** | **380** | **105** |
+| **Total** | | **164** |
 
-Measured on the PR 3a defected canonical copy. The savings come from grouping: 56 missing MBIs
-(MBI-003) on Medicare policies share one shape and neighbor set, so they cost 1 call; 52 unknown
-statuses (STA-001) cost 11; 26 exact duplicate rows (DUP-001) cost 4. Without deduplication the
-same run would make 354 calls. Tie-out exceptions (PR 10) add at most 305 more, one per planted
-TIE defect in ground_truth.json, and far fewer after grouping. PR 12 runs the real pipeline on
-the source files, which may shape values differently, so it replaces this number with the exact
-count it asserts and records.
+Measured on the real drop path in PR 12 (readers, mapping, canonical tables), not the old
+canonical copy. The savings come from grouping: requests with the same rule, field, value shape,
+and neighbors are sent once, so 54 missing MBIs (MBI-003) cost one call. Without deduplication
+the run would send 705 triage requests.
 
 **Test cassettes.** `engine/tests/cassettes/synthetic/` holds hand-made answers for the triage and
 PII shapes (model `synthetic-hand-made`). They are not recordings. They sit in a subfolder so the

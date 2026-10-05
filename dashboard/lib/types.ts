@@ -154,11 +154,13 @@ export interface Manifest {
   run_id: string;
   started_at: string;
   finished_at: string;
+  as_of: string | null;
   engine_version: string;
   status: RunStatus;
   status_reason: string | null;
   inputs: InputFile[];
   jev: JevUsage;
+  budget_tripped: boolean;
   thresholds: Record<string, number>;
 }
 

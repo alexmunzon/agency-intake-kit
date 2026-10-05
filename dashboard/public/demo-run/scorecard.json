@@ -1,90 +1,242 @@
 {
-  "run_id": "sample-run",
+  "run_id": "demo",
   "status": "PASSED_WITH_WARNINGS",
-  "rows_in": 7765,
-  "rows_mapped": 7765,
-  "rows_clean": 7761,
+  "rows_in": 14879,
+  "rows_mapped": 13032,
+  "rows_clean": 12836,
   "exceptions_by_severity": {
     "blocker": 0,
-    "error": 4,
-    "warning": 6,
-    "info": 3
+    "error": 308,
+    "warning": 423,
+    "info": 13
   },
   "exceptions_by_rule": {
+    "ADR-002": 20,
+    "DAT-002": 13,
+    "DAT-003": 26,
+    "DUP-001": 26,
+    "DUP-002": 20,
+    "DUP-003": 8,
     "ING-001": 1,
-    "MAP-002": 1,
-    "DOB-002": 1,
-    "CON-001": 1,
-    "RTS-001": 1,
-    "TIE-002": 1,
-    "TIE-001": 1,
-    "TIE-004": 1,
-    "TIE-003": 1,
-    "TIE-006": 1,
-    "DUP-002": 1,
-    "NPN-002": 1,
-    "DAT-004": 1
+    "ING-002": 6,
+    "ING-003": 6,
+    "LIC-001": 13,
+    "MBI-001": 20,
+    "MBI-003": 54,
+    "NPN-001": 13,
+    "NPN-002": 13,
+    "PII-001": 26,
+    "PLN-001": 20,
+    "PLN-002": 3,
+    "PLN-004": 3,
+    "REF-001": 13,
+    "RTS-001": 27,
+    "RTS-002": 8,
+    "STA-001": 52,
+    "TIE-001": 131,
+    "TIE-002": 68,
+    "TIE-003": 66,
+    "TIE-004": 40,
+    "TIE-005": 48
   },
   "tie_out": [
     {
       "leg": "BOOK_VS_STATEMENT",
       "status": "RAN",
       "not_run_reason": null,
-      "matched": 2412,
-      "unmatched": 1,
-      "weak_matched": 1,
-      "variance_count": 1,
-      "variance_dollars": "24.50"
+      "matched": 6400,
+      "unmatched": 131,
+      "weak_matched": 0,
+      "variance_count": 131,
+      "variance_dollars": "3518.15"
     },
     {
       "leg": "STATEMENT_VS_BOOK",
       "status": "RAN",
       "not_run_reason": null,
-      "matched": 2412,
-      "unmatched": 1,
-      "weak_matched": 1,
-      "variance_count": 1,
-      "variance_dollars": "61.05"
+      "matched": 6520,
+      "unmatched": 68,
+      "weak_matched": 0,
+      "variance_count": 68,
+      "variance_dollars": "1567.40"
     },
     {
       "leg": "CRM_VS_STATEMENT",
       "status": "RAN",
       "not_run_reason": null,
-      "matched": 2398,
-      "unmatched": 1,
+      "matched": 2177,
+      "unmatched": 40,
       "weak_matched": 0,
-      "variance_count": 1,
+      "variance_count": 40,
       "variance_dollars": "0.00"
     }
   ],
-  "rts_gaps": 1,
+  "rts_gaps": 26,
   "detection": {
     "classes": [
       {
-        "defect_class": "dob_century",
+        "defect_class": "commission_off_schedule",
         "scored": true,
-        "planted": 1,
-        "detected": 1
+        "planted": 66,
+        "detected": 66
       },
       {
-        "defect_class": "duplicate_person",
+        "defect_class": "crm_status_conflict",
+        "scored": true,
+        "planted": 40,
+        "detected": 40
+      },
+      {
+        "defect_class": "dob_month_day_swap",
         "scored": false,
-        "planted": 2,
-        "detected": 1
+        "planted": 10,
+        "detected": 0
       },
       {
-        "defect_class": "orphan_payment",
+        "defect_class": "dob_transposition",
+        "scored": false,
+        "planted": 20,
+        "detected": 0
+      },
+      {
+        "defect_class": "duplicate_policy_id",
         "scored": true,
-        "planted": 1,
-        "detected": 1
+        "planted": 8,
+        "detected": 8
+      },
+      {
+        "defect_class": "exact_duplicate_row",
+        "scored": true,
+        "planted": 26,
+        "detected": 26
+      },
+      {
+        "defect_class": "invalid_mbi",
+        "scored": true,
+        "planted": 20,
+        "detected": 20
+      },
+      {
+        "defect_class": "license_gap",
+        "scored": true,
+        "planted": 13,
+        "detected": 13
+      },
+      {
+        "defect_class": "messy_status",
+        "scored": true,
+        "planted": 52,
+        "detected": 52
+      },
+      {
+        "defect_class": "missing_commission_line",
+        "scored": true,
+        "planted": 131,
+        "detected": 131
+      },
+      {
+        "defect_class": "missing_mbi",
+        "scored": true,
+        "planted": 40,
+        "detected": 40
+      },
+      {
+        "defect_class": "name_dob_collision",
+        "scored": true,
+        "planted": 20,
+        "detected": 20
+      },
+      {
+        "defect_class": "name_typo",
+        "scored": false,
+        "planted": 40,
+        "detected": 0
+      },
+      {
+        "defect_class": "near_duplicate_client",
+        "scored": false,
+        "planted": 30,
+        "detected": 0
+      },
+      {
+        "defect_class": "nickname",
+        "scored": false,
+        "planted": 60,
+        "detected": 0
+      },
+      {
+        "defect_class": "npn_malformed",
+        "scored": true,
+        "planted": 13,
+        "detected": 13
+      },
+      {
+        "defect_class": "orphan_commission_line",
+        "scored": true,
+        "planted": 68,
+        "detected": 68
+      },
+      {
+        "defect_class": "orphan_policy",
+        "scored": true,
+        "planted": 13,
+        "detected": 13
+      },
+      {
+        "defect_class": "pii_in_notes",
+        "scored": true,
+        "planted": 26,
+        "detected": 26
+      },
+      {
+        "defect_class": "plan_id_malformed",
+        "scored": true,
+        "planted": 26,
+        "detected": 26
+      },
+      {
+        "defect_class": "rts_expired",
+        "scored": true,
+        "planted": 8,
+        "detected": 8
       },
       {
         "defect_class": "rts_gap",
         "scored": true,
-        "planted": 1,
-        "detected": 1
+        "planted": 27,
+        "detected": 27
+      },
+      {
+        "defect_class": "statement_total_variance",
+        "scored": true,
+        "planted": 48,
+        "detected": 48
+      },
+      {
+        "defect_class": "status_date_conflict",
+        "scored": true,
+        "planted": 26,
+        "detected": 26
+      },
+      {
+        "defect_class": "term_before_effective",
+        "scored": true,
+        "planted": 13,
+        "detected": 13
+      },
+      {
+        "defect_class": "unknown_writing_agent",
+        "scored": true,
+        "planted": 13,
+        "detected": 13
+      },
+      {
+        "defect_class": "zip_state_mismatch",
+        "scored": true,
+        "planted": 20,
+        "detected": 20
       }
     ],
-    "false_positive_rate": 0.001
+    "false_positive_rate": 0.0
   }
 }

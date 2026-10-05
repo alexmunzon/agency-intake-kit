@@ -82,10 +82,10 @@ describe("Exceptions page", () => {
 });
 
 describe("Sources page", () => {
-  it("shows expected 2,600 versus received 2,574 on the failed sample", async () => {
+  it("shows expected 2,680 versus received 2,574 on the failed sample", async () => {
     render(<Sources run={await load("sample-run-failed")} />);
     const crm = within(screen.getByRole("region", { name: "crm_export.csv" }));
-    expect(crm.getByText("2,600")).toBeInTheDocument();
+    expect(crm.getByText("2,680")).toBeInTheDocument();
     expect(crm.getByText("2,574")).toBeInTheDocument();
     expect(crm.getByText("Blocked the run")).toBeInTheDocument();
     expect(screen.getByText("4 of 5 files read. Mapping not checked, because the run stopped first.")).toBeInTheDocument();

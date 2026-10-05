@@ -55,6 +55,11 @@ def policy_rows(frame: pl.DataFrame) -> Iterator[Row]:
         yield from frame.iter_rows(named=True)
 
 
+def raw(row: Row, field: str) -> str | None:
+    """The value as the source wrote it: `<field>_raw` when canonicalizing normalized it (#58)."""
+    return row.get(f"{field}_raw", row.get(field))
+
+
 def norm(value: str | None) -> str:
     """Trimmed and uppercased, so " ma " compares equal to MA. Blank stays blank."""
     return (value or "").strip().upper()

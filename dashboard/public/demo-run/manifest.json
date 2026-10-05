@@ -1,58 +1,89 @@
 {
-  "run_id": "sample-run",
+  "run_id": "demo",
   "started_at": "2026-10-01T09:00:00Z",
-  "finished_at": "2026-10-01T09:00:47Z",
+  "finished_at": "2026-10-01T09:00:00Z",
+  "as_of": "2026-10-01T09:00:00Z",
   "engine_version": "0.0.0",
   "status": "PASSED_WITH_WARNINGS",
-  "status_reason": "No blockers. 4 errors kept their rows out of the load files.",
+  "status_reason": "No blockers. 308 errors kept their rows out of the load files and 423 warnings passed with a flag.",
   "inputs": [
     {
       "source": "crm",
       "file_name": "crm_export.csv",
-      "sha256": "cbd6c640b21d61df3d66cf8ddbafd5479fc0a2ce92f41630c8a47b9a3c5089a3",
-      "rows_expected": 2600,
-      "rows_received": 2600
+      "sha256": "8d37a575f3a007dd788bcbd9e43c02dd1931079759e4472e26a5721e6fc33a6f",
+      "rows_expected": 2680,
+      "rows_received": 2680
     },
     {
       "source": "enrollment",
       "file_name": "enrollment_export.csv",
-      "sha256": "e3c305aa9f353d283eae3fe0630457df9a5965e0f82bfea1322ded0f388c22b0",
-      "rows_expected": 2600,
-      "rows_received": 2600
+      "sha256": "de4ae408410b4acbcb5ce32fe399ca4543cff9e00ab75b30c0ac322b4d88c2f7",
+      "rows_expected": 1847,
+      "rows_received": 1847
+    },
+    {
+      "source": "statement_northwind_health",
+      "file_name": "commissions_northwind_health.xlsx",
+      "sha256": "3e7aaaa7412beade57ea11bb7bf0a6324c8de91a2db62a65bde5ec8a7a6e772b",
+      "rows_expected": 1119,
+      "rows_received": 1119
+    },
+    {
+      "source": "statement_bluepeak",
+      "file_name": "commissions_bluepeak.xlsx",
+      "sha256": "966918f4067320ec11266995220ab738a36fa75d5adb97983bdf389ab9583598",
+      "rows_expected": 1069,
+      "rows_received": 1069
     },
     {
       "source": "statement_harborline",
-      "file_name": "harborline_statements.xlsx",
-      "sha256": "d12286bd7b1f3532e1a71f23bfd971b11660cc5167d23bb87d42f895c7d80b6a",
-      "rows_expected": 1490,
-      "rows_received": 1490
+      "file_name": "commissions_harborline.xlsx",
+      "sha256": "85c4f20353e7c899079b791239d34e4975404db321230077ed57f5f679cf7ed6",
+      "rows_expected": 1154,
+      "rows_received": 1154
     },
     {
-      "source": "statement_crestview",
-      "file_name": "crestview_mutual_statements.xlsx",
-      "sha256": "3e1c31b200e9d30c6de53672dcbae8ff68b6c775b5160348198f116cc4d17513",
-      "rows_expected": 935,
-      "rows_received": 935
+      "source": "statement_cardinal_mutual",
+      "file_name": "commissions_cardinal_mutual.xlsx",
+      "sha256": "ab421bdd88a24545684cfba0e975578dd3c849dc390d854aeb438fd786ff9192",
+      "rows_expected": 1020,
+      "rows_received": 1020
+    },
+    {
+      "source": "statement_summit_health_plans",
+      "file_name": "commissions_summit_health_plans.xlsx",
+      "sha256": "3d187ca7227e65f0c3eea95abb8e2616d3d91b1b2e40c891b2f4881a0272339a",
+      "rows_expected": 1058,
+      "rows_received": 1058
+    },
+    {
+      "source": "statement_meridian_care",
+      "file_name": "commissions_meridian_care.xlsx",
+      "sha256": "996cc777124aa30bb68e397571dc165b279781bdbba530cad32fecedf9c0c885",
+      "rows_expected": 1168,
+      "rows_received": 1168
     },
     {
       "source": "roster",
       "file_name": "agent_roster.xlsx",
-      "sha256": "7d678afca9bc244fd0be4665535a78558e0f684ee906a7e4ae702ea9c840faa8",
-      "rows_expected": 140,
-      "rows_received": 140
+      "sha256": "0cc95e9c0f1723857e97b9a5f2e9ef4560728775e925f8191414b43bef87dc5c",
+      "rows_expected": 3764,
+      "rows_received": 3764
     }
   ],
   "jev": {
     "mode": "replay",
-    "calls": 38,
-    "input_tokens": 21450,
-    "output_tokens": 152,
-    "estimated_cost_usd": "0.000901"
+    "calls": 7,
+    "input_tokens": 3239,
+    "output_tokens": 740,
+    "estimated_cost_usd": "0.000136"
   },
+  "budget_tripped": false,
   "thresholds": {
     "jev_budget_usd": 0.5,
     "map_auto_confidence": 0.85,
     "map_review_confidence": 0.6,
+    "enum_auto_confidence": 0.85,
     "pii_redact_probability": 0.5,
     "tie_line_tolerance_pct": 0.01,
     "tie_line_tolerance_usd": 1.0,

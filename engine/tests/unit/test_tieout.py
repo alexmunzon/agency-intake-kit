@@ -10,10 +10,12 @@ import pytest
 from agency_schema.exceptions import ExceptionRecord
 from agency_schema.outputs import LegStatus, Scorecard, TieOutLeg
 from agency_schema.run_dir import check_run_dir
+from intake.run.canonicalize import frame_from_rows
+from intake.run.pipeline import canonical_from_drop
 from intake.tieout import TieOutResult, run_tieout, write_tieout
-from intake.tieout._canonical_io import frame_from_rows, read_canonical
-from synth_agency_data.canonical_writer import load_ground_truth, write_world
+from synth_agency_data.canonical_writer import load_ground_truth
 from synth_agency_data.world import build_world
+from synth_agency_data.writers import write_drop
 
 FIXTURES = Path(__file__).parents[3] / "fixtures"
 AGENCY_A = FIXTURES / "agency-a"
@@ -22,14 +24,14 @@ LEG_RULE = {"TIE-001": "A", "TIE-002": "B", "TIE-003": None, "TIE-004": "C"}
 
 @pytest.fixture(scope="module")
 def defected() -> TieOutResult:
-    return run_tieout(read_canonical(AGENCY_A / "canonical-defected"), run_id="test-run")
+    return run_tieout(canonical_from_drop(AGENCY_A / "drop").tables, run_id="test-run")
 
 
 @pytest.fixture(scope="module")
 def clean(tmp_path_factory: pytest.TempPathFactory) -> TieOutResult:
     out = tmp_path_factory.mktemp("clean")
-    write_world(build_world(seed=42, n_clients=2000), out)
-    return run_tieout(read_canonical(out / "canonical"), run_id="test-run")
+    write_drop(build_world(seed=42, n_clients=2000), [], out / "drop", plant_pii=False)
+    return run_tieout(canonical_from_drop(out / "drop").tables, run_id="test-run")
 
 
 def _key(rule_id: str, v: Any) -> tuple[Any, ...]:
@@ -79,7 +81,12 @@ def test_example_4_orphan_payment_lands_in_leg_b(defected: TieOutResult) -> None
         None,
     )
     record = next(r for r in defected.exceptions if r.id == v.exception_id)
-    assert (record.rule_id, record.severity, record.row_number) == ("TIE-002", "ERROR", 5274)
+    assert (record.rule_id, record.severity, record.row_number) == ("TIE-002", "ERROR", 970)
+    assert record.lineage is not None
+    assert (record.lineage.source_file, record.lineage.sheet) == (
+        "commissions_harborline.xlsx",
+        "Statement",
+    )
     assert "HL-998213" not in record.message and record.value_minimized == "HL-******"
     harborline = next(r for r in defected.totals_by_carrier.rows if r.key == "Harborline")
     assert harborline.unexplained_revenue >= Decimal("61.05")
@@ -175,10 +182,15 @@ def _line(no: int, member: str | None, ref: str | None, amount: str) -> list[str
 
 def _tiny(lines: list[list[str | None]], policies: list[list[str | None]]) -> TieOutResult:
     tables = {
-        "policies": frame_from_rows(POLICY_COLS, policies, "policies.csv"),
-        "commission_lines": frame_from_rows(LINE_COLS, lines, "commission_lines.csv"),
+        "policies": frame_from_rows(
+            "policies.csv", [dict(zip(POLICY_COLS, row, strict=True)) for row in policies]
+        ),
+        "commission_lines": frame_from_rows(
+            "commission_lines.csv", [dict(zip(LINE_COLS, row, strict=True)) for row in lines]
+        ),
         "clients": frame_from_rows(
-            CLIENT_COLS, [["C-00001", "Ann", "Lee", "1950-01-02"]], "clients.csv"
+            "clients.csv",
+            [dict(zip(CLIENT_COLS, ["C-00001", "Ann", "Lee", "1950-01-02"], strict=True))],
         ),
     }
     return run_tieout(tables, run_id="test-run", rates=RATES)
@@ -228,22 +240,20 @@ def test_status_conflict_and_unpaid_policy() -> None:
     assert rules == [("TIE-001", "P-2"), ("TIE-004", "P-1")]  # totals still tie
 
 
+@pytest.mark.parametrize("absent", [False, True], ids=["none", "absent"])
 @pytest.mark.parametrize("missing", ["commission_lines", "policies"])
-def test_a_missing_source_means_not_run_never_zero(missing: str) -> None:
-    tables = dict(read_canonical(AGENCY_A / "canonical-defected"))
-    tables[missing] = None
+def test_a_missing_source_means_not_run_never_zero(missing: str, absent: bool) -> None:
+    tables: dict[str, Any] = dict(canonical_from_drop(AGENCY_A / "drop").tables)
+    if absent:
+        del tables[missing]
+    else:
+        tables[missing] = None
     result = run_tieout(tables, run_id="test-run")
     for leg in result.legs:
         assert leg.status == LegStatus.NOT_RUN and leg.not_run_reason
         assert (leg.matched, leg.variance_count, leg.variance_dollars) == (None, None, None)
     assert result.totals_by_carrier.status == LegStatus.NOT_RUN
     assert result.exceptions == () and result.variances.variances == ()
-
-
-def test_read_canonical_reports_a_missing_file_as_none(tmp_path: Path) -> None:
-    shutil.copy(AGENCY_A / "canonical-defected" / "policies.csv", tmp_path)
-    tables = read_canonical(tmp_path)
-    assert tables["commission_lines"] is None and tables["policies"] is not None
 
 
 def test_written_files_pass_check_run_dir(defected: TieOutResult, tmp_path: Path) -> None:
