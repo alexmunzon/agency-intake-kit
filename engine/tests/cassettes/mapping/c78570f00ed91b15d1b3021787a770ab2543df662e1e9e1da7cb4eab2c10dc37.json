@@ -23,18 +23,21 @@
     "answers": {
       "value": {
         "choice": "unknown",
-        "confidence": 0.95,
+        "confidence": 1.0,
         "probabilities": {
-          "TERMINATED": 0.05,
-          "unknown": 0.95
+          "ACTIVE": 0.0,
+          "CANCELLED": 0.0,
+          "PENDING": 0.0,
+          "TERMINATED": 0.0,
+          "unknown": 1.0
         },
         "type": "choice"
       }
     },
-    "model": "handmade-placeholder",
+    "model": "jev-1.13.0",
     "usage": {
-      "input_tokens": 136,
-      "output_tokens": 1
+      "input_tokens": 397,
+      "output_tokens": 59
     }
   }
 }

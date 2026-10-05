@@ -310,3 +310,7 @@ One entry per PR.
 - #47: A chargeback (CHARGEBACK type or a negative amount) on a policy that is CANCELLED, TERMINATED, or ended by the period raises no TIE-003 or TIE-004, and the book side of the totals expects it. On an active policy it still raises TIE-003. Chargebacks never count as the carrier paying in leg C. OVERRIDE lines are checked only against an OVERRIDE rate.
 - #48: A carrier and period the book expected money for, with no statement, is a TIE-005 (error) "No <carrier> statement was received for <period>" carrying the expected dollars, and the carrier stays in the totals (paid 0). CMP-002's suggested fix for a missing statement now says what the tie-out does.
 - #49: Tie-out and cross-record exceptions carry the row's own lineage from the reader (file, sheet, row, hash, run, mapping version), not `sheet: null` and `"canonical"`. Both stages accept reader frames with the `lineage` struct column.
+
+## Real Jev mapping cassettes recorded (2026-10-05)
+
+- The seven hand-made mapping cassettes are replaced by real TypeSafe answers recorded with `intake jev record-mapping` on fixtures/agency-a: 7 requests, 3,239 input tokens, estimated cost $0.000136, approved by Alex. No key or header is stored. The recording test now seeds hand-made placeholders explicitly.

@@ -33,18 +33,28 @@
     "answers": {
       "field": {
         "choice": "commission_lines.paid_date",
-        "confidence": 0.91,
+        "confidence": 0.94,
         "probabilities": {
-          "commission_lines.amount": 0.09,
-          "commission_lines.paid_date": 0.91
+          "commission_lines.agent_npn": 0.0,
+          "commission_lines.amount": 0.02,
+          "commission_lines.carrier": 0.0,
+          "commission_lines.carrier_member_id": 0.0,
+          "commission_lines.commission_type": 0.0,
+          "commission_lines.line_no": 0.0,
+          "commission_lines.member_dob": 0.01,
+          "commission_lines.member_name": 0.0,
+          "commission_lines.paid_date": 0.95,
+          "commission_lines.policy_ref": 0.0,
+          "commission_lines.statement_period": 0.0,
+          "none": 0.02
         },
         "type": "choice"
       }
     },
-    "model": "handmade-placeholder",
+    "model": "jev-1.13.0",
     "usage": {
-      "input_tokens": 313,
-      "output_tokens": 1
+      "input_tokens": 524,
+      "output_tokens": 146
     }
   }
 }
