@@ -62,6 +62,48 @@ SSN_ID_HEADER_WORDS: Final[frozenset[str]] = frozenset(
 )
 
 # PR 5: synonym mapping (required canonical fields per table, MAP-003)
+# A required field must come from some mapped column, or MAP-003 blocks the run. These are
+# the fields docs/schema.md says may not be empty, minus the ones no column supplies:
+# lineage (added by readers), households (built from clients), and commission_lines.carrier
+# (taken from the statement's file name).
+REQUIRED_FIELDS: Final[dict[str, tuple[str, ...]]] = {
+    "clients": (
+        "client_id",
+        "first_name",
+        "last_name",
+        "dob",
+        "address_line1",
+        "city",
+        "state",
+        "zip",
+    ),
+    "policies": (
+        "policy_id",
+        "client_id",
+        "carrier",
+        "plan_id",
+        "line_of_business",
+        "effective_date",
+        "status",
+        "writing_agent_npn",
+    ),
+    "agents": ("npn", "first_name", "last_name", "license_states", "status"),
+    "rts": (
+        "npn",
+        "carrier",
+        "state",
+        "plan_year",
+        "line_of_business",
+        "appointed",
+        "certified",
+        "effective_date",
+    ),
+    "commission_lines": ("statement_period", "line_no", "amount", "commission_type"),
+}
+# The CRM has one row per policy, so its client id column fills policies.client_id too.
+CARRIED_FIELDS: Final[dict[str, str]] = {"policies.client_id": "clients.client_id"}
+MAP_CANDIDATE_MIN_SCORE: Final[float] = 0.5  # how close a header must be to be offered
+MAP_CANDIDATE_LIMIT: Final[int] = 3  # candidates listed in a MAP-001 suggested fix
 
 # PR 6: Jev client (retry and backoff, the $0.50 per-run budget)
 # Endpoint, model, and price checked on docs.typesafe.ai on 2026-10-04 (see docs/jev.md).
