@@ -2,7 +2,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { NO_FILTERS, choices, filterExceptions, orderExceptions } from "@/lib/exceptions";
-import { loadRunDir } from "@/lib/run-loader";
+import { loadRunDir } from "@/lib/run-dir";
 import { summarizeSources } from "@/lib/sources";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");

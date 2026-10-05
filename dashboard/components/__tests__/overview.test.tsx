@@ -3,8 +3,8 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { Overview } from "@/components/overview";
-import { loadRunDir, type Run } from "@/lib/run-loader";
-import { loadTieOut } from "@/lib/tie-out";
+import { loadRunDir, loadTieOut } from "@/lib/run-dir";
+import type { Run } from "@/lib/run-loader";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
 
@@ -71,5 +71,12 @@ describe("Overview", () => {
     expect(tile("Warnings").getByText("Found before the run stopped. Row checks did not run.")).toBeInTheDocument();
     expect(tile("Errors").getByText("Not checked")).toBeInTheDocument();
     expect(tile("Info").getByText("Found before the run stopped. Row checks did not run.")).toBeInTheDocument();
+  });
+
+  it("says 2 of 3 checks ran for a partial tie-out (#18)", async () => {
+    await show("sample-run-partial");
+    expect(tile("Tie-out differences").getByText("$85.55")).toBeInTheDocument();
+    expect(tile("Tie-out differences").getByText("2 items, 2 of 3 checks ran, plus 1 commission off the rate table or totals ($6.50)")).toBeInTheDocument();
+    expect(tile("Warnings").getByText("5")).toBeInTheDocument();
   });
 });
