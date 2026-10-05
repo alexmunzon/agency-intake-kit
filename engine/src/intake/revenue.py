@@ -7,9 +7,10 @@ import json
 from datetime import datetime
 from decimal import Decimal, InvalidOperation, localcontext
 from types import MappingProxyType
-from typing import Annotated, Literal, Self
+from typing import Annotated, Any, Literal, Self
 
 from pydantic import BeforeValidator, Field, field_serializer, model_validator
+from pydantic.config import ExtraValues
 
 from agency_schema.lineage import Lineage, NonEmpty, Sha256, StrictModel
 from agency_schema.models import Money
@@ -58,6 +59,51 @@ def _safe_label(value: object) -> object:
 Label = Annotated[str, BeforeValidator(_safe_label)]
 
 
+def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    values: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in values:
+            raise ValueError("duplicate JSON object key")
+        values[key] = value
+    return values
+
+
+class FinanceInput(StrictModel):
+    """Refuse duplicate keys before Pydantic can silently discard conflicting evidence."""
+
+    @classmethod
+    def model_validate_json(
+        cls,
+        json_data: str | bytes | bytearray,
+        *,
+        strict: bool | None = None,
+        extra: ExtraValues | None = None,
+        context: Any | None = None,
+        by_alias: bool | None = None,
+        by_name: bool | None = None,
+    ) -> Self:
+        json.loads(json_data, object_pairs_hook=_unique_json_object)
+        return super().model_validate_json(
+            json_data,
+            strict=strict,
+            extra=extra,
+            context=context,
+            by_alias=by_alias,
+            by_name=by_name,
+        )
+
+
+def _approval_time(value: object) -> object:
+    if value is not None and not isinstance(value, (datetime, str)):
+        raise ValueError("approval timestamp must be an ISO datetime string or datetime")
+    if isinstance(value, str):
+        try:
+            datetime.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError("approval timestamp must be an ISO datetime string") from exc
+    return value
+
+
 class RevenueInputRow(StrictModel):
     row_id: NonEmpty
     amount: ExactMoney
@@ -73,7 +119,7 @@ class RevenueInputRow(StrictModel):
         return self
 
 
-class StatementPackage(StrictModel):
+class StatementPackage(FinanceInput):
     agency_id: NonEmpty
     carrier: NonEmpty
     period: Annotated[str, Field(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")]
@@ -93,12 +139,12 @@ class StatementPackage(StrictModel):
         return self
 
 
-class RevenueMapping(StrictModel):
+class RevenueMapping(FinanceInput):
     mapping_id: NonEmpty
     carrier: NonEmpty
     version: NonEmpty
     approved_by: NonEmpty | None = None
-    approved_at: datetime | None = None
+    approved_at: Annotated[datetime | None, BeforeValidator(_approval_time)] = None
     categories: dict[Annotated[Label, Field(min_length=1)], Category]
     transaction_kinds: dict[Annotated[Label, Field(min_length=1)], Kind]
     accounts: dict[Category, NonEmpty] = Field(default_factory=dict)
