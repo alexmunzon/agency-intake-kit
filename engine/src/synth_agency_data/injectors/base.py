@@ -15,6 +15,8 @@ from typing import Any
 from synth_agency_data.world import Row, World
 
 Defect = dict[str, Any]
+# Defects about a total, not one record: no canonical row and no source row.
+AGGREGATE_DEFECTS = frozenset({"statement_total_variance"})
 Injector = Callable[[World, random.Random, float], tuple[World, list[Defect]]]
 
 

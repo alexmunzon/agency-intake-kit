@@ -214,6 +214,10 @@ def test_normalize_name(raw: str, expected: str) -> None:
         ("03/12/58", date(1958, 3, 12)),
         ("05/01/29", date(2029, 5, 1)),  # pivot: 00 to 29 are 2000s
         ("05/01/30", date(1930, 5, 1)),
+        ("20260501", date(2026, 5, 1)),  # compact yyyymmdd, as the enrollment export writes it
+        ("19000101", date(1900, 1, 1)),
+        ("20991231", date(2099, 12, 31)),
+        (" 20240229 ", date(2024, 2, 29)),
     ],
 )
 def test_parse_date_loose(raw: str, expected: date) -> None:
@@ -221,7 +225,30 @@ def test_parse_date_loose(raw: str, expected: date) -> None:
 
 
 @pytest.mark.parametrize(
-    "raw", ["19999", "60001", "02/30/2025", "2025-13-01", "next week", "", "13/01/2025"]
+    "raw",
+    [
+        "19999",
+        "60001",
+        "02/30/2025",
+        "2025-13-01",
+        "next week",
+        "",
+        "13/01/2025",
+        "18991231",  # compact dates: year before 1900
+        "21000101",  # year after 2099
+        "20261301",  # month 13
+        "20260230",  # no 30 February
+        "20250229",  # 2025 is not a leap year
+        "01052026",  # day-first eight digits is not yyyymmdd
+        "2026051",  # seven digits: neither a serial nor yyyymmdd
+        "202605010",  # nine digits
+    ],
 )
 def test_parse_date_loose_refuses(raw: str) -> None:
     assert parse_date_loose(raw) is None
+
+
+def test_compact_dates_and_excel_serials_never_collide() -> None:
+    # Serials are five digits (20000 to 60000); compact dates are exactly eight.
+    assert parse_date_loose("45901") == date(2025, 9, 1)
+    assert parse_date_loose("00045901") is None  # zero-padded serial is not a valid yyyymmdd

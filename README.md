@@ -99,9 +99,19 @@ What has shipped is in [CHANGELOG.md](CHANGELOG.md). The full plan and contract 
 - Column mapping, by dictionary (PR 5) and by Jev (PR 7).
 - Exception policy, Jev triage, and the PII filter: PR 11, in review.
 - Running it all as one command, the HTML report, and `npm run demo`: PR 12.
-- Load your own run, run comparison, dark mode toggle: PR 16. Header mapping benchmark: PR 17.
+- Load your own run, run comparison, dark mode toggle: PR 16.
 
-No detection rates or benchmark numbers are published yet, because the pipeline that produces them is not built. They will come from the committed fixtures, not estimates.
+No detection rates are published yet, because the pipeline that produces them is not built. They will come from the committed fixtures, not estimates. The one number published now is the header mapping benchmark (PR 17), refreshed by `cd engine && uv run intake bench header-mapping`:
+
+<!-- benchmark:start -->
+Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 synthetic variants), Jev in replay. Small synthetic set; method and caveats in [docs/benchmark-header-mapping.md](docs/benchmark-header-mapping.md).
+
+| Approach | Accuracy | Coverage | Wrong mappings | Not recorded | Model calls | Est. cost per 1,000 headers |
+|---|---|---|---|---|---|---|
+| Synonyms only | 79.9% (107 of 134) | 71.6% | 0 | 0 | 0 | $0 |
+| Synonyms then Jev | not measured: no recordings yet | n/a | 0 | 38 | 0 | n/a |
+| Synonyms then Sonnet | skipped: no key | n/a | n/a | n/a | 0 | n/a |
+<!-- benchmark:end -->
 
 ## Design decisions
 

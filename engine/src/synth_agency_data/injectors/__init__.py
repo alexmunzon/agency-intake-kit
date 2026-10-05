@@ -58,4 +58,5 @@ def inject(world: World) -> tuple[World, list[Defect]]:
         world, new = fn(world, rng, rate)
         world = replace(world, locked=world.locked | {lock_key(d["record_key"]) for d in new})
         defects += new
-    return world, defects
+    # Not an injector: the totals the line injectors above pushed past tolerance (TIE-005).
+    return world, defects + m.total_variances(world)

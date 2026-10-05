@@ -17,6 +17,7 @@ dependencies = [
     "jinja2",
     "charset-normalizer",
     "python-dateutil",
+    "anthropic>=1.11.0",
 ]
 
 [project.scripts]
