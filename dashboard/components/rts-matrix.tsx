@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { SeverityIcon, type Tone } from "@/components/severity-badge";
 import { STICKY, TABLE, TABLE_WRAP } from "@/components/tie-out";
 import type { RtsMatrix } from "@/lib/agents";
@@ -14,7 +18,18 @@ export const CELL_STATES: Record<RtsCellState, { label: string; tone: Tone; mean
 
 const policies = (count: number) => `${count.toLocaleString("en-US")} ${count === 1 ? "policy" : "policies"}`;
 
+const COLUMNS_PER_PAGE = 12;
+
 export function RtsMatrixTable({ matrix }: { matrix: RtsMatrix }) {
+  // Reset navigation when the available combinations change on a run import.
+  return <PagedMatrix key={JSON.stringify(matrix.columns)} matrix={matrix} />;
+}
+
+function PagedMatrix({ matrix }: { matrix: RtsMatrix }) {
+  const [page, setPage] = useState(0);
+  const start = page * COLUMNS_PER_PAGE;
+  const columns = matrix.columns.slice(start, start + COLUMNS_PER_PAGE);
+  const hasNext = start + columns.length < matrix.columns.length;
   return (
     <div className="space-y-2">
       <ul aria-label="What the cells mean" className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
@@ -25,6 +40,17 @@ export function RtsMatrixTable({ matrix }: { matrix: RtsMatrix }) {
           </li>
         ))}
       </ul>
+      {matrix.columns.length > COLUMNS_PER_PAGE && (
+        <nav aria-label="RTS matrix columns" className="flex flex-wrap items-center gap-2 text-sm">
+          <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((current) => current - 1)}>
+            Previous columns
+          </Button>
+          <span role="status">{`Columns ${start + 1} to ${start + columns.length} of ${matrix.columns.length}`}</span>
+          <Button variant="outline" size="sm" disabled={!hasNext} onClick={() => setPage((current) => current + 1)}>
+            Next columns
+          </Button>
+        </nav>
+      )}
       <div className={TABLE_WRAP}>
         <table className={TABLE}>
           <caption className="p-3 text-left text-sm font-medium whitespace-normal">
@@ -34,12 +60,12 @@ export function RtsMatrixTable({ matrix }: { matrix: RtsMatrix }) {
                 {`Gaps: ${plural(matrix.gapCells, "agent, carrier, state and year combination")}.`}
               </span>
             )}
-            <span className="block text-xs font-normal text-slate-600 sm:hidden dark:text-slate-400">Scroll sideways to see every column.</span>
+            <span className="block text-xs font-normal text-slate-600 sm:hidden dark:text-slate-400">Scroll sideways to see the columns on this page.</span>
           </caption>
           <thead>
             <tr>
               <th className={STICKY}>Agent (NPN)</th>
-              {matrix.columns.map((column) => (
+              {columns.map((column) => (
                 <th key={column.label}>{column.label}</th>
               ))}
             </tr>
@@ -48,7 +74,7 @@ export function RtsMatrixTable({ matrix }: { matrix: RtsMatrix }) {
             {matrix.agents.map((agent) => (
               <tr key={agent.npn}>
                 <th scope="row" className={cn(STICKY, "font-mono")}>{agent.npn}</th>
-                {matrix.columns.map((column) => {
+                {columns.map((column) => {
                   const cell = agent.cells.get(column.label);
                   const where = `${agent.npn}, ${column.label}`;
                   if (!cell) {

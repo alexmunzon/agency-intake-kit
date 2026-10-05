@@ -2,6 +2,10 @@
 
 One entry per PR.
 
+## PR84 verification repair (2026-10-05)
+
+- Page the RTS matrix twelve combinations at a time instead of rendering 25,920 demo cells at once. Every combination remains reachable, with unchanged aggregate policy and gap counts. Existing test deadlines remain unchanged.
+
 ## Audit fixes (2026-10-05)
 
 - `intake run` refuses an output folder that is the input drop, contains it, or is inside it, so `--overwrite` cannot replace source files.
