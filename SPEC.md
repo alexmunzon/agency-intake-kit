@@ -54,7 +54,7 @@ Every agency drop is a folder (`drop/`) holding these files plus a `drop/manifes
 |---|---|---|
 | CRM export | AgencyBloc-style CSV, **one row per policy** with client fields repeated (2,680 rows in agency-a: 2,600 policies, 34 duplicate rows the injectors plant, and 46 clients with no policy, each on a row with the policy columns blank) | Non-UTF-8 encodings, odd delimiters, Excel serial dates arriving as text, inconsistent status words |
 | Enrollment platform export | Sunfire-style CSV | Its own header names and date formats, MBIs, plan IDs |
-| Carrier commission statements | XLSX, one per carrier, each with its own layout | Merged title row above the header, trailing total row (also used as the expected row count when no manifest exists), carrier-specific column names |
+| Carrier commission statements | XLSX, one per carrier, each with its own layout | Merged title row above the header, trailing total row (found by content: a first cell of Total, Totals, Grand total, or Subtotal, plus any blank or footer lines after it; also used as the expected row count when no manifest exists), carrier-specific column names |
 | Agent roster | Hand-kept spreadsheet with ready-to-sell (RTS) status per carrier, state, plan year, and line of business | Free-form headers, multi-value license state columns |
 
 Readers keep raw values exactly as read. The one exception is cells openpyxl already returns as datetimes, which become ISO strings. Every row gets lineage at read time.
