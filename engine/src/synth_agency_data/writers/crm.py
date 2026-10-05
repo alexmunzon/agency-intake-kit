@@ -2,7 +2,8 @@
 
 Quirks: latin-1 text that starts with a UTF-8 byte order mark, Excel serial dates as text in
 "Mbr DOB" (serials outside 20000 to 60000 fall back to 01/31/1950 style), three date styles
-rotating by row in "Eff Date" and "Term Date", and status words in mixed case. Clients with
+rotating by row in "Eff Date" and "Term Date", and status words in mixed case. An exact
+duplicate row (DUP-001) is written as a byte-for-byte copy of its original row. Clients with
 no policy row (re-keyed copies, or a client whose only policy was orphaned) get one row each
 at the end with the policy columns blank, so every client defect has a row.
 """
@@ -62,16 +63,24 @@ def write_crm(
     rows: list[list[str]] = []
     policy_rows: dict[str, int] = {}
     client_rows: dict[str, int] = {}
+    written: dict[str, tuple[Row, list[str]]] = {}  # policy id -> its first row and cells
     for n, p in enumerate(world.tables["policies"]):
-        style = DATE_STYLES[n % 3]
-        rows.append(
-            [text(p["client_id"]), *_client_cells(clients.get(p["client_id"]))]
-            + [text(p[k]) for k in ("policy_id", "carrier", "plan_id", "line_of_business")]
-            + [text(p[k]) for k in ("state", "eligibility_reason", "carrier_member_id")]
-            + [fmt_date(p["effective_date"], style), fmt_date(p["termination_date"], style)]
-            + [_status(p["status"], n), text(p["writing_agent_npn"]), text(p["monthly_premium"])]
-            + [notes.get(p["policy_id"], "")]
-        )
+        earlier = written.get(p["policy_id"])
+        if earlier is not None and earlier[0] == p:
+            # An exact duplicate (DUP-001) repeats its original's cells byte for byte, so the
+            # rotating date style and status casing never turn it into a changed copy (DUP-003).
+            rows.append(list(earlier[1]))
+        else:
+            style = DATE_STYLES[n % 3]
+            rows.append(
+                [text(p["client_id"]), *_client_cells(clients.get(p["client_id"]))]
+                + [text(p[k]) for k in ("policy_id", "carrier", "plan_id", "line_of_business")]
+                + [text(p[k]) for k in ("state", "eligibility_reason", "carrier_member_id")]
+                + [fmt_date(p["effective_date"], style), fmt_date(p["termination_date"], style)]
+                + [_status(p["status"], n), text(p["writing_agent_npn"])]
+                + [text(p["monthly_premium"]), notes.get(p["policy_id"], "")]
+            )
+            written.setdefault(p["policy_id"], (p, rows[-1]))
         policy_rows[p["policy_id"]] = len(rows) + 1  # a duplicated id points at the later copy
         client_rows.setdefault(p["client_id"], len(rows) + 1)
     for c in world.tables["clients"]:

@@ -142,6 +142,12 @@ def _copies(
         clients.append(
             {**src, "client_id": new_id, "last_name": last, "household_id": None, "email": None}
         )
+        if rule_id:
+            # DUP-002 flags every client in the group, so the original is a scored defect too
+            # (same group, the copy's id). Otherwise its CRM rows would count as false positives.
+            defects.append(
+                defect(name, "clients", {"client_id": src["client_id"]}, rule_id, copied_to=new_id)
+            )
         defects.append(
             defect(
                 name,
