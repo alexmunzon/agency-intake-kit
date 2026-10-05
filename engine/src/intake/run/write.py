@@ -169,7 +169,12 @@ def _json(model: StrictModel, path: Path) -> None:
 def write_run(o: RunOutputs, run_dir: Path) -> None:
     rows_clean = 0
     if o.status != RunStatus.FAILED:
+        count = len(o.records)
         clean = clean_tables(o.tables, o.records)
+        if len(o.records) != count:
+            raise ValueError(
+                "Collect MAP-004 errors before calculating run status or writing files"
+            )
         write_clean(clean, run_dir)
         rows_clean = clean_row_count(clean)
     _json(manifest(o), run_dir / "manifest.json")

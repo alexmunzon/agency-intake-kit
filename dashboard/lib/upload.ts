@@ -68,12 +68,22 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
       errors.push(`${name}: missing. Pick it with the other run files.`);
       continue;
     }
-    const text = await file.text();
-    texts.set(name, text);
-    errors.push(...checkJson(name, text));
+    try {
+      const text = await file.text();
+      texts.set(name, text);
+      errors.push(...checkJson(name, text));
+    } catch (error) {
+      errors.push(`${name}: could not read (${message(error)})`);
+    }
   }
   const financeFile = picked.get(FINANCE_FILE);
-  if (financeFile) texts.set(FINANCE_FILE, await financeFile.text());
+  if (financeFile) {
+    try {
+      texts.set(FINANCE_FILE, await financeFile.text());
+    } catch (error) {
+      errors.push(`${FINANCE_FILE}: could not read (${message(error)})`);
+    }
+  }
   if (errors.length > 0) return { ok: false, errors };
 
   try {

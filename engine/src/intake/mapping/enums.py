@@ -150,8 +150,13 @@ def fill_drop(drop: Path, mapping_dir: Path, now: datetime, asker: Asker) -> lis
 
     The record-mapping command runs this, so its requests are exactly the pipeline's.
     """
+    from intake.gates import run_raw_gates
+
+    raw = ingest(drop, run_id="jev-mapping")
+    if any(record.blocks_load for record in run_raw_gates(raw)):
+        raise ValueError("raw gates refused the drop before header or enum questions")
     results = []
-    for table in ingest(drop, run_id="jev-mapping").tables:
+    for table in raw.tables:
         result, _ = map_with_jev(table, map_table(table, mapping_dir, now), mapping_dir, now, asker)
         for entry in result.mapping.entries:
             target = Target(entry.table or "", entry.field or "")

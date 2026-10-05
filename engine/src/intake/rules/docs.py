@@ -9,7 +9,8 @@ from agency_schema.registry import catalog
 HEADER = """# Rule catalog
 
 Generated from the rule registry by `uv run intake rules --md > ../docs/rules.md`. Do not edit
-by hand. All 46 rules; readers, gates, mapping, and the tie-out raise theirs outside the registry.
+by hand. All {count} rules; readers, gates, mapping, tie-out, and clean validation raise theirs
+outside the registry.
 
 Severity decides what happens to a row: a blocker stops the run, an error keeps the row out of
 the load file, a warning passes with a flag, and info is only logged.
@@ -25,4 +26,4 @@ def render_rules_md() -> str:
         f"{m.description} |"
         for m in catalog()
     ]
-    return HEADER + "\n".join(rows) + "\n"
+    return HEADER.format(count=len(catalog())) + "\n".join(rows) + "\n"

@@ -17,6 +17,7 @@ CATALOG_FIXES = {
     "MAP-001": "Map manually in the mapping file for this source",
     "MAP-002": "Confirm or correct the mapping",
     "MAP-003": "Add the column or map an existing one",
+    "MAP-004": "Correct the required or invalid field before loading this row",
     "SSN-001": "Remove the column before intake",
     "CMP-001": "Re-export the file; check for truncation",
     "CMP-002": "Supply the file; its tie-out leg is marked not run",

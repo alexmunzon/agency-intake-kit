@@ -9,7 +9,9 @@ from intake.checks import run_cross_record_checks
 from intake.normalize import NotMoney, parse_money, split_list
 from intake.readers import build_frame
 
-RTS_HEAD = "npn carrier state plan_year line_of_business appointed certified end_date".split()
+RTS_HEAD = (
+    "npn carrier state plan_year line_of_business appointed certified end_date effective_date"
+).split()
 POLICY_HEAD = "policy_id client_id carrier line_of_business state effective_date writing_agent_npn"
 
 
@@ -39,7 +41,12 @@ def world(
         "agents": frame(
             [["111", licenses]], ["npn", "license_states"], file="roster.xlsx", sheet="Agents"
         ),
-        "rts": frame(rts_rows or [], RTS_HEAD, file="roster.xlsx", sheet="RTS"),
+        "rts": frame(
+            [[*row, "2026-01-01"] for row in rts_rows or []],
+            RTS_HEAD,
+            file="roster.xlsx",
+            sheet="RTS",
+        ),
         "policies": frame(
             policies, POLICY_HEAD.split(), file="crm.xlsx", sheet="Policies", version="v3"
         ),

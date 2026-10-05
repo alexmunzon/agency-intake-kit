@@ -1,5 +1,11 @@
 # Changelog
 
+## Audit safety repairs, 2026-10-05
+
+Validate clean rows against the declared table schemas before publishing status, emit traceable MAP-004 errors, and exclude invalid rows and affected dependents. Exactly three blockers remain. Correct RTS interval coverage, household references, unknown status handling, carrier joins, raw surplus gates and hashes, safe mapping paths, SSN header checks, and budget accounting. Validate dashboard counts and lineage and recover from local file read failures. Cache synthetic row references.
+
+One entry per PR.
+
 ## Unreleased
 
 - Preserve optional unresolved-evidence row references for absent CRM and missing, blank or malformed DOB. Keep raw safety gates, load exclusions and unavailable comparisons unchanged.

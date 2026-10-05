@@ -72,7 +72,7 @@ WITH by_member AS (
 by_ref AS (
     SELECT s._rec, min(b.policy_id) AS policy_id
     FROM statement_lines AS s
-    JOIN book AS b ON b.policy_id = s.policy_ref
+    JOIN book AS b ON b.carrier = s.carrier AND b.policy_id = s.policy_ref
     GROUP BY s._rec
 ),
 by_name AS (
