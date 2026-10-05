@@ -1,13 +1,15 @@
 """The Jev client: four modes, retries, the spend guard, and the notes check.
 
-Modes: replay (default) reads cassettes, off answers nothing, live calls the API, record
-calls the API for requests with no cassette yet and saves the answer. live and record spend
+Modes: replay (default) reads cassettes, off answers nothing, live always calls the API and
+never reads or writes cassettes, record calls the API for requests with no cassette yet and
+saves the answer. live and record spend
 money, so the client refuses them unless allow_spend=True is passed on purpose.
 """
 
 import logging
 import os
 import random
+import re
 import time
 from collections.abc import Callable
 from decimal import Decimal
@@ -40,9 +42,42 @@ class SpendNotApproved(RuntimeError):
 
 
 class JevHTTPError(RuntimeError):
-    def __init__(self, status_code: int, body: str) -> None:
+    """The API refused the request. The text holds a short, redacted excerpt of the body."""
+
+    def __init__(self, status_code: int, excerpt: str) -> None:
         self.status_code = status_code
-        super().__init__(f"Jev returned HTTP {status_code}: {body[:500]}")
+        super().__init__(f"Jev returned HTTP {status_code}: {excerpt}")
+
+
+class JevBadReply(ValueError):
+    """The API answered (and billed) but the reply does not fit the questions asked."""
+
+
+ERROR_EXCERPT_CHARS = 200
+_BEARER = re.compile(r"bearer\s*\S*", re.IGNORECASE)
+_KEY_PREFIX_CHARS = 8
+
+
+def redact_error_body(text: str, key: str) -> str:
+    """Remove the key, any bearer token, and long echoes from an error body before showing it.
+
+    The key is removed whole and by its first 8 characters, since some servers quote a prefix.
+    """
+    if key:
+        text = text.replace(key, "[redacted]")
+        if len(key) >= _KEY_PREFIX_CHARS:
+            text = re.sub(re.escape(key[:_KEY_PREFIX_CHARS]) + r"\S*", "[redacted]", text)
+    text = _BEARER.sub("[redacted]", text)
+    if len(text) > ERROR_EXCERPT_CHARS:
+        text = text[:ERROR_EXCERPT_CHARS] + " [cut]"
+    return text
+
+
+def _token_count(usage: Any, field: str) -> int:
+    value = usage.get(field) if isinstance(usage, dict) else None
+    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+        return value
+    return 0
 
 
 class JevClient:
@@ -107,22 +142,35 @@ class JevClient:
         if self._tripped:
             return Unresolved(reason="budget_tripped", question_ids=qids)
         body = request.body()
-        raw = load_cassette(self._cassette_dir, body)
+        # live always calls the API. Only replay and record read cassettes.
+        raw = None if self.mode == JevMode.LIVE else load_cassette(self._cassette_dir, body)
+        saved_at: Path | None = None
         if raw is None:
             if self.mode == JevMode.REPLAY:
                 raise CassetteMiss(request_hash(body), self._cassette_dir)
             raw = self._post(body)
-        response = JevResponse.model_validate(raw)
-        response.check_matches(request)
-        if self.mode == JevMode.RECORD:
-            save_cassette(self._cassette_dir, body, raw)
-        self._count(response)
+            if self.mode == JevMode.RECORD:
+                # Saved before validation: the reply was paid for, so a retry must not pay again.
+                saved_at = save_cassette(self._cassette_dir, body, raw)
+        # Counted before validation too: a reply that fails the checks below was still billed.
+        self._count(raw.get("usage"))
+        try:
+            response = JevResponse.model_validate(raw)
+            response.check_matches(request)
+        except ValueError as error:
+            where = ""
+            if saved_at:
+                where = f" The paid reply was saved at {saved_at}; delete it to re-record."
+            raise JevBadReply(f"Jev reply rejected: {error}.{where}") from error
         return response
 
-    def _count(self, response: JevResponse) -> None:
+    def _count(self, usage: Any) -> None:
         self._calls += 1
-        self._input_tokens += response.usage.input_tokens or 0
-        self._output_tokens += response.usage.output_tokens or 0
+        in_tokens = _token_count(usage, "input_tokens")
+        if in_tokens == 0:
+            log.warning("Jev reply has no usable input token count; it is counted as 0 tokens")
+        self._input_tokens += in_tokens
+        self._output_tokens += _token_count(usage, "output_tokens")
         cost = estimate_cost_usd(self._input_tokens)
         if cost >= self._budget:
             self._tripped = True
@@ -139,10 +187,17 @@ class JevClient:
             for attempt in range(1, JEV_MAX_TRIES + 1):
                 reply = http.post(JEV_API_URL, json=body, headers=headers)
                 if reply.status_code == 200:
-                    data: dict[str, Any] = reply.json()
+                    try:
+                        data = reply.json()
+                    except ValueError:
+                        data = None
+                    if not isinstance(data, dict):
+                        self._count(None)
+                        raise JevBadReply("Jev reply rejected: the body is not a JSON object.")
                     return data
                 if reply.status_code not in RETRY_STATUSES or attempt == JEV_MAX_TRIES:
-                    raise JevHTTPError(reply.status_code, reply.text)
+                    excerpt = redact_error_body(reply.text, self._key.get_secret_value())
+                    raise JevHTTPError(reply.status_code, excerpt)
                 window = JEV_BACKOFF_BASE_S * 2 ** (attempt - 1)
                 delay = window / 2 + self._rand() * window / 2
                 log.info("Jev HTTP %s, try %s, waiting %.2fs", reply.status_code, attempt, delay)

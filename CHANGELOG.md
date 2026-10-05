@@ -152,6 +152,49 @@ One entry per PR.
 - `_canonical_io.py` is a small canonical CSV loader for tests until PR 4's readers replace it.
 - Against `fixtures/agency-a`, every planted DUP, REF, RTS, and LIC defect is found, and the clean seed-42 world gives no exceptions. Example 3 fires RTS-001 on P-00417.
 
+## PR 10: Three-way tie-out in DuckDB (2026-10-04)
+
+- `intake/tieout/sql/01` to `07`: the tie-out as commented DuckDB views. Lines match the book on carrier plus carrier_member_id, then policy_ref, then name plus DOB (a weak match, TIE-006). Leg A finds active policies with no line in a period (TIE-001), leg B finds orphan payments (TIE-002), leg C finds paid policies the CRM does not show as ACTIVE (TIE-004). Dollar checks: each line vs the rate table within the larger of $1 or 1 percent (TIE-003), carrier and agent totals within 0.5 percent (TIE-005). Money is DECIMAL(12,2) in SQL and Decimal in Python, never a float.
+- `load.py` hands polars frames to DuckDB through the Arrow stream interface, so no pyarrow dependency. `views.py` runs the SQL files in name order. `variances.py` builds the six `tie_out/*.json` models and one TIE ExceptionRecord per finding.
+- A missing commission or policy source makes every leg and both totals NOT_RUN with a reason and no counts.
+- `_canonical_io.py` is a small private canonical CSV reader that PR 4's readers replace.
+- `config.py` PR 10 section: `TIE_LINE_TOLERANCE_USD`, `TIE_LINE_TOLERANCE_PCT`, `TIE_TOTAL_TOLERANCE_PCT`.
+- On agency-a every planted TIE-001 to TIE-004 defect is found with no extras. The clean world has zero variances and totals tie to the cent. TIE-005 fires on the defected world as expected.
+
+## PR 3b: Source writers and fixtures (2026-10-04)
+
+- `synth_agency_data/writers/`: the four messy source shapes plus `drop/manifest.json`. `crm_export.csv` (latin-1 with a byte order mark, Excel serial birth dates, three rotating date styles, mixed-case status words, Notes), `enrollment_export.csv` (semicolons, "Birth Dt (mm/dd/yy)", two-digit years), one `commissions_<carrier>.xlsx` per carrier (merged title row, header on row 3, trailing total row, three header layouts), and `agent_roster.xlsx` (Agents and RTS sheets, comma license lists). Spreadsheets are saved with frozen timestamps, so the bytes never churn.
+- `synth generate` now writes `drop/` too, and takes `--truncate-crm N`, `--add-ssn-column`, and `--no-canonical`.
+- PII in notes: 26 obviously fake sentences (1 percent of CRM policy rows) in the CRM Notes column, recorded as `pii_in_notes` (PII-001, scored) keyed by `policy_id`.
+- Every ground truth defect now also says where it landed: `source_file`, `sheet`, `source_row`. A test opens each file and checks the row holds that record.
+- Fixtures committed: `fixtures/agency-a` (adds `drop/`; `canonical-defected/` unchanged), `fixtures/agency-a-truncated` (CRM keeps 2,574 data rows, manifest says 2,680, plus a `truncated_file` CMP-001 defect), `fixtures/agency-a-ssn` (roster SSN column, values all in never-issued area 000, listed in ground truth). A test regenerates all three and fails on any byte change.
+- SPEC and CLAUDE.md: the CRM export has 2,680 rows, not 2,600: 2,600 policies, 34 planted duplicate rows, and 46 clients with no policy (40 re-keyed copies plus 6 whose only policy was orphaned), each on a row with the policy columns blank. Example 5 now reads 2,574 of 2,680.
+- New `docs/synthetic-data.md`: every injector, rate, scored flag, file quirk, and fixture.
+
+## README: why this exists, status refresh (2026-10-04)
+
+- New "Why this exists" section written for the recruiting reader: who built it, what it demonstrates, and how AI coding agents were used under the spec. Status lists updated for PRs 8, 9, 10.
+
+## PR 4: Readers, ingest, and raw gates (2026-10-04)
+
+- `intake/readers/`: `sniff.py` (encoding, delimiter, header row, trailing total rows), `csv.py`, and `xlsx.py`. Every source file or sheet becomes a `RawTable`: a polars frame with each source column under its header exactly as read (all text, blank is null) plus a `lineage` struct column with the six `Lineage` fields. `raw_hash` is the sha256 of the row's raw cells joined by the unit separator, the same recipe the PR 8 and PR 9 test loaders use.
+- Encoding: a UTF-8 byte order mark is stripped but not trusted. The body is tried as strict UTF-8, then latin-1, so the CRM export (marker plus latin-1 text) reads with its accents intact. charset-normalizer is not used: on that file it guessed cp1250, which turns "ñ" into "ń".
+- Header row: the first row where at least 60 percent of cells are words, so the merged title and subtitle rows of the commission statements are skipped and the header is found on row 3. Trailing "Total" and blank rows are dropped and counted; a total row's printed line count is kept as the fallback expected count.
+- xlsx: values only. Real date cells become ISO strings (a bare date at midnight); text such as "45901" stays text.
+- ING-001 (not UTF-8), ING-002 (header not on row 1), ING-003 (trailing rows dropped) are info; ING-004 (delimiter guessed with low confidence) is a warning.
+- `intake/ingest.py` reads a drop folder by `drop/manifest.json` (or every csv and xlsx file when there is none) into an `IngestResult`.
+- `intake/gates/refusal.py`: SSN-001 blocks when a header says SSN or social, or 90 percent of a column's values look like SSNs. The record names the column only; no value is copied, counted, or masked.
+- `intake/gates/completeness.py`: CMP-001 blocks when rows received differ from the manifest (else the total row). CMP-002 warns when a listed file or sheet is missing and names the tie-out legs that cannot run.
+- Examples 5 and 6 pass at the gate level: the truncated fixture gives CMP-001 expected 2,680, received 2,574; the ssn fixture gives one SSN-001 and none of its 25 values appears in any record. Ground truth rows point at reader rows holding the record key.
+- `config.py` PR 4 section: reader encodings, delimiters, header and total-row settings, `RAW_MAPPING_VERSION`, and the SSN gate settings.
+
+## Jev client review fixes
+
+- #22: a reply is counted toward the $0.50 budget before it is checked, so a billed reply that fails validation (or has a broken usage block, or is not JSON) still counts. In `record`, the raw reply is saved as a cassette before the check and the error names the file, so a retry does not pay again. New `JevBadReply` error (a `ValueError`).
+- #23: a choice answer must pick an offered option and its probabilities may only name offered options. A score must sit between level 0 and the top level, with probabilities keyed only by offered level numbers. Anything else is rejected with `JevBadReply`.
+- #24: `JevHTTPError` text no longer includes the raw body. The key, its first 8 characters, and any `Bearer ...` text become `[redacted]`, and the excerpt is cut at 200 characters.
+- #25: `live` always calls the API and never reads cassettes. Only `replay` and `record` read them. docs/jev.md says so.
+
 ## PR 11: exceptions policy, triage, PII gate (2026-10-04)
 
 - `intake/exceptions/policy.py`: the run status (any of the three blockers MAP-003, CMP-001, SSN-001 means FAILED; any error or warning means PASSED_WITH_WARNINGS; otherwise PASSED), the rows errors keep out of `clean/`, catalog suggested fixes for stages that left one blank, and the lanes triage does not decide (blockers to REVIEW, info stays UNREVIEWED).

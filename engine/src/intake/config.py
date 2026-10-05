@@ -11,6 +11,20 @@ from decimal import Decimal
 from typing import Final
 
 # PR 4: readers and raw gates (sniffing, header detection, SSN-001, CMP-001, CMP-002)
+# Encodings tried in order, strictly; the last never fails. A UTF-8 marker is not trusted.
+READER_ENCODINGS: Final[tuple[str, ...]] = ("utf-8", "latin-1")
+DEFAULT_ENCODING: Final[str] = "utf-8"  # anything else is noted as ING-001
+READER_DELIMITERS: Final[str] = ",;\t|"  # candidates, the first is the fallback
+SNIFF_SAMPLE_LINES: Final[int] = 50  # lines used to guess the delimiter
+HEADER_SCAN_ROWS: Final[int] = 20  # how far down to look for the header row
+HEADER_MIN_TEXT_SHARE: Final[float] = 0.6  # share of cells that must be words in a header
+TOTAL_ROW_WORDS: Final[frozenset[str]] = frozenset(
+    {"total", "subtotal", "sub total", "grand total"}
+)
+RAW_MAPPING_VERSION: Final[str] = "unmapped"  # lineage mapping_version before PR 5 maps headers
+SSN_HEADER_WORDS: Final[frozenset[str]] = frozenset({"ssn", "social"})
+SSN_VALUE_PATTERN: Final[str] = r"^\d{3}[- ]?\d{2}[- ]?\d{4}$"  # dashed, spaced, or 9 digits
+SSN_MIN_SHARE: Final[float] = 0.9  # share of non-empty cells matching that makes a column SSNs
 
 # PR 5: synonym mapping (required canonical fields per table, MAP-003)
 
@@ -42,6 +56,9 @@ RTS_TRUE_VALUES: Final[frozenset[str]] = frozenset(
 )  # appointed, certified
 
 # PR 10: three-way tie-out (tolerances: $1 or 1 percent per line, 0.5 percent on totals)
+TIE_LINE_TOLERANCE_USD: Final[Decimal] = Decimal("1.00")  # a line passes within $1 ...
+TIE_LINE_TOLERANCE_PCT: Final[Decimal] = Decimal("0.01")  # ... or 1 percent, whichever is larger
+TIE_TOTAL_TOLERANCE_PCT: Final[Decimal] = Decimal("0.005")  # carrier and agent totals: 0.5 percent
 
 # PR 11: exceptions policy and triage (PII gate cutoff)
 TRIAGE_ENTRY_ERROR: Final[float] = 0.80  # at or above: a keying slip, suggested-fix lane

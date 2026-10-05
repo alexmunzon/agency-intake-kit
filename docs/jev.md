@@ -26,7 +26,8 @@ The price and shape match BUILD-GUIDE section 8. One addition: answers carry a `
 **Still assumed until the first approved recording (PR 7):**
 - JSON keys inside `legend` and `probabilities` for score come back as text ("0", "1"). The example on score.md shows text keys; the SDK types them as numbers after parsing.
 - A noul answer has no `confidence` field (api.md lists only `noul`).
-- Error bodies are JSON or text the client can show as is. The client keeps the first 500 characters.
+- Error bodies are JSON or text. The client never shows them as is: it removes the key, its first 8
+  characters, and anything after the word "Bearer", then keeps at most 200 characters.
 - Whether the API accepts `"true": null` in noul criteria. Our client sends both keys when criteria are given.
 - No `Retry-After` header is documented, so the client ignores it.
 
@@ -43,8 +44,10 @@ Set by `JEV_MODE`, read by `JevClient.from_env()`. The default is `replay`.
 |---|---|---|
 | `replay` | Reads the cassette for the request. A miss raises `CassetteMiss` with the request hash | No |
 | `off` | Returns `Unresolved(reason="mode_off")`, never None. The questions go to the human queue | No |
-| `live` | Calls the API. Writes nothing | Yes |
+| `live` | Always calls the API, even when a cassette exists. Reads and writes no cassettes | Yes |
 | `record` | Uses an existing cassette if there is one, otherwise calls the API and saves a cassette. Delete a cassette to re-record it | Yes |
+
+Only `replay` and `record` read cassettes. Use `live` to check what the real API says today.
 
 The client refuses `live` and `record` unless the caller passes `allow_spend=True`. The repo's
 permission rules do not catch these modes, so this check is the real lock. Alex approves each use.
@@ -54,11 +57,31 @@ permission rules do not catch these modes, so this check is the real lock. Alex 
 On 429 or 529 the client waits and tries again, up to 5 tries in all. The wait doubles each time
 (1, 2, 4, 8 seconds, from `JEV_BACKOFF_BASE_S`) and is randomized between half and all of that
 window, so many clients do not retry at the same moment ("jitter"). Any other error, including 401
-and 422, raises `JevHTTPError` at once with the status and body. Network errors are not retried.
+and 422, raises `JevHTTPError` at once with the status and a short excerpt of the body. Network
+errors are not retried.
+
+The excerpt is redacted first: the key, the key's first 8 characters (some servers quote a
+prefix), and any `Bearer ...` text become `[redacted]`, and it is cut at 200 characters so a 422
+that echoes the request does not spill it into logs.
+
+## Checking answers
+
+Every answer must line up with the questions asked, or `ask` raises `JevBadReply` (a `ValueError`):
+
+- One answer per question, with the same id and type.
+- A choice answer must pick one of the options offered, and its probabilities may only name
+  offered options. An off-list choice would otherwise become a column mapping or enum value that
+  does not exist.
+- A score must sit between level 0 and the top level, and its probabilities may only name level
+  numbers that were offered ("0", "1", ...).
 
 ## Spend guard
 
-Each answered request adds its input tokens to the run's usage. The estimated cost is input tokens
+Each reply adds its input tokens to the run's usage, counted before the reply is checked. A reply
+that fails the checks was still billed, so it still counts; a missing or broken `usage` block
+counts the call with 0 tokens and logs a warning. In `record`, a reply that fails the checks is
+still saved as a cassette before the error is raised, and the error names the file. That way a
+retry reads the saved reply instead of paying again. Delete the file to re-record it. The estimated cost is input tokens
 times the price in `config.py`. It is an estimate, not a bill. When it reaches the budget ($0.50,
 `JEV_BUDGET_USD`) the client logs a warning, sets `usage.budget_tripped`, and returns
 `Unresolved(reason="budget_tripped")` for every later question. The run still completes; those

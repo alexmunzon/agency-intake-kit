@@ -6,7 +6,11 @@ Validate, reconcile, and show the health of a newly acquired insurance agency's 
 
 ## What this is
 
-When an insurance agency is bought, its records arrive as a pile of mismatched files: a CRM export, an enrollment platform export, carrier commission statements, and an agent roster kept by hand. Someone then checks them by hand for weeks. This kit is being built to take that pile and, in one command, answer three questions: can this book go live in our systems, does the money agree, and was every policy sold by an agent allowed to sell it. Today the data models, the synthetic data generator, the Jev client, and four dashboard pages are built. The pipeline that reads real files and runs the checks is not built yet, so the live demo shows a hand-built sample run, not engine output.
+When an insurance agency is bought, its records arrive as a pile of mismatched files: a CRM export, an enrollment platform export, carrier commission statements, and an agent roster kept by hand. Someone then checks them by hand for weeks. This kit is being built to take that pile and, in one command, answer three questions: can this book go live in our systems, does the money agree, and was every policy sold by an agent allowed to sell it. Today the data models, the synthetic data generator with its answer key, the Jev client, the row checks, the cross-record checks, the three-way money tie-out, and all five dashboard pages are built. The piece that reads the messy source files and runs everything as one command is landing now, so until it does the live demo shows a hand-built sample run, not engine output.
+
+## Why this exists
+
+I am Alex Munzon, a UCLA business economics student, and I built this as a working answer to a question I kept running into while studying insurance agency acquisitions: when an agency changes hands, how do you know its data can be trusted? This kit is the job of an AI deployment specialist written as code. It makes the checks explicit, scores them against planted mistakes with known answers, and keeps a person in charge of every judgment call. I wrote the spec, chose every rule and threshold, and reviewed and approved every change. AI coding agents did the typing, working one pull request at a time against that spec, with tests written first and every check run in CI before a merge. The commit history shows exactly which commits they co-authored. If you want to see how I think, start with [SPEC.md](SPEC.md) and the five decision records in [docs/adr/](docs/adr/README.md).
 
 ## Who it is for
 
@@ -84,15 +88,16 @@ What has shipped is in [CHANGELOG.md](CHANGELOG.md). The full plan and contract 
 - Format checks for Medicare numbers, agent IDs, plan IDs, and a ZIP-to-state table (PR 1a-ii).
 - The synthetic generator, planted mistakes, and answer key (PR 2, 3a).
 - The Jev client with replay, off, live, and record modes and a $0.50 spend cap per run (PR 6).
-- Dashboard pages Overview, Sources, Exceptions, Tie-out, and Agents, reading a sample run (PR 13 to 15).
+- Row checks for dates of birth, Medicare numbers, agent IDs, plan IDs, addresses, contacts, dates, and statuses (PR 8).
+- Cross-record checks for duplicates, broken references, ready-to-sell gaps, and license gaps, plus the ready-to-sell coverage matrix (PR 9).
+- The three-way money tie-out in DuckDB SQL, exact to the cent (PR 10).
+- Dashboard pages Overview, Sources, Exceptions, Tie-out, and Agents, reading a sample run (PR 13 to 15), with screenshots and design notes.
 
 **Not shipped yet:**
-- The messy source files (CSV and spreadsheet versions of the agency's exports): PR 3b.
+- The messy source files (CSV and spreadsheet versions of the agency's exports): PR 3b, in review.
 - Readers that open those files and the raw-file gates: PR 4.
 - Column mapping, by dictionary (PR 5) and by Jev (PR 7).
-- Row checks and cross-record checks: PR 8 and PR 9.
-- The three-way money tie-out in DuckDB SQL: PR 10.
-- Exception policy, Jev triage, and the PII filter: PR 11.
+- Exception policy, Jev triage, and the PII filter: PR 11, in review.
 - Running it all as one command, the HTML report, and `npm run demo`: PR 12.
 - Load your own run, run comparison, dark mode toggle: PR 16. Header mapping benchmark: PR 17.
 

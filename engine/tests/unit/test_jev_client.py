@@ -12,6 +12,7 @@ from jev_client import (
     CassetteMiss,
     ChoiceAnswer,
     ChoiceQuestion,
+    JevBadReply,
     JevClient,
     JevHTTPError,
     JevRequest,
@@ -351,3 +352,197 @@ def test_key_never_in_cassette_or_log(tmp_path: Path, caplog: pytest.LogCaptureF
         assert KEY not in text
         assert "authorization" not in text.lower()
         assert "bearer" not in text.lower()
+
+
+# Review fixes (#22 to #25)
+
+
+def reply_transport(body: Any, seen: list[httpx.Request], status: int = 200) -> httpx.MockTransport:
+    """Answers every request with this exact body and status."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        if isinstance(body, str):
+            return httpx.Response(status, text=body)
+        return httpx.Response(status, json=body)
+
+    return httpx.MockTransport(handler)
+
+
+def make_reply(
+    tmp_path: Path, mode: JevMode, body: Any, seen: list[httpx.Request], status: int = 200
+) -> JevClient:
+    return JevClient(
+        mode=mode,
+        api_key=KEY,
+        cassette_dir=tmp_path,
+        allow_spend=True,
+        transport=reply_transport(body, seen, status),
+        sleep=FakeClock().sleep,
+        rand=lambda: 0.0,
+    )
+
+
+MISSING_ANSWERS: dict[str, Any] = {
+    "model": "jev-1.13.0",
+    "answers": {"is_entry_error": {"type": "noul", "noul": 0.5}},
+    "usage": {"input_tokens": 50_000, "output_tokens": 3},
+}
+
+
+@pytest.mark.parametrize("mode", [JevMode.LIVE, JevMode.RECORD])
+def test_bad_reply_still_counts_toward_budget(tmp_path: Path, mode: JevMode) -> None:
+    """#22: a billed reply that fails validation still counts."""
+    seen: list[httpx.Request] = []
+    client = make_reply(tmp_path, mode, MISSING_ANSWERS, seen)
+    with pytest.raises(ValueError, match="answers"):
+        client.ask(TRIAGE)
+    assert len(seen) == 1
+    assert (client.usage.calls, client.usage.input_tokens, client.usage.output_tokens) == (
+        1,
+        50_000,
+        3,
+    )
+
+
+def test_bad_reply_with_no_usage_block_still_counts_the_call(tmp_path: Path) -> None:
+    """#22: a reply with a broken usage block counts the call without crashing the count."""
+    seen: list[httpx.Request] = []
+    body = {"model": "jev-1.13.0", "answers": {}, "usage": {"input_tokens": "lots"}}
+    client = make_reply(tmp_path, JevMode.LIVE, body, seen)
+    with pytest.raises(ValueError):
+        client.ask(TRIAGE)
+    assert client.usage.calls == 1
+    assert client.usage.input_tokens == 0
+
+
+def test_bad_reply_can_trip_the_budget(tmp_path: Path) -> None:
+    """#22: bad replies in a retry loop trip the guard instead of spending forever."""
+    seen: list[httpx.Request] = []
+    body = {**MISSING_ANSWERS, "usage": {"input_tokens": 10_000_000, "output_tokens": 0}}
+    client = make_reply(tmp_path, JevMode.LIVE, body, seen)
+    for _ in range(2):
+        with pytest.raises(ValueError):
+            client.ask(TRIAGE)
+    assert client.usage.budget_tripped is True
+    result = client.ask(TRIAGE)
+    assert isinstance(result, Unresolved) and result.reason == "budget_tripped"
+    assert len(seen) == 2, "$0.42 then $0.84: the guard trips after the second call"
+
+
+def test_record_saves_bad_reply_so_retry_does_not_pay_again(tmp_path: Path) -> None:
+    """#22: record keeps the raw billed reply and says where it is."""
+    seen: list[httpx.Request] = []
+    with pytest.raises(ValueError) as info:
+        make_reply(tmp_path, JevMode.RECORD, MISSING_ANSWERS, seen).ask(TRIAGE)
+    path = tmp_path / f"{request_hash(TRIAGE.body())}.json"
+    assert json.loads(path.read_text()) == {"request": TRIAGE.body(), "response": MISSING_ANSWERS}
+    assert str(path) in str(info.value)
+    with pytest.raises(ValueError):
+        make_reply(tmp_path, JevMode.RECORD, MISSING_ANSWERS, seen).ask(TRIAGE)
+    assert len(seen) == 1, "the second try reads the saved reply instead of paying again"
+
+
+def _with_field_answer(answer: dict[str, Any]) -> dict[str, Any]:
+    return {**ANSWER, "answers": {**ANSWER["answers"], "field": answer}}
+
+
+def _with_impact_answer(**changes: Any) -> dict[str, Any]:
+    impact = {**ANSWER["answers"]["impact"], **changes}
+    return {**ANSWER, "answers": {**ANSWER["answers"], "impact": impact}}
+
+
+def test_choice_outside_offered_options_is_refused(tmp_path: Path) -> None:
+    """#23: an answer naming an option that was not offered is never accepted."""
+    bad = _with_field_answer(
+        {
+            "type": "choice",
+            "choice": "date_of_birth",
+            "confidence": 0.97,
+            "probabilities": {"date_of_birth": 0.97},
+        }
+    )
+    save_cassette(tmp_path, TRIAGE.body(), bad)
+    with pytest.raises(ValueError, match="field"):
+        make(tmp_path, JevMode.REPLAY).ask(TRIAGE)
+
+
+def test_choice_probabilities_for_unoffered_option_are_refused(tmp_path: Path) -> None:
+    """#23: probabilities may only name offered options."""
+    bad = _with_field_answer(
+        {
+            "type": "choice",
+            "choice": "dob",
+            "confidence": 0.9,
+            "probabilities": {"dob": 0.9, "date_of_birth": 0.1},
+        }
+    )
+    save_cassette(tmp_path, TRIAGE.body(), bad)
+    with pytest.raises(ValueError, match="field"):
+        make(tmp_path, JevMode.REPLAY).ask(TRIAGE)
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"probabilities": {"0": 0.0, "1": 0.5, "3": 0.5}},  # level 3 does not exist
+        {"probabilities": {"low": 1.0}},  # not a level number
+        {"score": 2.5},  # past the top level (2)
+        {"score": -0.1},
+    ],
+)
+def test_score_outside_offered_levels_is_refused(tmp_path: Path, changes: dict[str, Any]) -> None:
+    """#23: score probabilities must be level numbers in range, and the score must be too."""
+    save_cassette(tmp_path, TRIAGE.body(), _with_impact_answer(**changes))
+    with pytest.raises(ValueError, match="impact"):
+        make(tmp_path, JevMode.REPLAY).ask(TRIAGE)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"detail": f"Invalid API key {KEY}"},
+        {"detail": f"Got header Authorization: Bearer {KEY}"},
+        {"detail": f"Key {KEY[:14]}... is revoked"},
+        f"bearer {KEY} rejected",
+    ],
+)
+def test_error_text_never_echoes_the_key(tmp_path: Path, body: Any) -> None:
+    """#24: error text is redacted, whatever the server echoes."""
+    with pytest.raises(JevHTTPError) as info:
+        make_reply(tmp_path, JevMode.LIVE, body, [], status=401).ask(TRIAGE)
+    text = str(info.value)
+    assert info.value.status_code == 401
+    assert KEY not in text and KEY[:8] not in text
+    assert "bearer" not in text.lower()
+    assert "[redacted]" in text
+
+
+def test_error_text_is_capped(tmp_path: Path) -> None:
+    """#24: a long body (for example a 422 echoing the request) is cut short."""
+    with pytest.raises(JevHTTPError) as info:
+        make_reply(tmp_path, JevMode.LIVE, "x" * 5000, [], status=422).ask(TRIAGE)
+    assert len(str(info.value)) < 300
+
+
+def test_live_ignores_cassettes_and_calls_the_api(tmp_path: Path) -> None:
+    """#25: live always calls the API, even when a cassette exists."""
+    save_cassette(tmp_path, TRIAGE.body(), _with_impact_answer(score=0.5))
+    seen: list[httpx.Request] = []
+    result = make(tmp_path, JevMode.LIVE, seen=seen).ask(TRIAGE)
+    assert len(seen) == 1
+    assert isinstance(result, JevResponse)
+    impact = result.answers["impact"]
+    assert isinstance(impact, ScoreAnswer) and impact.score == 1.43, (
+        "the fresh answer, not the cassette"
+    )
+
+
+@pytest.mark.parametrize("body", ["not json at all", [1, 2]])
+def test_unreadable_200_reply_counts_the_call(tmp_path: Path, body: Any) -> None:
+    """#22: a 200 reply that is not a JSON object was still billed, so it counts."""
+    seen: list[httpx.Request] = []
+    client = make_reply(tmp_path, JevMode.LIVE, body, seen)
+    with pytest.raises(JevBadReply):
+        client.ask(TRIAGE)
+    assert client.usage.calls == 1

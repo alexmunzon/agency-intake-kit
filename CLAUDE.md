@@ -26,7 +26,7 @@ Agency intake toolkit for the Agency Data Trust Series. Synthetic data only. See
 - Use uv, not pip. Use polars, not pandas. DuckDB SQL lives in engine/src/intake/tieout/sql/*.sql, loaded by name, never inline strings.
 - Readers keep raw values exactly as read. The one exception: cells openpyxl already returns as datetime become ISO strings, because the raw cell was a date. Numeric Excel serials that arrive as text or in CSVs are parsed by the date rules, which accept serials in the 20000 to 60000 range.
 - Commission XLSX files have a merged title row and a trailing total row. Header row detection must handle both.
-- The CRM export is one row per policy (client fields repeated), so fixtures/agency-a has 2,600 CRM rows, not 2,000.
+- The CRM export is one row per policy (client fields repeated), so fixtures/agency-a has 2,680 CRM rows, not 2,000: 2,600 policies, 34 planted duplicate rows, and 46 clients with no policy (policy columns blank).
 - Hypothesis tests for MBI, NPN, plan IDs are in tests/unit/test_formats.py; extend them when changing formats.
 - Dashboard reads JSON from public/demo-run by default; types in dashboard/lib/types.ts are generated from engine JSON schema by `uv run intake schema --ts`. Regenerate after changing output models.
 - Docs and UI strings: plain language, no em dashes.

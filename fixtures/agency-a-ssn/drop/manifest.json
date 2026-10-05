@@ -1,0 +1,65 @@
+{
+  "seed": 42,
+  "files": [
+    {
+      "source": "crm",
+      "file_name": "crm_export.csv",
+      "sheet": null,
+      "rows": 2680
+    },
+    {
+      "source": "enrollment",
+      "file_name": "enrollment_export.csv",
+      "sheet": null,
+      "rows": 1847
+    },
+    {
+      "source": "statement_northwind_health",
+      "file_name": "commissions_northwind_health.xlsx",
+      "sheet": "Statement",
+      "rows": 1119
+    },
+    {
+      "source": "statement_bluepeak",
+      "file_name": "commissions_bluepeak.xlsx",
+      "sheet": "Statement",
+      "rows": 1069
+    },
+    {
+      "source": "statement_harborline",
+      "file_name": "commissions_harborline.xlsx",
+      "sheet": "Statement",
+      "rows": 1154
+    },
+    {
+      "source": "statement_cardinal_mutual",
+      "file_name": "commissions_cardinal_mutual.xlsx",
+      "sheet": "Statement",
+      "rows": 1020
+    },
+    {
+      "source": "statement_summit_health_plans",
+      "file_name": "commissions_summit_health_plans.xlsx",
+      "sheet": "Statement",
+      "rows": 1058
+    },
+    {
+      "source": "statement_meridian_care",
+      "file_name": "commissions_meridian_care.xlsx",
+      "sheet": "Statement",
+      "rows": 1168
+    },
+    {
+      "source": "roster",
+      "file_name": "agent_roster.xlsx",
+      "sheet": "Agents",
+      "rows": 25
+    },
+    {
+      "source": "roster",
+      "file_name": "agent_roster.xlsx",
+      "sheet": "RTS",
+      "rows": 3739
+    }
+  ]
+}

@@ -34,7 +34,9 @@ def _cell(value: Any) -> str:
     return str(value)
 
 
-def _row_ref(world: World, d: dict[str, Any]) -> int:
+def _row_ref(world: World, d: dict[str, Any]) -> int | None:
+    if d["source"] not in world.tables:
+        return None  # a file-level defect (truncation, SSN column) has no canonical row
     rows = world.tables[d["source"]]
     key = d["record_key"]
     hits = [i for i, r in enumerate(rows) if all(r[k] == v for k, v in key.items())]
@@ -49,7 +51,11 @@ def write_world(
     defects: Sequence[dict[str, Any]] = (),
     folder: str = "canonical",
 ) -> None:
-    canonical = out_dir / folder
+    write_tables(world, out_dir / folder)
+    write_ground_truth(world, out_dir, defects)
+
+
+def write_tables(world: World, canonical: Path) -> None:
     canonical.mkdir(parents=True, exist_ok=True)
     for table, model in TABLE_MODELS.items():
         columns = [name for name in model.model_fields if name != "lineage"]
@@ -57,8 +63,11 @@ def write_world(
             writer = csv.writer(f, lineterminator="\n")
             writer.writerow(columns)
             writer.writerows([_cell(row[c]) for c in columns] for row in world.tables[table])
+
+
+def write_ground_truth(world: World, out_dir: Path, defects: Sequence[dict[str, Any]]) -> None:
     # Each defect: {source, record_key, row_ref, defect_type, expected_rule_ids, scored,
-    # injected_values}. The clean world has none.
+    # injected_values}, plus source_file, sheet, source_row once PR 3b writes the drop.
     truth = {"seed": world.seed, "defects": [{**d, "row_ref": _row_ref(world, d)} for d in defects]}
     (out_dir / "ground_truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
 
