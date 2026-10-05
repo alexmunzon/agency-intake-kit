@@ -35,11 +35,11 @@ th { font-weight: 600; color: var(--muted); } td.num, th.num { text-align: right
 <h1>Can this agency go live?</h1>
 <p class="muted">Run <span class="mono">{{ m.run_id }}</span>, engine {{ m.engine_version }},
 {% if m.as_of %}frozen clock {{ m.as_of.isoformat() }}{% else %}started {{ m.started_at.isoformat() }}{% endif %}.
-Synthetic data only.</p>
+Run time: {{ run_time }}. Synthetic data only.</p>
 
-<section class="banner {{ m.status.value }}" aria-label="Run status">
+<section class="banner {{ m.status.value }}" aria-label="Run status" data-status="{{ m.status.value }}">
 <strong>{{ answer }}</strong>
-<span>Status: {{ m.status.value }}.{% if m.status_reason %} {{ m.status_reason }}{% endif %}</span>
+<span>Status: {{ status_words }}.{% if m.status_reason %} {{ m.status_reason }}{% endif %}</span>
 </section>
 
 <div class="tiles">
@@ -50,7 +50,7 @@ Synthetic data only.</p>
 <div class="tile">Errors<b>{{ card.exceptions_by_severity.error | count }}</b></div>
 <div class="tile">Warnings<b>{{ card.exceptions_by_severity.warning | count }}</b></div>
 <div class="tile">Info notes<b>{{ card.exceptions_by_severity.info | count }}</b></div>
-<div class="tile">RTS gaps<b>{{ card.rts_gaps | count }}</b></div>
+<div class="tile">Policies sold without ready-to-sell status<b>{{ rts_policies | count }}</b></div>
 <div class="tile">Jev calls<b>{{ m.jev.calls | count }}</b>{{ m.jev.mode.value }} mode, about ${{ m.jev.estimated_cost_usd }}{% if m.budget_tripped %}, spend cap reached{% endif %}</div>
 </div>
 

@@ -145,6 +145,8 @@ def score(
             DetectionClass(defect_class=name, scored=scored[name], planted=p, detected=n)
             for name, (p, n) in sorted(tally.items())
         ),
+        clean_rows=len(clean),
+        false_positive_rows=len(flagged),
         false_positive_rate=round(rate, 6),
     )
     return Score(summary, len(clean), len(flagged), dict(sorted(by_rule.items())), missed)

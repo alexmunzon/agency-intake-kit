@@ -7,14 +7,14 @@ The files in `runs/<run_id>/` that the dashboard and report read. Code: `engine/
 - Same as the tables: no defaults, unknown fields refused, blank means `None`.
 - **Not measured is not zero.** A tie-out leg that did not run has its counts as `None` and a `not_run_reason`. A 0 would look like "checked, nothing wrong", so the model refuses a NOT_RUN leg with numbers.
 - **Money is text in JSON** (`"61.05"`), so no cents are lost. The dashboard keeps it as a string and formats it with one helper (PR 13). Jev cost keeps six decimals, because a run costs fractions of a cent.
-- Times carry a time zone. Sample runs use the frozen clock `2026-10-01T09:00:00Z`.
+- Times carry a time zone. Sample runs use the frozen clock `2026-10-01T09:00:00Z`. When `as_of` is set the clock was frozen, so `started_at` and `finished_at` are not a measurement: the dashboard and report say "Run time: not measured (frozen clock)" instead of a duration.
 
 ## Files
 
 | File | Model | Holds |
 |---|---|---|
 | manifest.json | Manifest | run_id, start and finish times, `as_of` (the frozen clock from `--as-of`, else null), engine version, status, `status_reason` (one sentence for the banner, required unless PASSED), input files (sha256, rows expected and received), Jev usage (mode, calls, tokens, estimated cost), `budget_tripped` (the $0.50 spend cap was reached and Jev went off for the rest of the run; the mode stays the configured one), thresholds used |
-| scorecard.json | Scorecard | rows in, mapped, and clean; exception counts by severity and by rule; one tie-out summary per leg; RTS gap count; detection against ground truth per defect class, planted and detected (recall is detected divided by planted), or `None` |
+| scorecard.json | Scorecard | rows in, mapped, and clean; exception counts by severity and by rule; one tie-out summary per leg; `rts_gaps`, the count of agent, carrier, state, and year cells used without RTS (the dashboard and report show policies instead, which is the RTS-001 count); detection against ground truth per defect class, planted and detected (recall is detected divided by planted), plus `clean_rows` (rows that hold no planted defect, the false positive denominator; not the same as `rows_clean`, the rows written to `clean/`), `false_positive_rows` (clean rows that got a blocker, error, or warning), and `false_positive_rate` (the one divided by the other, to 6 places), or `None` |
 | tie_out/leg_book_vs_statement.json | LegResult | Leg A summary and its TIE-001 variances |
 | tie_out/leg_statement_vs_book.json | LegResult | Leg B summary and its TIE-002 variances (orphan payments) |
 | tie_out/leg_crm_vs_statement.json | LegResult | Leg C summary and its TIE-004 variances |

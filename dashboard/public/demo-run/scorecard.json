@@ -237,6 +237,8 @@
         "detected": 20
       }
     ],
+    "clean_rows": 11234,
+    "false_positive_rows": 0,
     "false_positive_rate": 0.0
   }
 }

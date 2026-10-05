@@ -277,7 +277,20 @@ class DetectionSummary(StrictModel):
     """Accuracy against ground_truth.json, when the drop has one."""
 
     classes: tuple[DetectionClass, ...]
-    false_positive_rate: Probability
+    # Rows that hold no planted defect (the false positive denominator). Not rows_clean, which
+    # counts the rows written to clean/.
+    clean_rows: Count
+    false_positive_rows: Count  # clean rows that got a blocker, error, or warning
+    false_positive_rate: Probability  # false_positive_rows / clean_rows, rounded to 6 places
+
+    @model_validator(mode="after")
+    def _rate(self) -> Self:
+        if self.false_positive_rows > self.clean_rows:
+            raise ValueError("false_positive_rows cannot exceed clean_rows")
+        rate = self.false_positive_rows / self.clean_rows if self.clean_rows else 0.0
+        if self.false_positive_rate != round(rate, 6):
+            raise ValueError("false_positive_rate must be false_positive_rows / clean_rows")
+        return self
 
 
 class Scorecard(StrictModel):
@@ -289,7 +302,9 @@ class Scorecard(StrictModel):
     exceptions_by_severity: SeverityCounts
     exceptions_by_rule: dict[Annotated[str, Field(pattern=r"^[A-Z]{3}-\d{3}$")], Count]
     tie_out: tuple[LegSummary, ...]  # exactly one per leg, in leg order
-    rts_gaps: Count  # USED_WITHOUT_RTS cells in rts_coverage.json
+    # USED_WITHOUT_RTS cells (agent, carrier, state, year) in rts_coverage.json. Not policies:
+    # the policy count is the RTS-001 count, which is what the dashboard and report show (#76).
+    rts_gaps: Count
     detection: DetectionSummary | None
 
     @model_validator(mode="after")

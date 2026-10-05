@@ -15,6 +15,8 @@ from agency_schema.outputs import (
     RUN_FILE_MODELS,
     LegResult,
     Manifest,
+    RtsCellState,
+    RtsCoverage,
     RunStatus,
     Scorecard,
     TieOutLeg,
@@ -26,6 +28,11 @@ ANSWER = {
     RunStatus.PASSED: "Yes. This agency can go live.",
     RunStatus.PASSED_WITH_WARNINGS: "Yes, with fixes. The load files exclude the rows below.",
     RunStatus.FAILED: "No. A blocker stopped the run, so no load files were written.",
+}
+STATUS_WORDS = {  # the same plain labels the dashboard shows (#78)
+    RunStatus.PASSED: "Passed",
+    RunStatus.PASSED_WITH_WARNINGS: "Passed with warnings",
+    RunStatus.FAILED: "Failed",
 }
 LEG_NAMES = {
     TieOutLeg.BOOK_VS_STATEMENT: "Book vs statement (is every active policy paid?)",
@@ -48,6 +55,28 @@ def count(value: int | None) -> str:
     return "Not checked" if value is None else f"{value:,}"
 
 
+def run_time(m: Manifest) -> str:
+    """A frozen clock (--as-of) pins both times, so its 0 seconds is not a measurement (#77)."""
+    if m.as_of is not None:
+        return "not measured (frozen clock)"
+    seconds = round((m.finished_at - m.started_at).total_seconds())
+    if seconds < 60:
+        return f"{seconds} second{'' if seconds == 1 else 's'}"
+    return f"{seconds // 60} min {seconds % 60} sec"
+
+
+def rts_gap_policies(m: Manifest, coverage: RtsCoverage) -> int | None:
+    """Policies sold without RTS (one RTS-001 each), as the Agents page counts them (#76).
+
+    Not scorecard.rts_gaps, which counts agent, carrier, state, and year cells. None when a
+    blocker stopped the run before RTS coverage was built.
+    """
+    if m.status == RunStatus.FAILED and not coverage.cells:
+        return None
+    gaps = (c for c in coverage.cells if c.coverage == RtsCellState.USED_WITHOUT_RTS)
+    return sum(c.policy_count for c in gaps)
+
+
 def _load(run_dir: Path) -> dict[str, Any]:
     files: dict[str, Any] = {
         name: model.model_validate_json((run_dir / name).read_text(encoding="utf-8"))
@@ -63,6 +92,9 @@ def _load(run_dir: Path) -> dict[str, Any]:
         "m": manifest,
         "card": card,
         "answer": ANSWER[manifest.status],
+        "status_words": STATUS_WORDS[manifest.status],
+        "run_time": run_time(manifest),
+        "rts_policies": rts_gap_policies(manifest, files["rts_coverage.json"]),
         "legs": [(LEG_NAMES[leg.leg], leg) for leg in legs],
         "totals": totals,
         "records": records[:TOP_EXCEPTIONS],

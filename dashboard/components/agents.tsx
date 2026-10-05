@@ -29,7 +29,7 @@ export function AgentsView({ run }: { run: Run }) {
       {count > 0 ? (
         <Answer
           tone="error"
-          text={`No. ${count.toLocaleString("en-US")} ${count === 1 ? "policy was" : "policies were"} sold without RTS.`}
+          text={`No. ${count.toLocaleString("en-US")} ${count === 1 ? "policy was" : "policies were"} sold without ready-to-sell status.`}
           detail="RTS means ready to sell: appointed and certified with the carrier for that state and year. These policies are kept out of the load files until fixed."
         />
       ) : (

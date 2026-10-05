@@ -3,9 +3,10 @@ import Link from "next/link";
 import { SeverityBadge, SeverityIcon, TONES, type Tone } from "@/components/severity-badge";
 import { PageHeader } from "@/components/tie-out";
 import { CARD, Tile } from "@/components/tiles";
+import { rtsMatrix } from "@/lib/agents";
 import { formatMoney } from "@/lib/money";
 import {
-  countsBySource, durationText, plural, rtsChecked, runDateText, shortFiles, tieOutSummary,
+  countsBySource, durationText, frozenClock, plural, rtsChecked, runDateText, shortFiles, tieOutSummary,
   type SourceCounts,
 } from "@/lib/overview";
 import type { Run } from "@/lib/run-loader";
@@ -128,8 +129,8 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
         )}
         <Tile
           label="RTS gaps"
-          value={rts ? scorecard.rts_gaps.toLocaleString("en-US") : "Not checked"}
-          context={rts ? "Policies sold before the agent was ready to sell" : "The run stopped before this check"}
+          value={rts ? rtsMatrix(run.rts).gapPolicies.toLocaleString("en-US") : "Not checked"}
+          context={rts ? "Policies sold without ready-to-sell status" : "The run stopped before this check"}
           muted={!rts}
         />
         <Tile
@@ -137,7 +138,11 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
           value={jevOff ? "Off" : plural(manifest.jev.calls, "call")}
           context={`${formatMoney(manifest.jev.estimated_cost_usd)} estimated, ${manifest.jev.mode} mode`}
         />
-        <Tile label="Run time" value={durationText(run)} context={`Run on ${runDateText(run)}`} />
+        <Tile
+          label="Run time"
+          value={durationText(run)}
+          context={frozenClock(run) ? `Frozen clock, run on ${runDateText(run)}` : `Run on ${runDateText(run)}`}
+        />
       </div>
       <SourceBars rows={countsBySource(run)} />
     </div>

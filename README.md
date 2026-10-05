@@ -4,7 +4,7 @@ Validate, reconcile, and show the health of a newly acquired insurance agency's 
 
 Live demo: https://agency-intake-kit.vercel.app
 
-**Result on the synthetic test agency:** all 717 planted mistakes found across 22 scored mistake types (recall 1.00 for every type), with 0 false alarms on 11,234 clean rows. Measured on synthetic data, not a real agency.
+**Result on the synthetic test agency:** all 717 planted mistakes found across 22 scored mistake types (recall 1.00 for every type), with 0 false alarms on 11,234 clean rows (`detection.clean_rows` and `detection.false_positive_rows` in `dashboard/public/demo-run/scorecard.json`). A clean row is one with no planted mistake. Measured on synthetic data, not a real agency.
 
 ![Overview page: a status banner answering whether the agency can go live, with counts of blockers, errors, and warnings](docs/screenshots/overview-1440.png)
 
@@ -46,7 +46,7 @@ Recall is the share of planted mistakes the kit found. A false alarm is a proble
 | Statement total off by more than 0.5 percent | TIE-005 | 48 | 48 |
 | CRM status disagrees with the carrier | TIE-004 | 40 | 40 |
 | Missing Medicare number | MBI-003 | 40 | 40 |
-| Agent sold without ready-to-sell status | RTS-001 | 27 | 27 |
+| Policy sold without ready-to-sell status | RTS-001 | 27 | 27 |
 | Exact duplicate row | DUP-001 | 26 | 26 |
 | Personal details in a notes field | PII-001 | 26 | 26 |
 | Malformed plan id | PLN-001, 002, 004 | 26 | 26 |

@@ -32,11 +32,29 @@ describe("Overview", () => {
     expect(tile("Tie-out differences").getByText("$85.55")).toBeInTheDocument();
     expect(tile("Tie-out differences").getByText("3 items, all 3 checks ran, plus 1 commission off the rate table or totals ($6.50)")).toBeInTheDocument();
     expect(tile("RTS gaps").getByText("1")).toBeInTheDocument();
+    expect(tile("RTS gaps").getByText("Policies sold without ready-to-sell status")).toBeInTheDocument();
     expect(tile("Jev AI review").getByText("38 calls")).toBeInTheDocument();
     expect(tile("Jev AI review").getByText("$0.000901 estimated, replay mode")).toBeInTheDocument();
+    // The sample has a frozen clock (as_of), so its times are not a measurement (#77).
+    expect(tile("Run time").getByText("Not measured")).toBeInTheDocument();
+    expect(tile("Run time").getByText("Frozen clock, run on Oct 1, 2026")).toBeInTheDocument();
+    expect(screen.getByText("3 errors, 5 warnings, 1 info")).toBeInTheDocument();
+  });
+
+  it("shows the measured run time when the clock was real (#77)", async () => {
+    await show("sample-run", (run) => {
+      run.manifest.as_of = null;
+    });
     expect(tile("Run time").getByText("47 seconds")).toBeInTheDocument();
     expect(tile("Run time").getByText("Run on Oct 1, 2026")).toBeInTheDocument();
-    expect(screen.getByText("3 errors, 5 warnings, 1 info")).toBeInTheDocument();
+  });
+
+  it("counts RTS gaps in policies, the same 27 as the Agents page, not 26 cells (#76)", async () => {
+    const dir = path.resolve(import.meta.dirname, "../../public/demo-run");
+    const run = await loadRunDir(dir);
+    render(<Overview run={run} tieOut={await loadTieOut(dir, run)} />);
+    expect(tile("RTS gaps").getByText("27")).toBeInTheDocument();
+    expect(tile("Run time").getByText("Not measured")).toBeInTheDocument();
   });
 
   it("answers no for the failed sample and never shows a missing check as zero", async () => {
