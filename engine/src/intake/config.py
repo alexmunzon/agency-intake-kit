@@ -22,11 +22,109 @@ TOTAL_ROW_WORDS: Final[frozenset[str]] = frozenset(
     {"total", "subtotal", "sub total", "grand total"}
 )
 RAW_MAPPING_VERSION: Final[str] = "unmapped"  # lineage mapping_version before PR 5 maps headers
-SSN_HEADER_WORDS: Final[frozenset[str]] = frozenset({"ssn", "social"})
-SSN_VALUE_PATTERN: Final[str] = r"^\d{3}[- ]?\d{2}[- ]?\d{4}$"  # dashed, spaced, or 9 digits
-SSN_MIN_SHARE: Final[float] = 0.9  # share of non-empty cells matching that makes a column SSNs
+SSN_HEADER_WORDS: Final[frozenset[str]] = frozenset({"ssn", "ssns", "social", "tin", "taxpayer"})
+SSN_HEADER_PHRASES: Final[tuple[str, ...]] = ("tax id", "soc sec", "s s n")  # header text, spaced
+SSN_VALUE_PATTERN: Final[str] = r"^\d{9}$"  # a bare nine-digit cell (weak evidence)
+SSN_MIN_SHARE: Final[float] = 0.9  # share of bare 9-digit cells that makes a column weak evidence
+SSN_SHAPED_MIN_SHARE: Final[float] = 0.01  # share of cells holding dashed or spaced SSN text
+# Canonical id fields. A header the PR 5 synonym table maps to one of these is never SSN-001
+# on its values alone, even when they are nine digits.
+SSN_ID_FIELDS: Final[frozenset[str]] = frozenset(
+    {
+        "client_id",
+        "household_id",
+        "phone",
+        "zip",
+        "mbi",
+        "policy_id",
+        "plan_id",
+        "npn",
+        "writing_agent_npn",
+        "agent_npn",
+        "upline_npn",
+        "carrier_member_id",
+        "policy_ref",
+        "line_no",
+    }
+)
+SSN_HEADER_MASK_DIGITS: Final[int] = 9  # a header with this many digits is masked in messages
+# Header words of known id fields (NPN, MBI, policy, member, phone, ZIP, plan ids), for
+# headers the synonym table does not know. Same effect as SSN_ID_FIELDS.
+SSN_ID_HEADER_WORDS: Final[frozenset[str]] = frozenset(
+    {
+        "npn",
+        "mbi",
+        "medicare",
+        "policy",
+        "member",
+        "mbr",
+        "subscriber",
+        "insured",
+        "phone",
+        "tel",
+        "mobile",
+        "cell",
+        "fax",
+        "zip",
+        "postal",
+        "plan",
+        "contract",
+        "hios",
+        "line",
+        "seq",
+        "ref",
+        "client",
+        "household",
+        "agent",
+        "producer",
+        "upline",
+        "license",
+    }
+)
 
 # PR 5: synonym mapping (required canonical fields per table, MAP-003)
+# A required field must come from some mapped column, or MAP-003 blocks the run. These are
+# the fields docs/schema.md says may not be empty, minus the ones no column supplies:
+# lineage (added by readers), households (built from clients), and commission_lines.carrier
+# (taken from the statement's file name).
+REQUIRED_FIELDS: Final[dict[str, tuple[str, ...]]] = {
+    "clients": (
+        "client_id",
+        "first_name",
+        "last_name",
+        "dob",
+        "address_line1",
+        "city",
+        "state",
+        "zip",
+    ),
+    "policies": (
+        "policy_id",
+        "client_id",
+        "carrier",
+        "plan_id",
+        "line_of_business",
+        "effective_date",
+        "status",
+        "writing_agent_npn",
+    ),
+    "agents": ("npn", "first_name", "last_name", "license_states", "status"),
+    "rts": (
+        "npn",
+        "carrier",
+        "state",
+        "plan_year",
+        "line_of_business",
+        "appointed",
+        "certified",
+        "effective_date",
+    ),
+    "commission_lines": ("statement_period", "line_no", "amount", "commission_type"),
+}
+# The CRM has one row per policy, so its client id column fills policies.client_id too.
+CARRIED_FIELDS: Final[dict[str, str]] = {"policies.client_id": "clients.client_id"}
+MAP_CANDIDATE_MIN_SCORE: Final[float] = 0.5  # how close a header must be to be offered
+MAP_CANDIDATE_LIMIT: Final[int] = 3  # candidates listed in a MAP-001 suggested fix
 
 # PR 6: Jev client (retry and backoff, the $0.50 per-run budget)
 # Endpoint, model, and price checked on docs.typesafe.ai on 2026-10-04 (see docs/jev.md).
