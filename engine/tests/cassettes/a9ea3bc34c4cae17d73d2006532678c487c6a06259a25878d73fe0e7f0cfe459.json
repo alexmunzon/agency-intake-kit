@@ -1,0 +1,51 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "field": {
+        "criteria": {
+          "agents.email": null,
+          "agents.first_name": null,
+          "agents.full_name": null,
+          "agents.last_name": null,
+          "agents.license_states": null,
+          "agents.npn": null,
+          "agents.status": null,
+          "agents.upline_npn": null,
+          "none": "The column holds none of the listed fields"
+        },
+        "instructions": "A column header from an insurance agency's source export is given with the kind of export. Which canonical field does the column hold? Choose none if it holds none of them.",
+        "type": "choice"
+      }
+    },
+    "state": {
+      "header": "States Licensed In",
+      "source": "roster_agents"
+    }
+  },
+  "response": {
+    "answers": {
+      "field": {
+        "choice": "agents.license_states",
+        "confidence": 1.0,
+        "probabilities": {
+          "agents.email": 0.0,
+          "agents.first_name": 0.0,
+          "agents.full_name": 0.0,
+          "agents.last_name": 0.0,
+          "agents.license_states": 1.0,
+          "agents.npn": 0.0,
+          "agents.status": 0.0,
+          "agents.upline_npn": 0.0,
+          "none": 0.0
+        },
+        "type": "choice"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 415,
+      "output_tokens": 102
+    }
+  }
+}

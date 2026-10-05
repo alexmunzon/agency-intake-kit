@@ -109,7 +109,7 @@ Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 s
 | Approach | Accuracy | Coverage | Wrong mappings | Not recorded | Model calls | Est. cost per 1,000 headers |
 |---|---|---|---|---|---|---|
 | Synonyms only | 79.9% (107 of 134) | 71.6% | 0 | 0 | 0 | $0 |
-| Synonyms then Jev | not measured: no recordings yet | n/a | 0 | 38 | 0 | n/a |
+| Synonyms then Jev | 96.3% (129 of 134) | 88.1% | 0 | 0 | 38 | $0.0063 (estimate) |
 | Synonyms then Sonnet | skipped: no key | n/a | n/a | n/a | 0 | n/a |
 <!-- benchmark:end -->
 

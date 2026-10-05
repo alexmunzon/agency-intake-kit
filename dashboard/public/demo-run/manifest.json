@@ -73,10 +73,10 @@
   ],
   "jev": {
     "mode": "replay",
-    "calls": 7,
-    "input_tokens": 3239,
-    "output_tokens": 740,
-    "estimated_cost_usd": "0.000136"
+    "calls": 164,
+    "input_tokens": 70509,
+    "output_tokens": 6235,
+    "estimated_cost_usd": "0.002961"
   },
   "budget_tripped": false,
   "thresholds": {

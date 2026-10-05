@@ -1,0 +1,89 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "field": {
+        "criteria": {
+          "clients.address_line1": null,
+          "clients.city": null,
+          "clients.client_id": null,
+          "clients.dob": null,
+          "clients.email": null,
+          "clients.first_name": null,
+          "clients.full_name": null,
+          "clients.household_id": null,
+          "clients.last_name": null,
+          "clients.mbi": null,
+          "clients.notes": null,
+          "clients.phone": null,
+          "clients.state": null,
+          "clients.zip": null,
+          "none": "The column holds none of the listed fields",
+          "policies.carrier": null,
+          "policies.carrier_member_id": null,
+          "policies.client_id": null,
+          "policies.effective_date": null,
+          "policies.eligibility_reason": null,
+          "policies.line_of_business": null,
+          "policies.monthly_premium": null,
+          "policies.plan_id": null,
+          "policies.policy_id": null,
+          "policies.state": null,
+          "policies.status": null,
+          "policies.termination_date": null,
+          "policies.writing_agent_npn": null
+        },
+        "instructions": "A column header from an insurance agency's source export is given with the kind of export. Which canonical field does the column hold? Choose none if it holds none of them.",
+        "type": "choice"
+      }
+    },
+    "state": {
+      "header": "Last Contact Date",
+      "source": "crm"
+    }
+  },
+  "response": {
+    "answers": {
+      "field": {
+        "choice": "none",
+        "confidence": 0.99,
+        "probabilities": {
+          "clients.address_line1": 0.0,
+          "clients.city": 0.0,
+          "clients.client_id": 0.0,
+          "clients.dob": 0.0,
+          "clients.email": 0.0,
+          "clients.first_name": 0.0,
+          "clients.full_name": 0.0,
+          "clients.household_id": 0.0,
+          "clients.last_name": 0.0,
+          "clients.mbi": 0.0,
+          "clients.notes": 0.01,
+          "clients.phone": 0.0,
+          "clients.state": 0.0,
+          "clients.zip": 0.0,
+          "none": 0.99,
+          "policies.carrier": 0.0,
+          "policies.carrier_member_id": 0.0,
+          "policies.client_id": 0.0,
+          "policies.effective_date": 0.0,
+          "policies.eligibility_reason": 0.0,
+          "policies.line_of_business": 0.0,
+          "policies.monthly_premium": 0.0,
+          "policies.plan_id": 0.0,
+          "policies.policy_id": 0.0,
+          "policies.state": 0.0,
+          "policies.status": 0.0,
+          "policies.termination_date": 0.0,
+          "policies.writing_agent_npn": 0.0
+        },
+        "type": "choice"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 591,
+      "output_tokens": 295
+    }
+  }
+}

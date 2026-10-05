@@ -1,0 +1,61 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "impact": {
+        "criteria": [
+          "Cosmetic",
+          "Affects reporting",
+          "Affects compliance or money"
+        ],
+        "instructions": "How much does this matter before the agency goes live?",
+        "type": "score"
+      },
+      "is_entry_error": {
+        "criteria": {
+          "false": "A genuine fact about the policy or client",
+          "true": "A typo or keying mistake"
+        },
+        "instructions": "Is this most likely a data-entry error that can be fixed from the surrounding record, rather than a real business event?",
+        "type": "noul"
+      }
+    },
+    "state": {
+      "field": "carrier_member_id",
+      "neighbors": {
+        "carrier": "CARDINAL MUTUAL",
+        "commission_type": "NEW"
+      },
+      "rule_id": "TIE-002",
+      "value_shape": "AA-999999"
+    }
+  },
+  "response": {
+    "answers": {
+      "impact": {
+        "confidence": 0.67,
+        "legend": {
+          "0": "Cosmetic",
+          "1": "Affects reporting",
+          "2": "Affects compliance or money"
+        },
+        "probabilities": {
+          "0": 0.05,
+          "1": 0.12,
+          "2": 0.83
+        },
+        "score": 1.78,
+        "type": "score"
+      },
+      "is_entry_error": {
+        "noul": 0.48,
+        "type": "noul"
+      }
+    },
+    "model": "jev-1.13.0",
+    "usage": {
+      "input_tokens": 435,
+      "output_tokens": 35
+    }
+  }
+}
