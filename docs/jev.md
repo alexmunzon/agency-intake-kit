@@ -5,7 +5,7 @@ free text. This kit asks it four questions (SPEC "Jev usage"), and rules always 
 
 ## What the docs say (checked 2026-10-04)
 
-Read with WebFetch on 2026-10-04. No live call was made; nothing here was confirmed against the real API.
+Read with WebFetch on 2026-10-04, before any recording. Real answers were recorded on 2026-10-05 (see Recording below and CHANGELOG).
 
 | Fact | Value | Source |
 |---|---|---|
@@ -86,7 +86,7 @@ times the price in `config.py`. It is an estimate, not a bill. When it reaches t
 `JEV_BUDGET_USD`) the client logs a warning, sets `usage.budget_tripped`, and returns
 `Unresolved(reason="budget_tripped")` for every later question. The run still completes; those
 questions go to the human queue. `usage.mode` stays the configured mode, because the manifest's
-`JevUsage` refuses `off` with real call counts. PR 12 writes the trip into the manifest.
+`JevUsage` refuses `off` with real call counts. The manifest records the trip in `budget_tripped`.
 
 The check runs after each call, so one call can go past the budget. At the published price a full
 64k token call costs well under a cent. Replay counts recorded tokens too, so replay trips the
@@ -191,8 +191,8 @@ the run would send 705 triage requests.
 
 **Test cassettes.** `engine/tests/cassettes/synthetic/` holds hand-made answers for the triage and
 PII shapes (model `synthetic-hand-made`). They are not recordings. They sit in a subfolder so the
-pipeline, which reads `engine/tests/cassettes/`, can never replay a made-up answer. PR 12 records
-the real ones.
+pipeline, which reads `engine/tests/cassettes/`, can never replay a made-up answer. The real ones
+are in `engine/tests/cassettes/run/`, recorded 2026-10-05 (164 answers).
 
 ## Header mapping and enum values (PR 7)
 
@@ -241,10 +241,11 @@ over 24 characters, with more than 3 spaces, or with a 9-digit number are never 
 "Paid" requests are identical (same header, same masked sample `20**-**-**`), so they are sent
 once: 2 calls. The CRM status column has 5 values the word table leaves for Jev (`??`, `N/A`,
 `See notes`, `XFER`, `chk w/ carrier`): 5 calls. Every other status, line of business, commission
-type, and state value is decided by the table. About 1,450 input tokens, so about $0.00006.
+type, and state value is decided by the table. The recording used 3,239 input tokens, about $0.000136.
 
-**Recording.** The 7 cassettes in `engine/tests/cassettes/mapping/` are hand-made stand-ins with
-`"model": "handmade-placeholder"`. After Alex approves the spend, replace them from the repo root:
+**Recording.** The 7 cassettes in `engine/tests/cassettes/mapping/` are real TypeSafe answers,
+recorded 2026-10-05 with Alex's approval (CHANGELOG "Real Jev mapping cassettes recorded"). To
+re-record them, after Alex approves the spend, run from the repo root:
 
 ```bash
 cd engine && uv run --env-file ../.env env JEV_MODE=record intake jev record-mapping --drop ../fixtures/agency-a
