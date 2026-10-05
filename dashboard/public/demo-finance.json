@@ -1,0 +1,112 @@
+{
+  "artifact_type": "neutral_finance_review",
+  "schema_version": 1,
+  "agency_id": "synthetic-agency",
+  "carrier": "Synthetic Carrier",
+  "period": "2026-09",
+  "statement_id": "synthetic-september",
+  "revision_id": "r1",
+  "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "mapping_id": "synthetic-finance",
+  "mapping_version": "v1",
+  "mapping_approved": true,
+  "approved_by": "Synthetic Finance Reviewer",
+  "approved_at": "2026-10-05T12:00:00Z",
+  "mapping_snapshot": {
+    "mapping_id": "synthetic-finance",
+    "carrier": "Synthetic Carrier",
+    "version": "v1",
+    "approved_by": "Synthetic Finance Reviewer",
+    "approved_at": "2026-10-05T12:00:00Z",
+    "categories": {
+      "Renewal": "renewal"
+    },
+    "transaction_kinds": {
+      "Payment": "payment",
+      "Chargeback": "reversal"
+    },
+    "accounts": {
+      "renewal": "4100"
+    }
+  },
+  "mapping_sha256": "3c349da0722b2a6e92cafdcf30b4a9f308f1fe26c1b186b5b19d18a0d8e90cc5",
+  "rows": [
+    {
+      "row_id": "line-1",
+      "amount": "100.00",
+      "raw_amount": "100.00",
+      "raw_category_label": "Renewal",
+      "raw_transaction_label": "Payment",
+      "lineage": {
+        "source_file": "synthetic-statement.csv",
+        "sheet": null,
+        "row_number": 1,
+        "raw_hash": "0000000000000000000000000000000000000000000000000000000000000001",
+        "run_id": "finance-development-example",
+        "mapping_version": "synthetic-v1"
+      },
+      "category": "renewal",
+      "transaction_kind": "payment",
+      "classification_method": "approved_mapping",
+      "unresolved_reasons": [],
+      "account_code": "4100",
+      "authoritative_policy_id": null
+    },
+    {
+      "row_id": "line-2",
+      "amount": "-25.00",
+      "raw_amount": "-25.00",
+      "raw_category_label": "Renewal",
+      "raw_transaction_label": "Chargeback",
+      "lineage": {
+        "source_file": "synthetic-statement.csv",
+        "sheet": null,
+        "row_number": 2,
+        "raw_hash": "0000000000000000000000000000000000000000000000000000000000000002",
+        "run_id": "finance-development-example",
+        "mapping_version": "synthetic-v1"
+      },
+      "category": "renewal",
+      "transaction_kind": "reversal",
+      "classification_method": "approved_mapping",
+      "unresolved_reasons": [],
+      "account_code": "4100",
+      "authoritative_policy_id": null
+    },
+    {
+      "row_id": "line-3",
+      "amount": "0.03",
+      "raw_amount": "0.03",
+      "raw_category_label": "Unknown incentive",
+      "raw_transaction_label": "Payment",
+      "lineage": {
+        "source_file": "synthetic-statement.csv",
+        "sheet": null,
+        "row_number": 3,
+        "raw_hash": "0000000000000000000000000000000000000000000000000000000000000003",
+        "run_id": "finance-development-example",
+        "mapping_version": "synthetic-v1"
+      },
+      "category": "unclassified",
+      "transaction_kind": "payment",
+      "classification_method": "unresolved",
+      "unresolved_reasons": [
+        "unknown_category_label",
+        "missing_account_mapping"
+      ],
+      "account_code": null,
+      "authoritative_policy_id": null
+    }
+  ],
+  "category_totals": {
+    "new_business": "0.00",
+    "renewal": "75.00",
+    "override": "0.00",
+    "bonus": "0.00",
+    "marketing": "0.00",
+    "unclassified": "0.03"
+  },
+  "statement_total": "75.03",
+  "control_total": "75.03",
+  "total_check": "PASS"
+}
