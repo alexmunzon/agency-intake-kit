@@ -26,3 +26,12 @@ Every record in this repo is synthetic, made by a seeded generator (`synth_agenc
 - Detection rates are measured against a known answer key. The README labels them as measured on synthetic data, not real agency files.
 - Synthetic data is cleaner and more regular than real exports. Real files will have mistakes the generator does not make. The README says so.
 - This is a demonstration of privacy habits, not a HIPAA compliance certification.
+
+## Update 2026-10-05
+
+The original text above is kept as written. What changed since:
+
+- The four messy source files shipped (PR 3b). The CRM export is one row per policy, so agency-a has 2,680 CRM rows, not 2,000: 2,600 policies, 34 planted duplicate rows, and 46 clients with no policy. Example 5's truncated copy keeps 2,574 of the 2,680 rows.
+- Ground truth now lists 877 planted defects for agency-a, 717 of them scored across 22 defect types (CHANGELOG "3a review fixes").
+- The end-to-end SSN test shipped (PR 12): none of the 25 planted SSN values, with or without dashes, appears in any file of the run folder.
+- Measured on this synthetic agency, every scored defect type is found at recall 1.00 with 0 false positives on clean rows (`dashboard/public/demo-run/scorecard.json`). These are synthetic results; real files will hold mistakes the generator does not make.

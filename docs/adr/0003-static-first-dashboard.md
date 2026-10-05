@@ -27,3 +27,12 @@ The build guide named Node 20. We pinned Node 24 instead, because Node 20 reache
 - No data leaves the visitor's browser, and there is nothing to log in to.
 - The deployed site shows one fixed run. Seeing a new run means rebuilding or loading it locally.
 - Today the live demo shows a hand-built sample, not engine output. The README says so.
+
+## Update 2026-10-05
+
+The original text above is kept as written. What changed since:
+
+- The live demo now shows real engine output, not the hand-built sample. `npm run demo` runs fixtures/agency-a in replay with a frozen clock (`--as-of 2026-10-01T09:00:00Z`) and copies the dashboard files and `report.html` into `dashboard/public/demo-run` (PR 12). Two runs of the same drop are byte-identical, so screenshots do not churn.
+- The CLI flags are `--in`, `--out`, `--jev`, `--as-of`, and `--overwrite`. The `--now` and `--run-id` flags named in the build guide do not exist; the out folder's name is the run id (PR 12).
+- The manifest gained `as_of` and `budget_tripped`, and `dashboard/lib/types.ts` was regenerated from the engine's schema, so engine and dashboard still share one contract.
+- Loading your own run in the browser, with no upload, shipped in PR 16.

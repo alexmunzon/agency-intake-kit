@@ -1,16 +1,28 @@
 # agency-intake-kit
 
-Validate, reconcile, and show the health of a newly acquired insurance agency's book of business. All data in this project is synthetic.
+Validate, reconcile, and show the health of a newly acquired insurance agency's book of business, in one command. All data in this project is synthetic.
 
-**Work in progress.** Part of the engine is built and part is not; the [status](#status) section lists both. Live demo: https://agency-intake-kit.vercel.app
+Live demo: https://agency-intake-kit.vercel.app
+
+**Result on the synthetic test agency:** all 717 planted mistakes found across 22 scored mistake types (recall 1.00 for every type), with 0 false alarms on 11,234 clean rows. Measured on synthetic data, not a real agency.
+
+![Overview page: a status banner answering whether the agency can go live, with counts of blockers, errors, and warnings](docs/screenshots/overview-1440.png)
+
+![Demo: the Overview page, then the Exceptions page, then the Tie-out page](docs/screenshots/demo.gif)
 
 ## What this is
 
-When an insurance agency is bought, its records arrive as a pile of mismatched files: a CRM export, an enrollment platform export, carrier commission statements, and an agent roster kept by hand. Someone then checks them by hand for weeks. This kit is being built to take that pile and, in one command, answer three questions: can this book go live in our systems, does the money agree, and was every policy sold by an agent allowed to sell it. Today the data models, the synthetic data generator with its answer key, the Jev client, the row checks, the cross-record checks, the three-way money tie-out, and all five dashboard pages are built. The piece that reads the messy source files and runs everything as one command is landing now, so until it does the live demo shows a hand-built sample run, not engine output.
+When an insurance agency is bought, its records arrive as a pile of mismatched files: a CRM export, an enrollment platform export, carrier commission statements, and an agent roster kept by hand. Someone then checks them by hand for weeks, and nothing downstream, human or AI, can act on data nobody has checked. This kit takes that pile and, in one command, answers three questions: can this book go live in our systems, does the money agree, and was every policy sold by an agent allowed to sell it.
+
+- **Reads the files as they come**, with odd encodings, title rows, total rows, and Excel dates.
+- **Maps columns to one standard format**: a dictionary first, then Jev, then a person.
+- **Checks every row against 46 named rules**, each with a severity and a suggested fix.
+- **Reconciles the money three ways in SQL**: the book, the carrier statements, and the CRM.
+- **Shows what to fix first** on a dashboard and in a one-file HTML report.
 
 ## Why this exists
 
-I am Alex Munzon, a UCLA business economics student, and I built this as a working answer to a question I kept running into while studying insurance agency acquisitions: when an agency changes hands, how do you know its data can be trusted? This kit is the job of an AI deployment specialist written as code. It makes the checks explicit, scores them against planted mistakes with known answers, and keeps a person in charge of every judgment call. I wrote the spec, chose every rule and threshold, and reviewed and approved every change. AI coding agents did the typing, working one pull request at a time against that spec, with tests written first and every check run in CI before a merge. The commit history shows exactly which commits they co-authored. If you want to see how I think, start with [SPEC.md](SPEC.md) and the five decision records in [docs/adr/](docs/adr/README.md).
+I am Alex Munzon, a UCLA business economics student. I built this as a working answer to a question I kept running into while studying insurance agency acquisitions: when an agency changes hands, how do you know its data can be trusted? This kit is the job of an AI deployment specialist written as code. It makes the checks explicit, scores them against planted mistakes with known answers, and keeps a person in charge of every judgment call. I wrote the spec, chose every rule and threshold, and reviewed and approved every change. AI coding agents did the typing, one pull request at a time against that spec, with tests written first and every check run in CI before a merge. The commit history shows which commits they co-authored. If you want to see how I think, start with [SPEC.md](SPEC.md) and the five decision records in [docs/adr/](docs/adr/README.md).
 
 ## Who it is for
 
@@ -19,23 +31,50 @@ I am Alex Munzon, a UCLA business economics student, and I built this as a worki
 - **Finance or M&A analyst:** commission differences in dollars by carrier and agent.
 - **Compliance lead:** which agents wrote business they were not ready to sell or licensed for.
 
-## What it does: five questions, one dashboard page each
+## Results (synthetic)
 
-| Page | Question it answers | Status |
-|---|---|---|
-| Overview | Can this agency go live? | Built (PR 13) |
-| Sources | Did we receive every file, and did each one read cleanly? | Built (PR 14) |
-| Exceptions | What needs fixing, in what order, and how? | Built (PR 14) |
-| Tie-out | Does the money agree across the book, the statements, and the CRM? | Built (PR 15) |
-| Agents | Did anyone sell something they were not ready to sell? | Built (PR 15) |
+From the committed demo run of the synthetic agency (`dashboard/public/demo-run/scorecard.json`, made by `npm run demo`). Status: **passed with warnings**. 14,879 rows read, 12,836 clean and ready to load. 0 blockers, 308 errors (rows held out of the load files), 423 warnings (rows load with a flag), 13 info notes.
 
-A sixth page, Runs ("what changed since the last run?"), comes in PR 16. Every page answers its question at the top before showing detail. A check that did not run says "Not checked", never 0, so a missing check can never look clean.
+Recall is the share of planted mistakes the kit found. A false alarm is a problem raised on a row with no planted mistake. The end-to-end test fails, and so does every check, if recall drops below 0.95 for any type or false alarms rise above 0.5 percent (`engine/tests/e2e/test_agency_a.py`).
 
-## Screenshots
+| Mistake planted | Rule | Planted | Found |
+|---|---|---|---|
+| Unpaid active policy | TIE-001 | 131 | 131 |
+| Payment for no policy | TIE-002 | 68 | 68 |
+| Commission off the rate table | TIE-003 | 66 | 66 |
+| Messy status word | STA-001 | 52 | 52 |
+| Statement total off by more than 0.5 percent | TIE-005 | 48 | 48 |
+| CRM status disagrees with the carrier | TIE-004 | 40 | 40 |
+| Missing Medicare number | MBI-003 | 40 | 40 |
+| Agent sold without ready-to-sell status | RTS-001 | 27 | 27 |
+| Exact duplicate row | DUP-001 | 26 | 26 |
+| Personal details in a notes field | PII-001 | 26 | 26 |
+| Malformed plan id | PLN-001, 002, 004 | 26 | 26 |
+| Status contradicts the dates | DAT-003 | 26 | 26 |
+| Invalid Medicare number | MBI-001 | 20 | 20 |
+| Same name and birth date on two clients | DUP-002 | 20 | 20 |
+| ZIP code in the wrong state | ADR-002 | 20 | 20 |
+| Agent not licensed in the policy's state | LIC-001 | 13 | 13 |
+| Malformed agent number | NPN-001 | 13 | 13 |
+| Policy for a client who does not exist | REF-001 | 13 | 13 |
+| End date before start date | DAT-002 | 13 | 13 |
+| Writing agent not on the roster | NPN-002 | 13 | 13 |
+| Policy id reused with different details | DUP-003 | 8 | 8 |
+| Ready-to-sell status had expired | RTS-002 | 8 | 8 |
 
-From the live demo at 1440 pixels wide, made by `npm run shots`. Files are in [docs/screenshots/](docs/screenshots/).
+The tie-out found $5,085.55 in dollar differences across 239 items. The generator also plants identity mistakes (name typos, nicknames, swapped birth dates) for the next project, bob-resolve. This kit reports them but does not score them, by design.
 
-![Overview page: a status banner answering whether the agency can go live, with counts of blockers, errors, and warnings](docs/screenshots/overview-1440.png)
+## The five dashboard questions
+
+Every page answers its question at the top before showing detail. A check that did not run says "Not checked", never 0, so a missing check can never look clean. A sixth page, Runs, loads a run of your own in the browser (nothing is uploaded) and shows what changed.
+
+| Page | Question it answers |
+|---|---|
+| Overview | Can this agency go live? |
+| Sources | Did we receive every file, and did each one read cleanly? |
+| Exceptions | What needs fixing, in what order, and how? |
+| Tie-out | Does the money agree across the book, the statements, and the CRM? |
+| Agents | Did anyone sell something they were not ready to sell? |
 
 ![Exceptions page: a table of problems sorted by severity, with filters for severity, rule, and source file](docs/screenshots/exceptions-1440.png)
 
@@ -43,65 +82,55 @@ From the live demo at 1440 pixels wide, made by `npm run shots`. Files are in [d
 
 ![Agents page: writing agents and a ready-to-sell matrix by carrier, state, and plan year](docs/screenshots/agents-1440.png)
 
-## What is synthetic, and why
+Screenshots are made from the demo run by `npm run shots`; more are in [docs/screenshots/](docs/screenshots/).
 
-Every record is made by a seeded generator. Seeded means the same seed always produces the same files, byte for byte. Seed 42 with 2,000 clients gives 1,400 households, 25 agents, 2,600 policies, and 6,651 commission lines across six fictional carriers.
+## Run it in five commands
 
-The generator first builds a clean world, then plants 793 labeled mistakes and writes an answer key (`fixtures/agency-a/ground_truth.json`). That lets every check be scored against known truth instead of guessed. Synthetic data also means no real person's information is ever in this repo. Results measured on it are labeled as synthetic; real agency files will have mistakes the generator does not make. See [ADR 0004](docs/adr/0004-synthetic-data-only.md).
+You need [uv](https://docs.astral.sh/uv/) (a Python package manager) and [nvm](https://github.com/nvm-sh/nvm) (a tool that installs the right Node version). No API key is needed.
+
+```bash
+git clone https://github.com/alexmunzon/agency-intake-kit.git && cd agency-intake-kit
+(cd engine && uv sync)                          # Python 3.12 and the engine
+nvm install 24 && (cd dashboard && npm ci)      # Node 24 and the dashboard
+npm run demo                                    # run the synthetic agency, refresh the demo run
+(cd dashboard && npm run dev)                   # dashboard at http://localhost:3000
+```
+
+`npm run demo` also writes `runs/demo/report.html`, a single page with the same numbers, and `runs/demo/clean/`, the load-ready files. `npm run verify` runs every check (lint, types, tests, build). To run your own drop folder: `cd engine && uv run intake run --in <drop folder> --out <run folder>`.
+
+## How Jev is used, and what it costs
+
+Jev is TypeSafe's decision model. It answers small, bounded questions (yes or no, or pick one of a list) with a probability instead of free text. It answers four questions here, and only where the rules run out: which standard field a column header holds, which standard value a messy word means, whether a problem looks like a typo or a real business event, and whether a note holds personal details. Below its confidence cutoff, the item goes to a person. **Jev never overrides a rule: rules decide, and Jev only fills gaps and orders the queue.**
+
+- **Cost.** Every Jev answer the demo needs is recorded in the repo. Recording them cost about $0.003 in total: $0.000136 for 7 mapping answers and $0.002961 for 164 triage answers (CHANGELOG). A live run of the synthetic agency would cost about the same. A replay run, the default, costs $0.
+- **Without a key.** Replay mode reads the recorded answers, so the demo, the tests, and CI never call the network. With Jev off, every Jev question goes to the person queue and the run still completes.
+- **Spend cap.** A run stops asking Jev when estimated spend reaches $0.50. The rest goes to a person, the run completes, and the manifest records that the cap tripped.
+
+Details: [docs/jev.md](docs/jev.md) and [ADR 0002](docs/adr/0002-jev-as-a-gate-not-a-judge.md).
 
 ## Data trust rules
 
-- **No PHI and no real data.** PHI is protected health information, which US law strictly limits. None of it enters the repo, a log, a test, or a model call.
-- **No SSNs, ever.** A file with an SSN column blocks the run (rule SSN-001), and its values never appear in any output.
-- **Lineage on every row.** Lineage is the record of where a row came from: source file, sheet, row number, a fingerprint of the raw row, the run, and the mapping version. Every output row carries it.
-- **Three blockers, no more.** Only three rules can stop a run: MAP-003 (a required column is missing), CMP-001 (a file has fewer rows than promised), and SSN-001. Errors drop their rows, warnings pass with a flag, info is logged.
-- **Rules decide, models never override.** Jev, TypeSafe's decision model, answers only small yes/no or pick-one questions, and only where rules run out. Below its confidence threshold the item goes to a person. See [ADR 0002](docs/adr/0002-jev-as-a-gate-not-a-judge.md).
+- **No PHI and no real data.** PHI is protected health information, which US law strictly limits. None of it enters the repo, a log, a test, or a model call. Every record is made by a seeded generator, so the same seed always gives the same files.
+- **No SSNs, ever.** A file with an SSN column stops the run (rule SSN-001), and a test checks that none of the 25 planted SSN values appears anywhere in the run folder.
+- **Lineage on every row.** Lineage is the record of where a row came from: source file, sheet, row number, a fingerprint of the raw row, the run, and the mapping version.
+- **Three blockers, no more.** Only three rules can stop a run: a required column is missing (MAP-003), a file has fewer rows than promised (CMP-001), or an SSN column is present (SSN-001). Errors hold their rows out of the load files, warnings pass with a flag, info is logged.
+- **Checks before any model.** The SSN and row-count gates run on the raw files before any Jev call. Jev sees only the fields a question needs, and notes pass a personal-details filter first.
 - **Runs are never edited.** Each run is a folder that is never changed afterward; a correction is a new run.
-- **Money is exact.** Amounts are stored to the cent as exact decimals and written as text, never as approximate floating-point numbers.
+- **Money is exact.** Amounts are exact to the cent and written as text, never as approximate decimal numbers.
 
 This is a demonstration of privacy habits, not a HIPAA compliance certification.
 
-## How to run it locally
+## Honest limits
 
-You need [uv](https://docs.astral.sh/uv/) (a Python package manager) and [nvm](https://github.com/nvm-sh/nvm) (a tool that installs the right Node version).
+- **Synthetic data, one agency shape.** Every number above comes from one synthetic agency (seed 42: 2,000 clients, 2,600 policies, 25 agents, six fictional carriers). Real agency files will hold mistakes the generator does not make, and the readers know only these four file layouts.
+- **A state written as "Tex." is held out of the load files**, even though Jev reads it as TX. The address rule judges the value as the source wrote it, on purpose, so normalizing never hides a messy source. A person decides.
+- **Birth dates that differ between the enrollment export and the CRM are counted, not raised.** The demo run compares 1,838 and all agree, but no rule in the catalog turns a disagreement into an exception yet.
+- **Not built:** real CRM or carrier connectors, logins on the dashboard, commission math beyond a fixed rate table, the employee benefits line of business, and fuzzy identity matching (that is bob-resolve). See SPEC "Out of scope".
+- **Open issues** are public: [github.com/alexmunzon/agency-intake-kit/issues](https://github.com/alexmunzon/agency-intake-kit/issues).
 
-```bash
-git clone https://github.com/alexmunzon/agency-intake-kit.git
-cd agency-intake-kit
-(cd engine && uv sync)                    # Python 3.12 and engine packages
-nvm install 24 && nvm use 24              # Node 24
-(cd dashboard && npm ci)                  # dashboard packages
-npm run verify                            # every check: lint, types, tests, build
-(cd dashboard && npm run dev)             # dashboard at http://localhost:3000
-```
+## Header mapping benchmark
 
-Also available now: `cd engine && uv run synth generate --seed 42 --clients 2000 --out ../fixtures/agency-a` regenerates the synthetic world.
-
-Coming in PR 12: `npm run demo`, which runs the full pipeline on the synthetic agency and refreshes the dashboard's demo run. No API key is needed for any of this; Jev answers come from recordings committed to the repo.
-
-## Status
-
-What has shipped is in [CHANGELOG.md](CHANGELOG.md). The full plan and contract is [SPEC.md](SPEC.md).
-
-**Built:**
-- Data models for the six tables, lineage, exceptions, and every run output file (PR 1a-i, 1b).
-- Format checks for Medicare numbers, agent IDs, plan IDs, and a ZIP-to-state table (PR 1a-ii).
-- The synthetic generator, planted mistakes, and answer key (PR 2, 3a).
-- The Jev client with replay, off, live, and record modes and a $0.50 spend cap per run (PR 6).
-- Row checks for dates of birth, Medicare numbers, agent IDs, plan IDs, addresses, contacts, dates, and statuses (PR 8).
-- Cross-record checks for duplicates, broken references, ready-to-sell gaps, and license gaps, plus the ready-to-sell coverage matrix (PR 9).
-- The three-way money tie-out in DuckDB SQL, exact to the cent (PR 10).
-- Dashboard pages Overview, Sources, Exceptions, Tie-out, and Agents, reading a sample run (PR 13 to 15), with screenshots and design notes.
-
-**Not shipped yet:**
-- The messy source files (CSV and spreadsheet versions of the agency's exports): PR 3b, in review.
-- Readers that open those files and the raw-file gates: PR 4.
-- Column mapping, by dictionary (PR 5) and by Jev (PR 7).
-- Exception policy, Jev triage, and the PII filter: PR 11, in review.
-- Running it all as one command, the HTML report, and `npm run demo`: PR 12.
-- Load your own run, run comparison, dark mode toggle: PR 16.
-
-No detection rates are published yet, because the pipeline that produces them is not built. They will come from the committed fixtures, not estimates. The one number published now is the header mapping benchmark (PR 17), refreshed by `cd engine && uv run intake bench header-mapping`:
+How well does each approach turn a messy column header into the right standard field? Refreshed by `cd engine && uv run intake bench header-mapping`.
 
 <!-- benchmark:start -->
 Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 synthetic variants), Jev in replay. Small synthetic set; method and caveats in [docs/benchmark-header-mapping.md](docs/benchmark-header-mapping.md).
@@ -113,9 +142,12 @@ Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 s
 | Synonyms then Sonnet | skipped: no key | n/a | n/a | n/a | 0 | n/a |
 <!-- benchmark:end -->
 
-## Design decisions
+## More detail
 
-Five short decision records in [docs/adr/](docs/adr/README.md): DuckDB for the tie-out, Jev as a gate, a static-first dashboard, synthetic data only, and separate repos per project. Data shapes are in [docs/schema.md](docs/schema.md) and [docs/outputs.md](docs/outputs.md); the Jev client is in [docs/jev.md](docs/jev.md).
+- [SPEC.md](SPEC.md): the contract every change was built against, with the six examples that became tests.
+- [CHANGELOG.md](CHANGELOG.md): every pull request, in order. [docs/release-notes-v1.0.0.md](docs/release-notes-v1.0.0.md): what v1.0.0 contains.
+- [docs/adr/](docs/adr/README.md): five decision records (DuckDB for the tie-out, Jev as a gate, a static-first dashboard, synthetic data only, separate repos).
+- [docs/rules.md](docs/rules.md) (all 46 rules), [docs/schema.md](docs/schema.md) and [docs/outputs.md](docs/outputs.md) (data shapes), [docs/jev.md](docs/jev.md), [docs/synthetic-data.md](docs/synthetic-data.md), [docs/design.md](docs/design.md) (dashboard design), [docs/benchmark-header-mapping.md](docs/benchmark-header-mapping.md).
 
 ## Glossary
 
@@ -129,7 +161,7 @@ Five short decision records in [docs/adr/](docs/adr/README.md): DuckDB for the t
 
 ## Part of a series
 
-This is the first project built in the Agency Data Trust Series. bob-resolve (matching people across files without an SSN) and plan-diff (comparing plan documents across carriers) come next. See [ROADMAP.md](ROADMAP.md).
+This is the first project built in the Agency Data Trust Series. Next: bob-resolve (matching the same person across files without an SSN) and plan-diff (comparing plan documents across carriers). See [ROADMAP.md](ROADMAP.md).
 
 ## License
 

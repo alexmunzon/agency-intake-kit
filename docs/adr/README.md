@@ -11,3 +11,5 @@ An architecture decision record (ADR) is a short note that says what we decided,
 | [0005](0005-separate-repos-per-project.md) | Separate repos per project, shared code extracted later | Accepted |
 
 A new decision gets a new number. An old ADR is never rewritten; if a decision changes, a new ADR replaces it and the old one is marked "Superseded".
+
+When a decision stays but the facts around it move, the ADR gains a dated "Update" section at the end. The original text above it is not changed.

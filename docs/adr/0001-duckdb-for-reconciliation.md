@@ -28,3 +28,11 @@ Money stays exact the whole way. The models store money as an exact decimal to t
 - Two query styles live in one engine (polars and SQL). The boundary is fixed: SQL only for the tie-out.
 - A check that did not run is reported as "not run" with a reason, never as zero (CHANGELOG, PR 1b). The SQL must keep that difference.
 - The tie-out itself is not built yet. It lands in PR 10. The output files it writes, and the dashboard page that reads them, already exist (PR 1b and PR 15).
+
+## Update 2026-10-05
+
+The original text above is kept as written. What changed since:
+
+- The tie-out shipped in PR 10 and now runs inside every `intake run` (PR 12). The demo run's three legs all RAN: 6,400 book policies matched to a statement line with 131 unpaid, 6,520 statement lines matched to the book with 68 orphans, and 2,177 CRM statuses compared with 40 disagreements (`dashboard/public/demo-run/scorecard.json`).
+- Rows are joined on a per-table position key, never on file row numbers, because row numbers restart in each of the six carrier files (#53, CHANGELOG "Checks and tie-out review fixes").
+- Dates and money are read once in Python before DuckDB (`tieout/prepare.py`), so mixed date styles and amounts such as `(61.05)` reach the SQL already exact (#44, #45).

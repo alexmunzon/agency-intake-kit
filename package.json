@@ -10,6 +10,7 @@
     "verify:engine": "cd engine && uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q",
     "verify:dashboard": "cd dashboard && npm run lint && npm run typecheck && npm run test && npm run build",
     "demo": "cd engine && uv run intake run --in ../fixtures/agency-a/drop --out ../runs/demo --jev replay --as-of 2026-10-01T09:00:00Z --overwrite && cd .. && rm -rf dashboard/public/demo-run && mkdir -p dashboard/public/demo-run && cp -R runs/demo/manifest.json runs/demo/scorecard.json runs/demo/exceptions.jsonl runs/demo/rts_coverage.json runs/demo/tie_out runs/demo/report.html dashboard/public/demo-run/",
-    "shots": "cd dashboard && npx playwright test e2e/shots.spec.ts"
+    "shots": "cd dashboard && npx playwright test e2e/shots.spec.ts",
+    "demo-gif": "bash scripts/demo-gif.sh"
   }
 }
