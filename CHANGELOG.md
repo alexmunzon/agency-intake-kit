@@ -345,6 +345,18 @@ One entry per PR.
 - New `docs/release-notes-v1.0.0.md`: the scorecard, Jev cost, what shipped per PR, known issues, and what bob-resolve is. No tag or release is created.
 - CLAUDE.md lists `npm run demo-gif`. `docs/jev.md` states the recorded triage answers. `engine/tests/unit/test_docs_links.py` checks every relative link in the README, release notes, and ADRs, no em dashes there, and the GIF size.
 
+## Sweep 3: story drafts (2026-10-05)
+
+- New `docs/outreach.md`, headed "DRAFTS. Alex rewrites these in his own words before anything is sent.": a note to George at Gyde (under 150 words, no ask, says no reply is needed during AEP), a LinkedIn post (under 120 words), three subject lines, a "what this demonstrates" paragraph for the AI Deployment Specialist and M&A Analyst roles, and two resume bullet candidates (107 to 115 characters). Every number comes from the README results, which read `dashboard/public/demo-run/`. Nothing was sent or posted.
+- README gains a "Two-minute tour" near the top: five steps on the live demo, from the Overview answer to the $61.05 Harborline payment on the Tie-out page (SPEC example 4). Nothing else in the README changed.
+
+## Sweep 2: artifact fixes (2026-10-05)
+
+- README and release notes: the tie-out line now adds the 114 commissions off the rate table or statement totals ($7,018.44), so it matches the 353 differences on the Tie-out page. The 7 mapping questions are described as column headers and messy status words, not headers only. The Runs page sentence no longer says it shows what changed; comparing runs is `intake diff`.
+- docs/jev.md: the mapping and triage cassettes are described as the real recordings from 2026-10-05, the recorded mapping cost (3,239 input tokens, about $0.000136) replaces the old estimate, and the spend cap note points at the shipped `budget_tripped` field.
+- docs/outputs.md and docs/schema.md: stale "in PR 12" and "from PR 4 onward" notes removed; the ZIP prefix table has 938 rows, not 939 (the header was counted). ADR 0004's dated update notes 27 defect classes in the scorecard.
+- Findings that need a decision are filed as "[sweep 2]" issues. Docs only; no code changed.
+
 ## Sweep 2 fixes: one ready-to-sell number, clean rows in the scorecard (#76, #77, #78, #80)
 
 - One ready-to-sell number everywhere (#76). The unit is policies: 27 policies sold without ready-to-sell status on the demo run, the same as the RTS-001 count. The Overview tile and report.html used to show 26, which counts agent, carrier, state, and year combinations (two of the 27 policies share one). Both now show 27, labeled "Policies sold without ready-to-sell status", matching the Agents page and the README. The 26 combinations appear only beside the RTS matrix, where the combinations are drawn. `scorecard.rts_gaps` still counts combinations; its meaning is now written in the model and in docs/outputs.md.

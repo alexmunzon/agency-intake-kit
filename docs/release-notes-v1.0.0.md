@@ -13,7 +13,7 @@ Measured on the committed demo run of the synthetic agency (seed 42), in `dashbo
 - **All 717 planted mistakes found across 22 scored mistake types**, recall 1.00 for every type. Recall is the share of planted mistakes found.
 - **0 false alarms on 11,234 clean rows** (`detection.clean_rows` in `dashboard/public/demo-run/scorecard.json`). A false alarm is a problem raised on a row with no planted mistake.
 - Status passed with warnings: 14,879 rows read, 12,836 clean, 0 blockers, 308 errors, 423 warnings, 13 info.
-- The tie-out matched 6,400 book policies, 6,520 statement lines, and 2,177 CRM statuses, and explained $5,085.55 in differences across 239 items.
+- The tie-out matched 6,400 book policies, 6,520 statement lines, and 2,177 CRM statuses, and explained $5,085.55 in differences across 239 items, plus 114 commissions off the rate table or statement totals ($7,018.44).
 - Both "must block" examples block: a CRM file cut to 2,574 of 2,680 rows fails on CMP-001 before any model call, and a roster with an SSN column fails on SSN-001 with none of the 25 values in any output file.
 - The end-to-end test fails if recall drops below 0.95 for any type or false alarms rise above 0.5 percent, so these numbers cannot quietly go stale.
 
@@ -21,7 +21,7 @@ These are synthetic results. Real agency files will hold mistakes the generator 
 
 ## Jev cost
 
-Jev is TypeSafe's decision model; it answers small yes-or-no and pick-one questions, only where rules run out, and never overrides a rule. A run of the synthetic agency asks Jev 164 questions (7 about column headers, 157 to triage problems), 70,509 input tokens, an estimated $0.002961 if paid live, far under the $0.50 spend cap, which did not trip (`dashboard/public/demo-run/manifest.json`). Every answer is recorded in the repo, so a replay run, the default, costs $0 and needs no key. On the header benchmark, adding Jev after the dictionary lifts accuracy from 79.9 to 96.3 percent of 134 labeled headers, with zero wrong mappings.
+Jev is TypeSafe's decision model; it answers small yes-or-no and pick-one questions, only where rules run out, and never overrides a rule. A run of the synthetic agency asks Jev 164 questions (7 to map column headers and messy status words, 157 to triage problems), 70,509 input tokens, an estimated $0.002961 if paid live, far under the $0.50 spend cap, which did not trip (`dashboard/public/demo-run/manifest.json`). Every answer is recorded in the repo, so a replay run, the default, costs $0 and needs no key. On the header benchmark, adding Jev after the dictionary lifts accuracy from 79.9 to 96.3 percent of 134 labeled headers, with zero wrong mappings.
 
 ## What shipped, by pull request
 

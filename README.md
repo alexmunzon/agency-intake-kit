@@ -10,6 +10,14 @@ Live demo: https://agency-intake-kit.vercel.app
 
 ![Demo: the Overview page, then the Exceptions page, then the Tie-out page](docs/screenshots/demo.gif)
 
+## Two-minute tour
+
+1. Open the [live demo](https://agency-intake-kit.vercel.app), which starts on the Overview page.
+2. Read the answer at the top: "Yes, with fixes to review," with 0 blockers, 308 errors, and 423 warnings.
+3. Open Exceptions to see every problem sorted by severity, with its rule and source file.
+4. Click any row to open the drawer, which shows the suggested fix and the exact file, sheet, and row the problem came from.
+5. Open Tie-out and find the $61.05 that Harborline paid in August for a member who is on no policy in the book.
+
 ## What this is
 
 When an insurance agency is bought, its records arrive as a pile of mismatched files: a CRM export, an enrollment platform export, carrier commission statements, and an agent roster kept by hand. Someone then checks them by hand for weeks, and nothing downstream, human or AI, can act on data nobody has checked. This kit takes that pile and, in one command, answers three questions: can this book go live in our systems, does the money agree, and was every policy sold by an agent allowed to sell it.
@@ -62,11 +70,11 @@ Recall is the share of planted mistakes the kit found. A false alarm is a proble
 | Policy id reused with different details | DUP-003 | 8 | 8 |
 | Ready-to-sell status had expired | RTS-002 | 8 | 8 |
 
-The tie-out found $5,085.55 in dollar differences across 239 items. The generator also plants identity mistakes (name typos, nicknames, swapped birth dates) for the next project, bob-resolve. This kit reports them but does not score them, by design.
+The tie-out found $5,085.55 in dollar differences across 239 items, plus 114 commissions off the rate table or statement totals ($7,018.44), so the Tie-out page lists 353 differences to review. The generator also plants identity mistakes (name typos, nicknames, swapped birth dates) for the next project, bob-resolve. This kit reports them but does not score them, by design.
 
 ## The five dashboard questions
 
-Every page answers its question at the top before showing detail. A check that did not run says "Not checked", never 0, so a missing check can never look clean. A sixth page, Runs, loads a run of your own in the browser (nothing is uploaded) and shows what changed.
+Every page answers its question at the top before showing detail. A check that did not run says "Not checked", never 0, so a missing check can never look clean. A sixth page, Runs, loads a run of your own in the browser (nothing is uploaded). To compare two runs, use `cd engine && uv run intake diff <run_a> <run_b>`.
 
 | Page | Question it answers |
 |---|---|
@@ -102,7 +110,7 @@ npm run demo                                    # run the synthetic agency, refr
 
 Jev is TypeSafe's decision model. It answers small, bounded questions (yes or no, or pick one of a list) with a probability instead of free text. It answers four questions here, and only where the rules run out: which standard field a column header holds, which standard value a messy word means, whether a problem looks like a typo or a real business event, and whether a note holds personal details. Below its confidence cutoff, the item goes to a person. **Jev never overrides a rule: rules decide, and Jev only fills gaps and orders the queue.**
 
-- **Cost.** A run of the synthetic agency asks Jev 164 questions (7 about column headers, 157 to triage problems), 70,509 input tokens, an estimated **$0.002961** if paid live (`dashboard/public/demo-run/manifest.json`). Every answer is recorded in the repo, so a replay run, the default, costs $0.
+- **Cost.** A run of the synthetic agency asks Jev 164 questions (7 to map column headers and messy status words, 157 to triage problems), 70,509 input tokens, an estimated **$0.002961** if paid live (`dashboard/public/demo-run/manifest.json`). Every answer is recorded in the repo, so a replay run, the default, costs $0.
 - **Without a key.** Replay mode reads the recorded answers, so the demo, the tests, and CI never call the network. With Jev off, every Jev question goes to the person queue and the run still completes.
 - **Spend cap.** A run stops asking Jev when estimated spend reaches $0.50. The rest goes to a person, the run completes, and the manifest records that the cap tripped.
 
