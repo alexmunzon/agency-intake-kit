@@ -61,5 +61,34 @@ TIE_LINE_TOLERANCE_PCT: Final[Decimal] = Decimal("0.01")  # ... or 1 percent, wh
 TIE_TOTAL_TOLERANCE_PCT: Final[Decimal] = Decimal("0.005")  # carrier and agent totals: 0.5 percent
 
 # PR 11: exceptions policy and triage (PII gate cutoff)
+TRIAGE_ENTRY_ERROR: Final[float] = 0.80  # at or above: a keying slip, suggested-fix lane
+TRIAGE_BUSINESS_EVENT: Final[float] = 0.20  # at or below: a real event; in between: review
+TRIAGE_SHAPE_MAX_CHARS: Final[int] = 32  # value shapes sent to Jev are cut to this length
+# Fields sent with each triage question, by rule family. Notes are never among them.
+TRIAGE_NEIGHBORS: Final[dict[str, tuple[str, ...]]] = {
+    "DOB": ("line_of_business", "eligibility_reason"),
+    "MBI": ("line_of_business",),
+    "NPN": ("carrier", "agent_in_roster"),
+    "PLN": ("line_of_business", "carrier"),
+    "ADR": ("state",),
+    "DAT": ("status", "line_of_business"),
+    "STA": ("line_of_business",),
+    "DUP": ("line_of_business",),
+    "REF": ("line_of_business",),
+    "RTS": ("carrier", "line_of_business"),
+    "LIC": ("line_of_business",),
+    "TIE": ("carrier", "commission_type"),
+}
+# Closed-vocabulary neighbors are sent as the value itself; every other field as a shape.
+TRIAGE_KEEP_AS_IS: Final[frozenset[str]] = frozenset(
+    {"line_of_business", "eligibility_reason", "status", "carrier", "commission_type"}
+    | {"state", "agent_in_roster"}
+)
+PII_REDACT: Final[float] = 0.50  # PII gate: at or above, the text is redacted
+PII_REDACTED_TEXT: Final[str] = "[redacted]"
+# Word stems the PII pre-filter looks for (diagnosis, diagnosed, conditions, disability, ...)
+PII_HEALTH_WORDS: Final[frozenset[str]] = frozenset(
+    {"diagnos", "condition", "treatment", "prescription", "disabilit"}
+)
 
 # PR 12: run orchestration

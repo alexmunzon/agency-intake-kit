@@ -1,0 +1,31 @@
+{
+  "request": {
+    "model": "jev-latest",
+    "questions": {
+      "pii": {
+        "criteria": {
+          "false": "Routine account notes",
+          "true": "Health, medication, or identity details"
+        },
+        "instructions": "Does this text contain personal health or identity details about a specific person?",
+        "type": "noul"
+      }
+    },
+    "state": {
+      "text": "Client said the new prescription started on ##/##/####"
+    }
+  },
+  "response": {
+    "answers": {
+      "pii": {
+        "noul": 0.91,
+        "type": "noul"
+      }
+    },
+    "model": "synthetic-hand-made",
+    "usage": {
+      "input_tokens": 45,
+      "output_tokens": 1
+    }
+  }
+}
