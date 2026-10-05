@@ -2,10 +2,11 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { DEMO_RUN_DIR, loadRunDir, parseRun, type RunFiles } from "@/lib/run-loader";
+import { DEMO_RUN_DIR, loadRunDir } from "@/lib/run-dir";
+import { parseRun, type RunFiles } from "@/lib/run-loader";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
-const SAMPLES = ["sample-run", "sample-run-failed", "sample-run-passed"];
+const SAMPLES = ["sample-run", "sample-run-failed", "sample-run-passed", "sample-run-partial"];
 
 async function rawFiles(name: string): Promise<RunFiles> {
   const read = (file: string) => readFile(path.join(FIXTURES, name, file), "utf8");

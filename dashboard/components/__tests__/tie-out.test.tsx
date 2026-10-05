@@ -3,8 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { TieOutView } from "@/components/tie-out";
-import { loadRunDir } from "@/lib/run-loader";
-import { loadTieOut } from "@/lib/tie-out";
+import { loadRunDir, loadTieOut } from "@/lib/run-dir";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
 
@@ -76,5 +75,33 @@ describe("TieOutView", () => {
     tieOut.legs[0] = { ...tieOut.legs[0], matched: null, variance_dollars: null };
     render(<TieOutView run={await loadRunDir(dir)} tieOut={tieOut} />);
     expect(leg("A. Book vs statement").getAllByText("Not reported")).toHaveLength(2);
+  });
+
+  it("shows a partial run: two legs with numbers, one leg not checked (#18)", async () => {
+    await show("sample-run-partial");
+    expect(screen.getByText("Not fully. 3 differences to review.")).toBeInTheDocument();
+    expect(
+      screen.getByText("$85.55 in differences across 2 of 3 checks, plus 1 commission off the rate table or totals ($6.50)."),
+    ).toBeInTheDocument();
+    expect(leg("A. Book vs statement").getByText("$24.50")).toBeInTheDocument();
+    expect(leg("B. Statement vs book").getByText("$61.05")).toBeInTheDocument();
+    const crm = leg("C. CRM vs statement");
+    expect(crm.getByText("Not checked")).toBeInTheDocument();
+    expect(crm.getByText(/no policy status column/)).toBeInTheDocument();
+    expect(crm.queryByText(/\$0\.00|^0$/)).toBeNull();
+    expect(screen.queryByRole("row", { name: /HL-331540/ })).toBeNull();
+  });
+
+  it("says Partly when the checks that ran agree but one did not run", async () => {
+    const dir = path.join(FIXTURES, "sample-run-partial");
+    const run = await loadRunDir(dir);
+    const tieOut = await loadTieOut(dir);
+    for (const summary of run.scorecard.tie_out) {
+      if (summary.status === "RAN") Object.assign(summary, { variance_count: 0, variance_dollars: "0.00" });
+    }
+    tieOut.variances = [];
+    render(<TieOutView run={run} tieOut={tieOut} />);
+    expect(screen.getByText("Partly. The checks that ran agree.")).toBeInTheDocument();
+    expect(screen.getByText("Only 2 of 3 checks ran.")).toBeInTheDocument();
   });
 });

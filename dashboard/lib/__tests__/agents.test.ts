@@ -2,7 +2,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { rtsMatrix } from "@/lib/agents";
-import { loadRunDir } from "@/lib/run-loader";
+import { loadRunDir } from "@/lib/run-dir";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
 const matrixFor = async (name: string) => rtsMatrix((await loadRunDir(path.join(FIXTURES, name))).rts);

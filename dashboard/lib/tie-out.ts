@@ -1,12 +1,9 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-
 import { formatMoney, sumMoney } from "@/lib/money";
 import { plural } from "@/lib/overview";
 import { parseJson, type Run } from "@/lib/run-loader";
 import type { LegResult, TieOutLeg, TotalRow, Totals, Variance } from "@/lib/types";
 
-// Loads tie_out/*.json from one run. Like run-loader, it checks shape only (the engine's models
+// Parses tie_out/*.json from one run. Like run-loader, it checks shape only (the engine's models
 // validate for real), and refuses money written as a number so no cents can be lost to floats.
 export interface TieOut {
   legs: LegResult[];
@@ -20,7 +17,8 @@ export const LEGS: { leg: TieOutLeg; file: string; title: string; proves: string
   { leg: "STATEMENT_VS_BOOK", file: "leg_statement_vs_book", title: "B. Statement vs book", proves: "Every commission line matches a policy in the book" },
   { leg: "CRM_VS_STATEMENT", file: "leg_crm_vs_statement", title: "C. CRM vs statement", proves: "CRM status agrees with the carrier" },
 ];
-const OTHER_FILES = ["variances", "totals_by_carrier", "totals_by_agent"];
+/** File stems in tie_out/, legs first. */
+export const TIE_OUT_FILES = [...LEGS.map((leg) => leg.file), "variances", "totals_by_carrier", "totals_by_agent"];
 const MONEY_FIELDS = ["paid", "expected", "difference", "variance_dollars", "book_expected", "statement_paid", "unexplained_revenue"];
 const ZERO = /^-?0+(\.0+)?$/;
 const COUNTS = ["matched", "unmatched", "weak_matched", "variance_count", "variance_dollars"] as const;
@@ -72,18 +70,6 @@ export function parseTieOut(files: Record<string, string>, run?: Run): TieOut {
     byCarrier: parse<Totals>(files, "totals_by_carrier", "rows"),
     byAgent: parse<Totals>(files, "totals_by_agent", "rows"),
   };
-}
-
-export async function loadTieOut(runDir: string, run?: Run): Promise<TieOut> {
-  const files: Record<string, string> = {};
-  for (const name of [...LEGS.map((leg) => leg.file), ...OTHER_FILES]) {
-    try {
-      files[name] = await readFile(path.join(runDir, "tie_out", `${name}.json`), "utf8");
-    } catch {
-      throw new Error(`Could not read tie_out/${name}.json in ${runDir}`);
-    }
-  }
-  return parseTieOut(files, run);
 }
 
 /** Dollar checks that belong to no leg (TIE-003 rate table, TIE-005 totals), summed as positive amounts. */

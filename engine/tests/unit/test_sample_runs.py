@@ -21,7 +21,7 @@ from agency_schema.outputs import (
 from agency_schema.run_dir import check_run_dir
 
 FIXTURES = Path(__file__).parents[3] / "fixtures"
-SAMPLES = ["sample-run", "sample-run-failed", "sample-run-passed"]
+SAMPLES = ["sample-run", "sample-run-failed", "sample-run-passed", "sample-run-partial"]
 
 
 def load(sample: str, name: str) -> Any:
@@ -114,3 +114,14 @@ def test_example_4_orphan_payment_is_in_the_sample() -> None:
     totals: Totals = load("sample-run", "tie_out/totals_by_carrier.json")
     harborline = next(t for t in totals.rows if t.key == "Harborline")
     assert harborline.unexplained_revenue >= Decimal("61.05")
+
+
+def test_partial_sample_has_two_legs_ran_and_one_not_run() -> None:
+    sample = "sample-run-partial"
+    legs = {s: load(sample, f"tie_out/leg_{s}.json") for s in TieOutLeg.file_stems()}
+    assert legs["crm_vs_statement"].status == LegStatus.NOT_RUN
+    assert legs["crm_vs_statement"].not_run_reason
+    assert legs["crm_vs_statement"].variance_dollars is None
+    ran = [leg for stem, leg in legs.items() if stem != "crm_vs_statement"]
+    assert all(leg.status == LegStatus.RAN for leg in ran)
+    assert "TIE-004" not in {r.rule_id for r in exceptions(sample)}

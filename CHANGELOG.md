@@ -203,3 +203,13 @@ One entry per PR.
 - #14: A broken run file now names itself: "manifest.json: not valid JSON (...)", "exceptions.jsonl line 3: not valid JSON (...)", "tie_out/variances.json: not valid JSON (...)".
 - #16: The lineage drawer acts as a real modal. The page behind it is inert, Tab and Shift+Tab stay inside it, and focus returns to the row you opened it from when it closes.
 - #13: On a FAILED run, files without their own problem show "Read, not mapped (run stopped)" and "Mapping not checked. The run stopped first." The Sources header counts files read and says mapping was not checked.
+
+## PR 16: Load your own run, run diff, dark mode, accessibility (2026-10-04)
+
+- Runs page: pick a run folder's files (or drop the folder) and every page shows that run, with a banner naming it and a "Back to the demo run" button. The files are read in the tab only. Nothing is uploaded or stored, and a reload clears them. `lib/upload.ts` matches files by name, skips anything that is not a run file without reading it, and lists every problem by file ("scorecard.json: missing", "exceptions.jsonl line 2: not valid JSON", files from two runs).
+- `lib/run-loader.ts` and `lib/tie-out.ts` now only parse text, so the browser can reuse them. Reading the demo run from disk moved to `lib/run-dir.ts`. Pages still render the demo run on the server; a small client wrapper swaps in a loaded run.
+- Dark mode is a class on the page. An inline script applies the saved choice (or the system setting) before the first paint, and a header toggle switches it.
+- `intake diff <run_a> <run_b>` prints the status change, exception counts by severity, new and resolved exceptions by rule, and each tie-out leg's dollar change.
+- `fixtures/sample-run-partial`: two tie-out legs ran, CRM vs statement did not. `check_run_dir` covers it, and the Overview and Tie-out tests check "2 of 3 checks ran", the partial answer, and that the card that did not run shows "Not checked" with no numbers (#18).
+- `e2e/a11y.spec.ts`: axe on every page in light and dark, with the lineage drawer open, and on a loaded run; every page at 375 wide in both schemes (#17). Run by hand; it needs the Playwright browser.
+- Shared `PageHeader` now used by Overview, Sources, and Exceptions. Removed the unused `next-themes` and `recharts` packages and the dead "(soon)" nav branch (part of #19). Added `@axe-core/playwright` as a dev dependency.
