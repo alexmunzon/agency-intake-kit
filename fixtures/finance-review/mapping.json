@@ -1,0 +1,17 @@
+{
+  "mapping_id": "synthetic-finance",
+  "carrier": "Synthetic Carrier",
+  "version": "v1",
+  "approved_by": "Synthetic Finance Reviewer",
+  "approved_at": "2026-10-05T12:00:00Z",
+  "categories": {
+    "Renewal": "renewal"
+  },
+  "transaction_kinds": {
+    "Payment": "payment",
+    "Chargeback": "reversal"
+  },
+  "accounts": {
+    "renewal": "4100"
+  }
+}

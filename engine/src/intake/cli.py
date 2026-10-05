@@ -89,6 +89,34 @@ def diff(
     typer.echo("\n".join(lines))
 
 
+@app.command("finance-review")
+def finance_review(
+    statement: Annotated[Path, typer.Option(help="Synthetic statement package JSON.")],
+    mapping: Annotated[Path, typer.Option(help="Versioned finance mapping JSON.")],
+    output_format: Annotated[str, typer.Option("--format", help="json or csv.")] = "json",
+) -> None:
+    """Print a neutral finance review; never post entries or assign customer identity."""
+    from intake.revenue import (
+        RevenueMapping,
+        StatementPackage,
+        classify_statement,
+        review_csv,
+        review_json,
+    )
+
+    if output_format not in ("json", "csv"):
+        raise typer.BadParameter("--format must be json or csv")
+    try:
+        package = StatementPackage.model_validate_json(statement.read_text())
+        rules = RevenueMapping.model_validate_json(mapping.read_text())
+        review = classify_statement(package, rules)
+    except (OSError, ValueError):
+        # Validation errors can contain source values; keep rejected input out of logs.
+        typer.echo("Finance review refused: invalid or unreadable statement or mapping.", err=True)
+        raise typer.Exit(2) from None
+    typer.echo(review_csv(review) if output_format == "csv" else review_json(review), nl=False)
+
+
 def _clock(as_of: str | None) -> datetime | None:
     if as_of is None:
         return None

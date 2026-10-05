@@ -1,5 +1,74 @@
 # Agency Data Trust Series: Roadmap
 
+## Current review ownership (latest user clarification)
+
+The user removed Anne as a delivery dependency and requested continued work. The current demo repair completed a separate, bounded exact-commit independent review. Root arranges independent review of later completed slices. Do not run a broad code audit. Builder tests are not independent review. Green exact-head hosted verification and a no-blocker review remain merge gates. Root is the sole integration owner. M0/demo is complete. Bounded revenue classification/export is the next active implementation priority; broader M1, M2 and M4 remain planned. All references below that require Anne specifically are superseded. Bob, Plan and Commons implementation remain paused.
+
+## Current direction and delivery order (2026-10-05)
+
+This amendment controls current goals, acceptance and delivery order. The sections below it preserve the original milestones and historical decisions; their old calendars, review-agent plans, release tags and outreach plans are not current authorization. The expired four-hour deadline is retired. Intake implementation alone is active. Bob Resolve, Plan Diff and Commons implementation remain paused. Documentation updates do not unpause them.
+
+### Latest priority clarification
+
+The user's subsequent instruction changes delivery order: finish and independently review the current Intake demo first, then build a bounded revenue-classification/export slice before broader intake expansion. Current order is M0/demo, finance slice (M3), then M1, M2 and M4. Milestone numbers below are stable scope identifiers, not the current execution order. Parallelize only independent tasks; root remains the sole integration owner. Broader evidence, reconciliation and source-readiness workers were stopped and any saved work must be preserved.
+
+The finance slice must include its own minimal statement identity, duplicate/replacement traceability and conservative attribution contract. It must not require building the whole M1/M2 platform first. Unknown or weak identity stays unresolved; statement-level classification/export can proceed without authoritative customer attribution. Existing M1-M4 acceptance remains the destination. The demo received bounded independent review at exact head `475bc729790777fe3727c793177c4ce714600c79` with no remaining findings. Anne is no longer a delivery dependency.
+
+### Business evidence and product boundaries
+
+User-provided call notes are the basis for this direction, not independently verified transcripts:
+- Sam, October 5: data availability and normalization are the bottleneck. Brokers retrieve book exports and statements manually from portals or email. Collect once during diligence, begin integration before close, and reuse through acquisition, onboarding and operations. Accurate book visibility builds trust; measure attributable operational gains.
+- George, September 29: CRMs may be absent or unreliable. Identity evidence may be name and DOB or name alone. Insufficient evidence needs the responsible broker; the solution must work across agencies.
+- Frederic, September 25: separate new business, renewals, overrides, bonuses and marketing payments for finance reporting. Complement the existing Campfire, Ramp and outside QoE workflow.
+- The user's summary of public GYDE materials already includes secure upload, agency/client records, campaigns, meetings, a client-aware copilot and cited plan disruption analysis. These projects supply validation, reconciliation and review outputs for those workflows. No internal GYDE API, vendor import schema or production integration has been verified.
+
+### Goals and verified baseline
+
+| Project | Business outcome | Implemented on main | Saved work and current status |
+|---|---|---|---|
+| Agency Intake Kit | Collect agency data once before close, preserve incomplete evidence, reconcile and classify it, and produce a reusable, reviewable package for onboarding, finance and broker visibility | `54a947f79340dbe90febb3778fd578fe28e18e1e`: original pipeline/dashboard plus merged PR84 safety and rendering repairs | M0 complete: hosted run 37367430356 SUCCESS, bounded independent review passed, production READY at the merged commit. Bounded M3 finance next active; M1/M2/M4 planned |
+| Bob Resolve | Safely connect cross-source identities, obtain additional evidence when needed, and produce auditable decisions and unresolved cases | `20cc612acc90740bc33938a1b86903d40e710a20`: rules, guard rails, review/apply, provenance and core dashboard | Pagination `2145254`, benchmark UI `61cd4fa`, Jev/LLM and safety commits saved; benchmark, Changes and intake-clean bridge include uncommitted work. Implementation paused |
+| Plan Diff | Validate plan-document facts and changes, expose uncertainty, and support broker review in GYDE's existing renewal workflow | `119272ab8f1d6698eb0173f2d3cd0bc4dce8a20c`: extraction, validation, comparisons and dashboard; CI-color repair merged | No-Part-D/trust `48fd212`, labels `9722a2b`, Jev `2e46b87`, LLM branch `7786ae0` plus uncommitted integration saved. Implementation paused |
+| Commons dependency | Reusable schemas, synthetic fixtures and replay client | `a9a670fbd9ebced6f2201177d20716fb9944a4c0` | B-seed `6f39a28`, Jev guards `aa48179` and `169c37b` saved in paused worktrees |
+
+Exact worktree heads and dirty-file inventory are in the workspace's `series-docs/RESUME-INVENTORY-2026-10-05.json`. Saved implementation is not a merged or independently approved feature. Preserve all worktrees, including `pd-pr-15/data/raw`. Do not recreate saved features.
+
+### Intake milestone scopes (execution order amended above)
+
+| Milestone | Scope | Acceptance and dependency |
+|---|---|---|
+| M0: finish safety repair | Complete: input/output path protection, replay-integrity checks, impact score 0 to 2 and bounded RTS matrix rendering | PR84 merged at `54a947f79340dbe90febb3778fd578fe28e18e1e`; independent bounded review at `475bc729790777fe3727c793177c4ce714600c79` found no remaining findings; exact-head hosted run 37367430356 SUCCESS. Production deployment `dpl_X2ouacP8dXTBWLJhovAJRfSoiTC4` READY at the merged commit. Root verified six routes on desktop/mobile, matrix next, impact 1.43 / 2, synthetic 10-file import and reset, with no errors or overflow |
+| M1: preserve incomplete evidence and honest attribution | Lineage-preserving unresolved-evidence output, never invented identity or load-ready customers. Links explicitly confirmed, provisional, ambiguous or unmatched; candidate evidence and unresolved dollars remain visible | After the finance slice: absent CRM, missing DOB column, blank DOB, malformed DOB, duplicate member IDs and two policies sharing name/DOB have explicit outcomes. No smallest-policy-ID selection, no weak name/DOB confirmation, no lost or double-counted money. Valid statement totals remain usable independently; SSN and truncation protections remain |
+| M2: pre-close source readiness | Expected sources by agency, carrier, file type and period; received time, source as-of, owner, collection status and next action. Missing, stale, duplicate and corrected deliveries; idempotent imports and traceable revisions | After M1: synthetic missing statement, stale statement and duplicate identified correctly; duplicate changes no totals; move package into onboarding without re-upload. Extend run outputs/views. Portal/email fixture adapters demonstrate boundaries only, no live carrier login automation |
+| M3: finance classification and export | Revenue category separate from transaction kind. Categories: new business, renewal, override, bonus, marketing, unclassified. Kinds: payment, reversal, adjustment. Retain original labels, mapping version, source rows and classification method | Next active bounded implementation after completed M0: finance-approved/versioned mappings, exact totals by agency/carrier/period/category. Categorized plus unclassified equals statement totals; renewal chargeback keeps category and signed amount; unknown labels stay unresolved. Corrections create revisions, duplicate imports add no revenue. Neutral review export and configurable account mapping only, no invented Campfire schema or journal posting |
+| M4: operational readiness and broker visibility | Separate pipeline success from a person's package approval. Show source coverage/freshness, accepted/excluded/unresolved counts, enrollments by carrier, known people, unresolved identities, revenue, owners and reasons | After bounded M3 and broader M1/M2: deterministic severity/load rules remain authoritative. Jev can assist mapping/priority but never override blockers or release a package. Weak/conflicting identity never becomes authoritative finance attribution; source freshness is distinct from record update time |
+
+A dependency on Bob, Plan or Commons becomes a documented adapter contract or unresolved dependency, not permission to edit those implementations.
+
+### Future Bob amendments (planned, paused)
+
+Extend existing review/apply with needs-evidence status, responsible broker, requested information and response provenance. A recorded decision is not necessarily a resolved conflict. Suggested same-person pairs are not completed human review. Report automatic precision/coverage, unresolved rate, actual confirmed resolution, reviewer time and broker follow-ups, stratified by available identifiers. Preserve the no-name/DOB-only-auto-merge rule. Reuse saved pagination, seed, benchmark and bridge work after explicit resumption and independent review; do not rebuild it.
+
+Acceptance: name-only and name/DOB-only cases remain unresolved without additional evidence; broker response provenance is retained; unresolved conflicts stay open even after a decision is recorded. First reconcile saved branches, then evidence workflow and metric semantics, then benchmark on frozen data. Model agreement/confidence is not correctness and an LLM rationale adds no missing identity evidence.
+
+### Future Plan amendments (planned, paused)
+
+Reuse saved trust work. Preserve no-Part-D, not applicable, extraction missing, conflicting and incomparable states separately, with shared-benefit and comparison context. Evaluate unseen documents without first tuning on them; the existing Texas tuned slice is development evidence, not unseen accuracy. Later, add a small synthetic enrollment-to-plan-change broker worklist with explicit county evidence, citations and review status. Unknown identity, county or plan stays unresolved; this is never a coverage-suitability determination.
+
+Dependency order: reconcile saved trust/no-Part-D work, verify state semantics and frozen unseen evaluation, then consider the synthetic worklist after upstream identity and county contracts exist. No new carrier downloads are authorized.
+
+### Verification, review and delivery
+
+One integration owner, small coherent slices, meaningful regression tests and no competing full suites. No broad code audit. Separate bounded independent review is allowed; Anne is not a delivery dependency. Root arranges review of completed slices. Each slice supplies branch, exact commit, diff scope, test results, limitations and special-review points; do not certify builder checks as independent review. No merge or deployment of new unreviewed changes.
+
+Measure manual effort, repeated requests, unresolved items and corrections on the same task and dataset. Distinguish rules-only gains from incremental model gains, synthetic from public-document results, and development fixtures from unseen evaluation. Benchmark models only against measured operational outcomes; do not invent measured savings.
+
+After independent approval and authorized deployment: confirm actual deployed commit, verify desktop/mobile behavior, refresh screenshots and `demo-delivery/DEMO-WALKTHROUGH.md`. Demo: collect once, resolve uncertainty, reconcile revenue, deliver a trusted package. No paid Jev/LLM calls, new carrier downloads, real PHI, team messages, release tags, secret-file reads or security/protection changes.
+
+---
+
+## Historical roadmap (preserved)
+
 Three GitHub projects that prove Alex Munzon can make messy insurance-agency data trustworthy enough for AI agents to act on. Built for recruiting at Gyde (gydehealth.ai), reusable for any forward-deployed, data-ops, M&A analyst, or AI deployment role.
 
 This file is the north star for every Claude Code session on these projects. Read it first in any session. The per-project build guides (starting with `BUILD-GUIDE-agency-intake-kit.md`) carry the step-by-step instructions.
