@@ -82,6 +82,17 @@ The record refuses to exist when:
 
 **Masking.** `minimize_value()` keeps up to two leading characters (never more than a third of the value) and all punctuation, turns every other letter or digit into `*`, and cuts anything longer than 32 characters with `...`. So `1958-03-12` becomes `19**-**-**` and `HL-998213` becomes `HL-******`, `TX` becomes `**`, and an empty value becomes `None`.
 
+## SSN refusal (SSN-001)
+
+SSN-001 is a blocker that runs on raw frames before mapping. It checks each column in this order:
+
+1. **Header names an SSN** (words `ssn`, `social`, `tin`, `taxpayer`, or phrases `tax id`, `soc sec`): block, whatever the values are.
+2. **Header names a known id field**: the PR 5 synonym table maps it to an id field (NPN, MBI, policy, member, phone, ZIP, plan ids, and similar), or it holds one of those words. Never block on the values alone, even when they are nine digits.
+3. **Dashed or spaced SSN-shaped text** (`123-45-6789`, `123 45 6789`) in at least 1 percent of non-empty cells, anywhere in a cell: block. An SSN leaking into free text such as Notes counts.
+4. **Bare nine-digit cells** in at least 90 percent of non-empty cells: block only when some value cannot be an NPN (`is_valid_npn` fails, for example a leading zero). Bare nine digits alone are weak evidence, because NPNs can be nine digits.
+
+The record is file-level and never copies or counts a value. It names the column by its header, unless the header itself looks like an SSN (dashed or spaced, or nine or more digits, as when a headerless file's first row becomes the header). Then it names the column by position and shows the header masked by `minimize_value`, with the words "header value masked". The word lists and shares live in the PR 4 section of `config.py`.
+
 ## Rule registry
 
 `agency_schema.registry` holds the `@rule(rule_id, severity, family, description, blocks=...)` decorator, `catalog()`, and `run_rules(frame, family=None)`. Registering applies the same identity checks as ExceptionRecord, refuses duplicate ids, and `run_rules` refuses a rule that emits a record under another rule's id or severity. Rules arrive from PR 4 onward.
