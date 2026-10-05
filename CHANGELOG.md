@@ -221,6 +221,14 @@ One entry per PR.
 - `config.py` PR 5 section: required fields per table, the CRM client id carried into policies, and how close a header must be to be offered as a candidate.
 - fixtures/agency-a maps with three MAP-001 warnings and no MAP-003.
 
+## SSN gate hardening (#39, #51)
+
+- SSN-001 no longer blocks a run on a column of nine-digit NPNs. The gate now weighs the header and the value shape together: a header naming an SSN (SSN, Social, Soc Sec, Tax ID, TIN) always blocks; a header naming a known id field (NPN, MBI, policy, member, phone, ZIP, plan ids) never blocks on values alone; dashed or spaced SSN text in at least 1 percent of cells blocks, free text included; bare nine digits block only in 90 percent of cells and only when some value cannot be an NPN.
+- The output is unchanged: one file-level blocker record per column, and no value is ever echoed. The decision rule is in `intake/gates/refusal.py` and docs/schema.md; the word lists and shares are in the PR 4 section of `config.py`.
+- #39: a header the PR 5 synonym table maps to an id field (npn, mbi, policy id, member id, phone, zip, plan id) also counts as a known id header.
+- #51: when a file has no header row, an SSN in the first row became the column name and the message printed it in full. A header that looks like an SSN (dashed, spaced, or nine or more digits) is now masked with `minimize_value` and labeled "header value masked"; the message names the column by position.
+- New tests in `engine/tests/unit/test_ssn_gate.py`, including a headerless file in dashed, spaced, and bare forms.
+
 ## PR 7: Jev header mapping and enum normalization (2026-10-04)
 
 - `intake/mapping/jev_mapping.py`: Jev question 1 for each header PR 5 left unmapped. The choice options are every canonical field of the source's tables as `table.field`, plus `none`. Sample values: up to 5 distinct, cut to 24 characters, then masked with `minimize_value`. A column that looks like free text or holds a 9-digit value sends its header only, and a notes or comments header is never sent. 0.85 or more maps (method `jev` with the confidence in `mapping/<key>.yaml`), 0.60 up to 0.85 maps with MAP-002 for a person to confirm (raised every run until a person confirms), below 0.60 stays unmapped with PR 5's MAP-001. No answer (off mode or the spend guard) leaves the header unmapped and adds MAP-002 in the REVIEW lane. After Jev's picks are saved, PR 5's mapping runs again so taken fields, MAP-001, and MAP-003 are rechecked.
