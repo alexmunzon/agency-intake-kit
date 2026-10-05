@@ -203,6 +203,8 @@ def run(options: RunOptions) -> RunResult:
     drop, out = options.drop.resolve(), options.out.resolve()
     if not drop.is_dir():
         raise RunRefused(f"{drop} is not a folder. Pass the drop folder with --in.")
+    if drop == out or drop in out.parents or out in drop.parents:
+        raise RunRefused(f"{out} overlaps input folder {drop}. Choose a separate output folder.")
     if not (drop / MANIFEST_NAME).is_file():
         raise RunRefused(
             f"{drop} has no {MANIFEST_NAME}. A run needs the drop's manifest to know which "
@@ -216,19 +218,19 @@ def run(options: RunOptions) -> RunResult:
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = Path(tempfile.mkdtemp(prefix=f".{out.name}-", dir=out.parent))
     tmp.chmod(0o755)  # mkdtemp makes it private; a run folder reads like any other
-    old = out.parent / f".{out.name}-replaced"
+    backup: Path | None = None
     try:
         result = _run_into(tmp, drop, out, started, options.as_of, client, asker)
         if out.exists():  # --overwrite: keep the old run until the new one is in place
-            if old.exists():
-                shutil.rmtree(old)
-            out.rename(old)
+            # Never remove a pre-existing sibling: it may contain input or another run.
+            backup = Path(tempfile.mkdtemp(prefix=f".{out.name}-replaced-", dir=out.parent))
+            out.rename(backup / "run")
         tmp.rename(out)
     finally:
         if tmp.exists():
             shutil.rmtree(tmp)
-        if old.exists() and out.exists():
-            shutil.rmtree(old)
+        if backup is not None and out.exists():
+            shutil.rmtree(backup)
     return result
 
 

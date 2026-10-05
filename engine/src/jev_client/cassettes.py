@@ -23,6 +23,10 @@ class CassetteMiss(LookupError):
         )
 
 
+class CassetteError(ValueError):
+    """A cassette at the expected hash path is malformed or belongs to another request."""
+
+
 def canonical_json(body: Any) -> str:
     return json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
@@ -40,8 +44,24 @@ def load_cassette(cassette_dir: Path, body: Any) -> dict[str, Any] | None:
     path = cassette_path(cassette_dir, body)
     if not path.exists():
         return None
-    response: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))["response"]
-    return response
+    try:
+        cassette = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise CassetteError(f"invalid Jev cassette at {path}: unreadable JSON") from error
+    if (
+        not isinstance(cassette, dict)
+        or set(cassette) != {"request", "response"}
+        or not isinstance(cassette["request"], dict)
+        or not isinstance(cassette["response"], dict)
+    ):
+        raise CassetteError(
+            f"invalid Jev cassette at {path}: expected request and response objects"
+        )
+    if request_hash(cassette["request"]) != request_hash(body):
+        raise CassetteError(
+            f"invalid Jev cassette at {path}: stored request does not match request"
+        )
+    return cassette["response"]
 
 
 def save_cassette(cassette_dir: Path, body: Any, response: dict[str, Any]) -> Path:

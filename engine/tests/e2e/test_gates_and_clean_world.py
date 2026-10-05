@@ -84,6 +84,20 @@ def test_a_drop_without_a_manifest_gets_a_plain_error(tmp_path: Path) -> None:
     assert not (tmp_path / "r").exists()
 
 
+@pytest.mark.parametrize("output", ["same", "parent", "child"])
+def test_output_cannot_replace_or_contain_the_input_drop(tmp_path: Path, output: str) -> None:
+    drop = tmp_path / "bundle" / "drop"
+    shutil.copytree(FIXTURES / "agency-a-truncated" / "drop", drop)
+    before = sorted(p.name for p in drop.iterdir())
+    out = {"same": drop, "parent": drop.parent, "child": drop / "runs" / "run"}[output]
+
+    with pytest.raises(RunRefused, match="overlaps input folder"):
+        run(RunOptions(drop=drop, out=out, overwrite=True))
+
+    assert sorted(p.name for p in drop.iterdir()) == before
+    assert (drop / "crm_export.csv").is_file()
+
+
 @pytest.mark.parametrize(
     "keep", [set(), {"agent_roster.xlsx", "commissions_harborline.xlsx", "enrollment_export.csv"}]
 )

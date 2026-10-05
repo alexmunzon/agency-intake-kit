@@ -9,6 +9,7 @@ import pytest
 
 from agency_schema.outputs import JevMode
 from jev_client import (
+    CassetteError,
     CassetteMiss,
     ChoiceAnswer,
     ChoiceQuestion,
@@ -164,6 +165,18 @@ def test_replay_miss_raises_with_hash(tmp_path: Path) -> None:
     assert request_hash(TRIAGE.body()) in str(info.value)
 
 
+def test_unknown_constructor_mode_is_rejected_before_any_request(tmp_path: Path) -> None:
+    seen: list[httpx.Request] = []
+    with pytest.raises(ValueError):
+        JevClient(
+            mode="typo",  # type: ignore[arg-type]
+            api_key=KEY,
+            cassette_dir=tmp_path,
+            transport=transport([401], seen),
+        )
+    assert seen == []
+
+
 def test_replay_hit_parses_all_answer_types(tmp_path: Path) -> None:
     seen: list[httpx.Request] = []
     save_cassette(tmp_path, TRIAGE.body(), ANSWER)
@@ -181,6 +194,41 @@ def test_replay_hit_parses_all_answer_types(tmp_path: Path) -> None:
     assert isinstance(choice, ChoiceAnswer) and choice.choice == "dob"
     assert client.usage.calls == 1
     assert client.usage.input_tokens == 1_000_000
+
+
+def test_replay_rejects_cassette_with_mismatched_embedded_request(tmp_path: Path) -> None:
+    body = TRIAGE.body()
+    save_cassette(tmp_path, body, ANSWER)
+    path = tmp_path / f"{request_hash(body)}.json"
+    cassette = json.loads(path.read_text())
+    cassette["request"] = {**body, "state": "a different request"}
+    path.write_text(json.dumps(cassette))
+
+    with pytest.raises(CassetteError, match="request does not match"):
+        make(tmp_path, JevMode.REPLAY).ask(TRIAGE)
+
+
+@pytest.mark.parametrize(
+    "cassette",
+    [
+        [],
+        {"request": TRIAGE.body()},
+        {"request": [], "response": ANSWER},
+        {"request": TRIAGE.body(), "response": []},
+    ],
+)
+def test_replay_rejects_malformed_cassette_shape(tmp_path: Path, cassette: Any) -> None:
+    path = tmp_path / f"{request_hash(TRIAGE.body())}.json"
+    path.write_text(json.dumps(cassette))
+    with pytest.raises(CassetteError, match="invalid Jev cassette"):
+        make(tmp_path, JevMode.REPLAY).ask(TRIAGE)
+
+
+def test_replay_rejects_invalid_cassette_json(tmp_path: Path) -> None:
+    path = tmp_path / f"{request_hash(TRIAGE.body())}.json"
+    path.write_text("{")
+    with pytest.raises(CassetteError, match="unreadable JSON"):
+        make(tmp_path, JevMode.REPLAY).ask(TRIAGE)
 
 
 def test_live_sends_documented_request(tmp_path: Path) -> None:
