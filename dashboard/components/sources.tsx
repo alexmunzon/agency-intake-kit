@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SeverityBadge, TONES } from "@/components/severity-badge";
+import { PageHeader } from "@/components/tie-out";
 import { CARD } from "@/components/tiles";
 import { toneOf } from "@/lib/exceptions";
 import type { Run } from "@/lib/run-loader";
@@ -67,13 +68,7 @@ export function Sources({ run }: { run: Run }) {
     : `${clean} of ${summaries.length} files read and mapped cleanly.`;
   return (
     <div className="space-y-4">
-      <header>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Run <span className="font-mono text-xs">{run.manifest.run_id}</span>. Synthetic data only.
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight">What did we receive, and did it read cleanly?</h1>
-        <p className="mt-1 text-sm">{header}</p>
-      </header>
+      <PageHeader run={run} question="What did we receive, and did it read cleanly?">{header}</PageHeader>
       {summaries.map((summary) => <SourceCard key={summary.file.source} summary={summary} />)}
     </div>
   );

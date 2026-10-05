@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { ExceptionsView } from "@/components/exceptions-view";
 import { Sources } from "@/components/sources";
-import { loadRunDir } from "@/lib/run-loader";
+import { loadRunDir } from "@/lib/run-dir";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
 const load = (name: string) => loadRunDir(path.join(FIXTURES, name));

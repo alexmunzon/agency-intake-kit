@@ -2,8 +2,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { loadRunDir } from "@/lib/run-loader";
-import { differenceText, loadTieOut, otherDifferences, parseTieOut, totalsSum } from "@/lib/tie-out";
+import { loadRunDir, loadTieOut } from "@/lib/run-dir";
+import { differenceText, otherDifferences, parseTieOut, totalsSum } from "@/lib/tie-out";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
 const TIE_FILES = ["leg_book_vs_statement", "leg_statement_vs_book", "leg_crm_vs_statement", "variances", "totals_by_carrier", "totals_by_agent"];

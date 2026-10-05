@@ -1,0 +1,51 @@
+{
+  "cells": [
+    {
+      "npn": "1773019",
+      "carrier": "Harborline",
+      "state": "TX",
+      "plan_year": 2026,
+      "coverage": "HELD_AND_USED",
+      "policy_count": 88,
+      "exception_ids": []
+    },
+    {
+      "npn": "1884412",
+      "carrier": "Crestview Mutual",
+      "state": "TX",
+      "plan_year": 2026,
+      "coverage": "HELD_UNUSED",
+      "policy_count": 0,
+      "exception_ids": []
+    },
+    {
+      "npn": "1884412",
+      "carrier": "Harborline",
+      "state": "OK",
+      "plan_year": 2026,
+      "coverage": "HELD_AND_USED",
+      "policy_count": 41,
+      "exception_ids": []
+    },
+    {
+      "npn": "1884412",
+      "carrier": "Harborline",
+      "state": "TX",
+      "plan_year": 2026,
+      "coverage": "USED_WITHOUT_RTS",
+      "policy_count": 1,
+      "exception_ids": [
+        "EX-000005"
+      ]
+    },
+    {
+      "npn": "2210457",
+      "carrier": "Crestview Mutual",
+      "state": "TX",
+      "plan_year": 2026,
+      "coverage": "HELD_AND_USED",
+      "policy_count": 63,
+      "exception_ids": []
+    }
+  ]
+}

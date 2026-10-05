@@ -3,7 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { AgentsView } from "@/components/agents";
-import { loadRunDir } from "@/lib/run-loader";
+import { loadRunDir } from "@/lib/run-dir";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
 

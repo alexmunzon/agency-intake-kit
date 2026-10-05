@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { SeverityBadge, SeverityIcon, TONES, type Tone } from "@/components/severity-badge";
 import { CARD } from "@/components/tiles";
 import { formatMoney } from "@/lib/money";
@@ -12,13 +14,15 @@ export const TABLE = "w-full whitespace-nowrap text-left text-xs tabular-nums [&
 export const STICKY = "sticky left-0 bg-white dark:bg-slate-900";
 const MUTED = "text-slate-600 dark:text-slate-400";
 
-export function PageHeader({ run, question }: { run: Run; question: string }) {
+/** The run id, the page's one question, and an optional line under it. Shared by every page. */
+export function PageHeader({ run, question, children }: { run: Run; question: string; children?: ReactNode }) {
   return (
     <header>
       <p className={cn("text-sm", MUTED)}>
         Run <span className="font-mono text-xs">{run.manifest.run_id}</span>. Synthetic data only.
       </p>
       <h1 className="text-2xl font-semibold tracking-tight">{question}</h1>
+      {children && <p className="mt-1 text-sm">{children}</p>}
     </header>
   );
 }
