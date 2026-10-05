@@ -8,6 +8,7 @@ import {
   type SourceCounts,
 } from "@/lib/overview";
 import type { Run } from "@/lib/run-loader";
+import { otherDifferences, otherText, type TieOut } from "@/lib/tie-out";
 import type { RunStatus, SeverityCounts } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -82,7 +83,9 @@ function SourceBars({ rows }: { rows: SourceCounts[] }) {
   );
 }
 
-export function Overview({ run }: { run: Run }) {
+const STOPPED = "Found before the run stopped. Row checks did not run.";
+
+export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }) {
   const { manifest, scorecard } = run;
   const failed = manifest.status === "FAILED";
   const tieOut = tieOutSummary(run);
@@ -99,12 +102,14 @@ export function Overview({ run }: { run: Run }) {
       <StatusBanner run={run} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {SEVERITY_TILES.map(({ key, tone, label, context }) => {
-          // A blocker stops the run before row checks, so error and warning counts were never measured.
-          const unmeasured = failed && (key === "error" || key === "warning");
-          return unmeasured ? (
-            <Tile key={key} label={label} value="Not checked" context="The run stopped before row checks" muted />
-          ) : (
-            <Tile key={key} label={label} tone={tone} value={scorecard.exceptions_by_severity[key].toLocaleString("en-US")} context={context} />
+          // A blocker stops the run before row checks. Raw-stage checks (like a missing file) still ran,
+          // so a count found before the stop is shown with that context. Zero there means not checked.
+          const count = scorecard.exceptions_by_severity[key];
+          if (failed && key !== "blocker" && count === 0) {
+            return <Tile key={key} label={label} value="Not checked" context="The run stopped before row checks" muted />;
+          }
+          return (
+            <Tile key={key} label={label} tone={tone} value={count.toLocaleString("en-US")} context={failed && key !== "blocker" ? STOPPED : context} />
           );
         })}
         <Tile
@@ -120,7 +125,7 @@ export function Overview({ run }: { run: Run }) {
           <Tile
             label="Tie-out differences"
             value={formatMoney(tieOut.dollars)}
-            context={`${plural(tieOut.count, "item")}, ${tieOut.ran === tieOut.legs ? `all ${tieOut.legs}` : `${tieOut.ran} of ${tieOut.legs}`} checks ran`}
+            context={`${plural(tieOut.count, "item")}, ${tieOut.ran === tieOut.legs ? `all ${tieOut.legs}` : `${tieOut.ran} of ${tieOut.legs}`} checks ran${otherText(otherDifferences(tieFiles.variances))}`}
           />
         ) : (
           <Tile label="Tie-out differences" value="Not checked" context={tieOut.reason} muted />

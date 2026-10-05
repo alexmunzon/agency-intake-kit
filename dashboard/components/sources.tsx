@@ -34,8 +34,9 @@ function SourceCard({ summary }: { summary: SourceSummary }) {
         <Fact term="Header row" value={summary.headerRow} />
       </dl>
       <h3 className="mt-3 text-xs text-slate-600 dark:text-slate-400">Reading and mapping checks that fired</h3>
+      {!summary.mapped && <p className="text-sm text-slate-600 dark:text-slate-400">Mapping not checked. The run stopped first.</p>}
       {gates.length === 0 ? (
-        <p className="text-sm">None</p>
+        summary.mapped && <p className="text-sm">None</p>
       ) : (
         <ul className="mt-1 space-y-1 text-sm">
           {gates.map((record) => (
@@ -59,6 +60,11 @@ function SourceCard({ summary }: { summary: SourceSummary }) {
 export function Sources({ run }: { run: Run }) {
   const summaries = summarizeSources(run);
   const clean = summaries.filter((summary) => summary.tone === "pass").length;
+  // On a stopped run nothing was mapped, so count files read and say mapping was not checked.
+  const read = summaries.filter((summary) => summary.tone !== "blocker" && summary.tone !== "error").length;
+  const header = run.manifest.status === "FAILED"
+    ? `${read} of ${summaries.length} files read. Mapping not checked, because the run stopped first.`
+    : `${clean} of ${summaries.length} files read and mapped cleanly.`;
   return (
     <div className="space-y-4">
       <header>
@@ -66,7 +72,7 @@ export function Sources({ run }: { run: Run }) {
           Run <span className="font-mono text-xs">{run.manifest.run_id}</span>. Synthetic data only.
         </p>
         <h1 className="text-2xl font-semibold tracking-tight">What did we receive, and did it read cleanly?</h1>
-        <p className="mt-1 text-sm">{`${clean} of ${summaries.length} files read cleanly.`}</p>
+        <p className="mt-1 text-sm">{header}</p>
       </header>
       {summaries.map((summary) => <SourceCard key={summary.file.source} summary={summary} />)}
     </div>

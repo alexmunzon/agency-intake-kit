@@ -195,6 +195,15 @@ One entry per PR.
 - #24: `JevHTTPError` text no longer includes the raw body. The key, its first 8 characters, and any `Bearer ...` text become `[redacted]`, and the excerpt is cut at 200 characters.
 - #25: `live` always calls the API and never reads cassettes. Only `replay` and `record` read them. docs/jev.md says so.
 
+## Dashboard review fixes (2026-10-04)
+
+- #11: The Tie-out answer and the Overview tile now count the same differences the table lists. Checks that belong to no leg (TIE-003 rate table, TIE-005 totals) are named separately: "Not fully. 4 differences to review." and "$85.55 in differences across 3 of 3 checks, plus 1 commission off the rate table or totals ($6.50)." A status disagreement (TIE-004) shows "Status only, no amount" instead of "Even" and "Paid nothing, expected nothing".
+- #12: On a FAILED run the Errors, Warnings, and Info tiles show counts found before the run stopped, with the context "Found before the run stopped. Row checks did not run." They say "Not checked" only when the count is 0.
+- #15: The tie-out loader refuses a leg file that holds the wrong leg, a leg that ran with a count missing, a leg that did not run but has numbers, and leg files that disagree with the run's scorecard. A leg card shows "Not reported", never 0, for a missing count.
+- #14: A broken run file now names itself: "manifest.json: not valid JSON (...)", "exceptions.jsonl line 3: not valid JSON (...)", "tie_out/variances.json: not valid JSON (...)".
+- #16: The lineage drawer acts as a real modal. The page behind it is inert, Tab and Shift+Tab stay inside it, and focus returns to the row you opened it from when it closes.
+- #13: On a FAILED run, files without their own problem show "Read, not mapped (run stopped)" and "Mapping not checked. The run stopped first." The Sources header counts files read and says mapping was not checked.
+
 ## PR 11: exceptions policy, triage, PII gate (2026-10-04)
 
 - `intake/exceptions/policy.py`: the run status (any of the three blockers MAP-003, CMP-001, SSN-001 means FAILED; any error or warning means PASSED_WITH_WARNINGS; otherwise PASSED), the rows errors keep out of `clean/`, catalog suggested fixes for stages that left one blank, and the lanes triage does not decide (blockers to REVIEW, info stays UNREVIEWED).

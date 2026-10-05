@@ -2,9 +2,23 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { differenceText, loadTieOut, parseTieOut, totalsSum } from "@/lib/tie-out";
+import { loadRunDir } from "@/lib/run-loader";
+import { differenceText, loadTieOut, otherDifferences, parseTieOut, totalsSum } from "@/lib/tie-out";
 
 const FIXTURES = path.resolve(import.meta.dirname, "../../../fixtures");
+const TIE_FILES = ["leg_book_vs_statement", "leg_statement_vs_book", "leg_crm_vs_statement", "variances", "totals_by_carrier", "totals_by_agent"];
+
+async function tieFiles(name: string): Promise<Record<string, string>> {
+  const files: Record<string, string> = {};
+  for (const file of TIE_FILES) files[file] = await readFile(path.join(FIXTURES, name, "tie_out", `${file}.json`), "utf8");
+  return files;
+}
+
+function edit(text: string, change: (value: Record<string, unknown>) => void): string {
+  const value = JSON.parse(text);
+  change(value);
+  return JSON.stringify(value);
+}
 
 describe("loadTieOut", () => {
   it("reads all three legs in order A, B, C for the warnings sample", async () => {
@@ -82,3 +96,56 @@ describe("money words", () => {
     });
   });
 });
+
+describe("parseTieOut checks", () => {
+  it("refuses a leg file that holds a different leg", async () => {
+    const files = await tieFiles("sample-run");
+    expect(() => parseTieOut({ ...files, leg_book_vs_statement: files.leg_statement_vs_book })).toThrow(
+      /leg_book_vs_statement\.json: holds STATEMENT_VS_BOOK, expected BOOK_VS_STATEMENT/,
+    );
+  });
+
+  it("refuses a leg that ran with a count missing", async () => {
+    const files = await tieFiles("sample-run");
+    const bad = edit(files.leg_statement_vs_book, (leg) => (leg.matched = null));
+    expect(() => parseTieOut({ ...files, leg_statement_vs_book: bad })).toThrow(/leg_statement_vs_book\.json: ran but matched is missing/);
+  });
+
+  it("refuses a leg that did not run but has numbers", async () => {
+    const files = await tieFiles("sample-run-failed");
+    const bad = edit(files.leg_crm_vs_statement, (leg) => (leg.matched = 0));
+    expect(() => parseTieOut({ ...files, leg_crm_vs_statement: bad })).toThrow(/leg_crm_vs_statement\.json: did not run but matched is set/);
+  });
+
+  it("refuses tie-out files from a different run than the scorecard", async () => {
+    const run = await loadRunDir(path.join(FIXTURES, "sample-run"));
+    const files = await tieFiles("sample-run-failed");
+    expect(() => parseTieOut(files, run)).toThrow(/not from the same run as scorecard\.json/);
+  });
+
+  it("accepts each sample with its own scorecard", async () => {
+    for (const name of ["sample-run", "sample-run-failed", "sample-run-passed"]) {
+      const run = await loadRunDir(path.join(FIXTURES, name));
+      const files = await tieFiles(name);
+      expect(() => parseTieOut(files, run)).not.toThrow();
+    }
+  });
+
+  it.each(TIE_FILES)("names tie_out/%s.json when it is not valid JSON", async (name) => {
+    const files = await tieFiles("sample-run");
+    expect(() => parseTieOut({ ...files, [name]: "{" })).toThrow(new RegExp(`tie_out/${name}\\.json: not valid JSON`));
+  });
+});
+
+describe("other differences", () => {
+  it("counts the rate-table check that belongs to no leg on the warnings sample", async () => {
+    const tie = await loadTieOut(path.join(FIXTURES, "sample-run"));
+    expect(otherDifferences(tie.variances)).toEqual({ count: 1, dollars: "6.50" });
+  });
+
+  it("is empty on the passed sample", async () => {
+    const tie = await loadTieOut(path.join(FIXTURES, "sample-run-passed"));
+    expect(otherDifferences(tie.variances)).toEqual({ count: 0, dollars: "0.00" });
+  });
+});
+
