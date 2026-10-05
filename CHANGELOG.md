@@ -279,3 +279,13 @@ One entry per PR.
   agency-a-truncated and agency-a-ssn 820 to 878. Regenerate with
   `uv run synth generate --seed 42 --out ../fixtures/agency-a`, then the same with
   `--truncate-crm 2574 --no-canonical` and `--add-ssn-column --no-canonical` for the other two.
+
+## PR 17: header mapping benchmark
+
+- `intake bench header-mapping` scores three approaches on 134 labeled headers: synonyms only, synonyms then Jev, synonyms then Sonnet. It runs in Jev replay by default and makes no network calls.
+- The labeled set (`engine/src/intake/bench/data/header_labels.yaml`) holds all 79 distinct headers in the agency-a source files (a test checks the list against the files) and 55 synthetic variants, 11 of which hold no canonical field. Small and synthetic; the numbers describe this set only.
+- Per approach: accuracy, coverage, wrong mappings, "not recorded", model calls, and estimated cost per 1,000 headers. A header with no Jev recording is "not recorded", in its own column, never counted as wrong or missed. When no Jev answers are recorded the row says "not measured" instead of a percentage that would really be the synonyms' score.
+- Costs are estimates from token counts at stated prices (Jev $0.042 per million input tokens; Sonnet $2 in and $10 out per million). Latency is measured only for real network calls; replay says so.
+- The Sonnet arm runs only with `ANTHROPIC_API_KEY` set and `--sonnet` passed. Without a key its row says "skipped: no key". Adds the `anthropic` SDK as a dependency (uv.lock changed).
+- Writes `docs/benchmark-header-mapping.md` and the README table between `<!-- benchmark:start -->` and `<!-- benchmark:end -->`. Recording Jev answers later is one command, after Alex approves the spend: `uv run intake bench header-mapping --jev record --approve-spend`.
+- `config.py` PR 17 section: the 0.60 cutoff the benchmark scores with, the Sonnet model id, and the Sonnet price.
