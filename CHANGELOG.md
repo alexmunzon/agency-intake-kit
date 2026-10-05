@@ -229,6 +229,16 @@ One entry per PR.
 - #51: when a file has no header row, an SSN in the first row became the column name and the message printed it in full. A header that looks like an SSN (dashed, spaced, or nine or more digits) is now masked with `minimize_value` and labeled "header value masked"; the message names the column by position.
 - New tests in `engine/tests/unit/test_ssn_gate.py`, including a headerless file in dashed, spaced, and bare forms.
 
+## PR 16: Load your own run, run diff, dark mode, accessibility (2026-10-04)
+
+- Runs page: pick a run folder's files (or drop the folder) and every page shows that run, with a banner naming it and a "Back to the demo run" button. The files are read in the tab only. Nothing is uploaded or stored, and a reload clears them. `lib/upload.ts` matches files by name, skips anything that is not a run file without reading it, and lists every problem by file ("scorecard.json: missing", "exceptions.jsonl line 2: not valid JSON", files from two runs).
+- `lib/run-loader.ts` and `lib/tie-out.ts` now only parse text, so the browser can reuse them. Reading the demo run from disk moved to `lib/run-dir.ts`. Pages still render the demo run on the server; a small client wrapper swaps in a loaded run.
+- Dark mode is a class on the page. An inline script applies the saved choice (or the system setting) before the first paint, and a header toggle switches it.
+- `intake diff <run_a> <run_b>` prints the status change, exception counts by severity, new and resolved exceptions by rule, and each tie-out leg's dollar change.
+- `fixtures/sample-run-partial`: two tie-out legs ran, CRM vs statement did not. `check_run_dir` covers it, and the Overview and Tie-out tests check "2 of 3 checks ran", the partial answer, and that the card that did not run shows "Not checked" with no numbers (#18).
+- `e2e/a11y.spec.ts`: axe on every page in light and dark, with the lineage drawer open, and on a loaded run; every page at 375 wide in both schemes (#17). Run by hand; it needs the Playwright browser.
+- Shared `PageHeader` now used by Overview, Sources, and Exceptions. Removed the unused `next-themes` and `recharts` packages and the dead "(soon)" nav branch (part of #19). Added `@axe-core/playwright` as a dev dependency.
+
 ## PR 7: Jev header mapping and enum normalization (2026-10-04)
 
 - `intake/mapping/jev_mapping.py`: Jev question 1 for each header PR 5 left unmapped. The choice options are every canonical field of the source's tables as `table.field`, plus `none`. Sample values: up to 5 distinct, cut to 24 characters, then masked with `minimize_value`. A column that looks like free text or holds a 9-digit value sends its header only, and a notes or comments header is never sent. 0.85 or more maps (method `jev` with the confidence in `mapping/<key>.yaml`), 0.60 up to 0.85 maps with MAP-002 for a person to confirm (raised every run until a person confirms), below 0.60 stays unmapped with PR 5's MAP-001. No answer (off mode or the spend guard) leaves the header unmapped and adds MAP-002 in the REVIEW lane. After Jev's picks are saved, PR 5's mapping runs again so taken fields, MAP-001, and MAP-003 are rechecked.

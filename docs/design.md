@@ -11,8 +11,13 @@ The dashboard is for an agency owner who has never seen a data pipeline and for 
 | Exceptions | What needs fixing, in what order, and how? | `screenshots/exceptions-1440.png` |
 | Tie-out | Does the money agree? | `screenshots/tie-out-1440.png` |
 | Agents | Is every writing agent allowed to sell what they sold? | `screenshots/agents-1440.png` |
+| Runs | Load your own run | none |
 
-The Runs page (what changed since the last run) arrives in PR 16.
+**Runs.** Pick a run folder's files (or drop the folder) and every page shows that run, with a banner naming it and a button back to the demo run. The files are read in the browser tab only: nothing is uploaded, nothing is stored, and a reload clears them. Each problem names its file, for example "rts_coverage.json: missing". To compare two runs, use `uv run intake diff <run_a> <run_b>` in the engine.
+
+**Dark mode.** The header toggle switches it and remembers the choice in the browser. Without a saved choice the page follows the system setting. A small script in the page head applies it before the first paint, so a dark page never flashes white.
+
+**Accessibility checks.** `cd dashboard && npx playwright test e2e/a11y.spec.ts` runs axe (WCAG 2.1 A and AA) on every page in light and dark, plus the open lineage drawer and a loaded run, and fails on any serious or critical finding. It also checks every page at 375 wide for sideways scroll in both schemes. Like the screenshots, it needs the Chromium download, so it is not part of `npm run verify`.
 
 ## Design system
 

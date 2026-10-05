@@ -69,6 +69,24 @@ def rules(
         typer.echo(f"{m.rule_id}  {m.severity:<8}  {m.description}")
 
 
+@app.command()
+def diff(
+    run_a: Annotated[Path, typer.Argument(help="The earlier run folder.")],
+    run_b: Annotated[Path, typer.Argument(help="The later run folder.")],
+) -> None:
+    """Print what changed between two runs: status, exceptions, and tie-out differences."""
+    from pydantic import ValidationError
+
+    from intake.diff import diff_runs
+
+    try:
+        lines = diff_runs(run_a, run_b)
+    except (ValueError, ValidationError) as error:
+        typer.echo(f"Could not compare these runs. {error}", err=True)
+        raise typer.Exit(1) from None
+    typer.echo("\n".join(lines))
+
+
 jev_app = typer.Typer(
     help="Jev (TypeSafe) recordings. Recording spends money.", no_args_is_help=True
 )
