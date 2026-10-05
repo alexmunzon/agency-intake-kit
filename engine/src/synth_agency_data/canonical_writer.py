@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from agency_schema.models import TABLE_MODELS
+from synth_agency_data.injectors.base import AGGREGATE_DEFECTS
 from synth_agency_data.world import World
 
 LIST_SEPARATOR = "|"
@@ -35,8 +36,8 @@ def _cell(value: Any) -> str:
 
 
 def _row_ref(world: World, d: dict[str, Any]) -> int | None:
-    if d["source"] not in world.tables:
-        return None  # a file-level defect (truncation, SSN column) has no canonical row
+    if d["source"] not in world.tables or d["defect_type"] in AGGREGATE_DEFECTS:
+        return None  # a file-level defect or a total (TIE-005) has no canonical row
     rows = world.tables[d["source"]]
     key = d["record_key"]
     hits = [i for i, r in enumerate(rows) if all(r[k] == v for k, v in key.items())]

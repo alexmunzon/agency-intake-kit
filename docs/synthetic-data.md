@@ -75,7 +75,7 @@ A rate is a share of the table the defect lives in. Each defected record carries
 | RTS gap | 1% | RTS-001 | yes |
 | RTS expired | 0.3% | RTS-002 | yes |
 | License gap | 0.5% | LIC-001 | yes |
-| Same name and birth date, two client ids | 0.5% of clients | DUP-002 | yes |
+| Same name and birth date, two client ids (both the copy and the original are labeled) | 0.5% of clients | DUP-002 | yes |
 | PII sentence in CRM Notes | 1% of CRM policy rows | PII-001 | yes |
 | Name typo | 2% | none | no |
 | Nickname | 3% | none | no |
@@ -84,6 +84,12 @@ A rate is a share of the table the defect lives in. Each defected record carries
 | Near-duplicate client | 1.5% | none | no |
 
 Unscored defects are for the later bob-resolve project: they are reported but not gated.
+
+Totals off by more than 0.5 percent (TIE-005) are not injected on their own. They are what the
+missing, half-paid, and orphan lines add up to, so ground truth lists one `statement_total_variance`
+defect for each carrier or agent whose total breaks the tolerance (seed 42: 3 carriers, 45
+agents). The record key is `{"carrier": ...}` or `{"agent_npn": ...}`, the same fields tie-out
+reports, and `source_file`, `sheet`, and `source_row` are null because a total spans every file.
 
 Planted on purpose (SPEC examples 3 and 4): P-00417 has no RTS for Harborline, TX, 2026
 (RTS-001), and Harborline 2026-08 line 212 pays 61.05 to member HL-998213, who has no policy

@@ -153,6 +153,9 @@ def test_every_defect_points_at_a_row_that_holds_its_record(name: str) -> None:
         key, row = d["record_key"], d["source_row"]
         if d["defect_type"] in ("truncated_file", "ssn_column"):
             continue
+        if d["defect_type"] == "statement_total_variance":  # a TIE-005 total spans every file
+            assert (d["source_file"], d["sheet"], row) == (None, None, None), d
+            continue
         if d["source_file"] == "crm_export.csv":
             if cut is not None and row is None:
                 continue  # its row was cut off; the check below proves no row was dropped early

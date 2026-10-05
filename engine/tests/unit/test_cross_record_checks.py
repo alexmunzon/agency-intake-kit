@@ -68,6 +68,14 @@ def test_rule_fires_on_every_planted_defect(rule_id: str) -> None:
     assert not missed, f"{rule_id} missed {missed}"
 
 
+def test_dup_002_fires_only_on_labeled_clients() -> None:
+    """Issue 26: the original of each copied client is labeled too, so no DUP-002 is unexpected."""
+    tables, result = defected()
+    labeled = {gt_key(d) for d in truth() if "DUP-002" in d["expected_rule_ids"]}
+    found = {record_key(tables, r, ["client_id"]) for r in result.records if r.rule_id == "DUP-002"}
+    assert found == labeled
+
+
 def test_unknown_agents_are_left_to_the_npn_rules() -> None:
     tables, result = defected()
     npn_rows = {

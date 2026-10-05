@@ -203,3 +203,25 @@ One entry per PR.
 - #14: A broken run file now names itself: "manifest.json: not valid JSON (...)", "exceptions.jsonl line 3: not valid JSON (...)", "tie_out/variances.json: not valid JSON (...)".
 - #16: The lineage drawer acts as a real modal. The page behind it is inert, Tab and Shift+Tab stay inside it, and focus returns to the row you opened it from when it closes.
 - #13: On a FAILED run, files without their own problem show "Read, not mapped (run stopped)" and "Mapping not checked. The run stopped first." The Sources header counts files read and says mapping was not checked.
+
+## 3a review fixes: ground truth
+
+- Issue 26: a DUP-002 collision now labels both clients. The original gets its own scored
+  `name_dob_collision` defect (`copied_to` names the copy), so DUP-002 on the original's CRM rows
+  is no longer a false positive. A PR 9 test checks DUP-002 fires on exactly the labeled clients.
+- Issue 28: ground truth now expects TIE-005. After all injectors run, `total_variances` adds one
+  `statement_total_variance` defect (scored, TIE-005) for each carrier or agent whose statement
+  total is more than 0.5 percent off the book, computed from the injected amounts. Keys match
+  tie-out's output: `{"carrier": ...}` or `{"agent_npn": ...}` (an orphan line with no agent is
+  `(blank)`, as tie-out reports it). These have no canonical or source row, so `row_ref`,
+  `source_file`, `sheet`, and `source_row` are null. Seed 42 breaches at 3 carriers (Bluepeak,
+  Harborline, Summit Health Plans), not all 6 as the issue estimated, plus 45 agents. PR 10's
+  test now requires its TIE-005 findings to equal ground truth exactly.
+- Issue 29: example 3 (P-00417, NPN 1884412, Harborline, TX, 2026, no RTS, TX licensed) and
+  example 4's line 212 are now checked after every injector runs and in the committed fixture.
+- Locking the DUP-002 originals changes which clients the near-duplicate injector copies, so
+  `canonical-defected/clients.csv` and the CRM exports changed. No rule or check logic changed.
+- Defect counts: agency-a 819 to 877 (scored 659 to 717; DUP-002 10 to 20; TIE-005 0 to 48).
+  agency-a-truncated and agency-a-ssn 820 to 878. Regenerate with
+  `uv run synth generate --seed 42 --out ../fixtures/agency-a`, then the same with
+  `--truncate-crm 2574 --no-canonical` and `--add-ssn-column --no-canonical` for the other two.

@@ -33,12 +33,14 @@ def clean(tmp_path_factory: pytest.TempPathFactory) -> TieOutResult:
 
 
 def _key(rule_id: str, v: Any) -> tuple[Any, ...]:
+    if rule_id == "TIE-005":  # a total: by carrier, or by agent
+        return (v.get("carrier"), v.get("agent_npn"))
     if rule_id in ("TIE-001", "TIE-004"):
         return (v["policy_id"],)
     return (v["carrier"], v["statement_period"], v["line_no"])
 
 
-@pytest.mark.parametrize("rule_id", ["TIE-001", "TIE-002", "TIE-003", "TIE-004"])
+@pytest.mark.parametrize("rule_id", ["TIE-001", "TIE-002", "TIE-003", "TIE-004", "TIE-005"])
 def test_each_rule_finds_exactly_its_ground_truth_defects(
     defected: TieOutResult, rule_id: str
 ) -> None:
