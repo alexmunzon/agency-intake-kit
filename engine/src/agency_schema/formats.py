@@ -34,6 +34,9 @@ NAME_SUFFIXES = frozenset({"jr", "sr", "ii", "iii"})
 TWO_DIGIT_YEAR_PIVOT = 30
 EXCEL_SERIAL_MIN = 20000  # 1954-10-03
 EXCEL_SERIAL_MAX = 60000  # 2064-04-08
+COMPACT_DATE_DIGITS = 8  # 20260501 is 1 May 2026
+COMPACT_YEAR_MIN = 1900
+COMPACT_YEAR_MAX = 2099
 EXCEL_EPOCH = date(1899, 12, 30)  # Excel's day zero, which absorbs its 1900 leap-year bug
 MONTHS = {
     m: i for i, m in enumerate("JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split(), start=1)
@@ -139,12 +142,18 @@ def _make_date(year: int, month: int, day: int) -> date | None:
 
 
 def parse_date_loose(value: str) -> date | None:
-    """Read ISO, MM/DD/YYYY, MM/DD/YY, DD-Mon-YY, or an Excel serial from 20000 to 60000.
+    """Read ISO, MM/DD/YYYY, MM/DD/YY, DD-Mon-YY, compact YYYYMMDD, or an Excel serial.
 
     Returns None for anything else, including impossible dates like 02/30/2025.
-    Day-first slash dates are not accepted, so 13/01/2025 is None.
+    Day-first slash dates are not accepted, so 13/01/2025 is None. Exactly eight digits are
+    always read as YYYYMMDD with a year from 1900 to 2099 (never as a serial, which has five).
     """
     text = value.strip()
+    if text.isdigit() and len(text) == COMPACT_DATE_DIGITS:
+        year = int(text[:4])
+        if not COMPACT_YEAR_MIN <= year <= COMPACT_YEAR_MAX:
+            return None
+        return _make_date(year, int(text[4:6]), int(text[6:]))
     if text.isdigit():
         serial = int(text)
         if EXCEL_SERIAL_MIN <= serial <= EXCEL_SERIAL_MAX:

@@ -32,7 +32,7 @@ class RawTable:
     header_row: int  # 1-based row the header was found on
     encoding: str | None  # None for xlsx
     delimiter: str | None  # None for xlsx
-    dropped_rows: int  # trailing total or blank rows removed
+    dropped_rows: int  # trailing total block (totals, footers, blanks) or blank rows removed
     total_row_count: int | None  # data row count printed on a trailing total row, if any
     exceptions: tuple[ExceptionRecord, ...]  # ING records about how the file was read
     expected_rows: int | None = None  # from drop/manifest.json, filled by ingest
@@ -134,7 +134,7 @@ def table_from_rows(
     delimiter: str | None = None,
     delimiter_confident: bool = True,
 ) -> RawTable:
-    """Find the header, drop trailing total rows, attach lineage, and note what was unusual."""
+    """Find the header, drop the trailing total block, attach lineage, and note what was unusual."""
     header_at = find_header_row(rows)
     body = rows[header_at + 1 :]
     dropped = count_trailers(body)
