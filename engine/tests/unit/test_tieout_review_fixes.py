@@ -85,6 +85,15 @@ def test_overlapping_line_numbers_across_carriers_do_not_cross_match() -> None:
     assert not [v for v in found if v[0] == "TIE-003"]
 
 
+def _key(rule_id: str, v: dict[str, object]) -> tuple[object, ...]:
+    """The ground truth's record key for each rule, as tests/unit/test_tieout.py reads it."""
+    if rule_id == "TIE-005":  # a total: by carrier, or by agent
+        return (v.get("carrier"), v.get("agent_npn"))
+    if rule_id in ("TIE-001", "TIE-004"):
+        return (v["policy_id"],)
+    return (v["carrier"], v["statement_period"], v["line_no"])
+
+
 def test_six_statement_files_find_exactly_the_ground_truth() -> None:
     """#53: the fixture's lines split into one file per carrier, rows numbered from 4 each."""
     tables = dict(read_canonical(AGENCY_A / "canonical-defected"))
@@ -99,9 +108,16 @@ def test_six_statement_files_find_exactly_the_ground_truth() -> None:
     )
     result = run_tieout(tables, run_id="test-run")
     truth = load_ground_truth(AGENCY_A / "ground_truth.json")["defects"]
-    planted = Counter(r for d in truth for r in d["expected_rule_ids"] if r.startswith("TIE"))
-    found = Counter(v.rule_id for v in result.variances.variances if v.rule_id != "TIE-005")
-    assert found == planted
+    for rule_id in ("TIE-001", "TIE-002", "TIE-003", "TIE-004", "TIE-005"):
+        planted = Counter(
+            _key(rule_id, d["record_key"]) for d in truth if rule_id in d["expected_rule_ids"]
+        )
+        found = Counter(
+            _key(rule_id, v.model_dump())
+            for v in result.variances.variances
+            if v.rule_id == rule_id
+        )
+        assert planted and found == planted, rule_id
     orphan = [v for v in result.variances.variances if v.carrier_member_id == "HL-998213"]
     assert [(v.rule_id, v.paid) for v in orphan] == [("TIE-002", Decimal("61.05"))]
 
