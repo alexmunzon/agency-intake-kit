@@ -213,3 +213,11 @@ The Runs page displays a separate synthetic statement example with 75.00 renewal
 Every new `intake run` writes `unresolved_evidence.jsonl` beside the usual files. It contains only schema version, run ID, source, reason and lineage. Reasons are `crm_absent`, `dob_column_missing`, `dob_blank` and `dob_malformed`. When CRM is absent, a source summary has null lineage and received rows retain their original lineage as review references. DOB cases name affected CRM rows with the mapping version. An empty CRM lacking the DOB header has a source summary instead of invented row lineage. No raw identity values or invented customer IDs are exported.
 
 An empty file does not establish readiness: raw blockers suppress evidence, and the manifest and exceptions still determine run status. This artifact does not change clean files or reconcile identities. The dashboard currently skips it; inspect the JSONL alongside the existing run report. Later candidate-link and evidence UI work remains planned.
+
+### Conservative reconciliation links
+
+New runs also write `tie_out/links.jsonl`: one record per checked statement row, with the accepted signed amount, source lineage, candidate policy lineage/methods, explicit state and reason. Only a unique consistent strong identifier confirms a policy link; name/DOB alone is provisional, duplicate/conflicting keys are ambiguous, and no candidate is unmatched. A person with several policies may retain weak alternatives alongside a unique strong match. Confirmation is deterministic attribution, not human approval or verified identity.
+
+Non-confirmed rows keep their dollars in statement totals and unexplained revenue but do not pay a policy or trigger its rate/status checks. Existing six tie-out files remain compatible; `weak_matched` counts confirmed matches only and provisional evidence is in links.jsonl. Dashboard imports currently skip the new artifact. Missing-book runs still report NOT_RUN; this slice does not implement independent absent-book statement totals or change the finance ledger.
+
+Link amounts use the existing tie-out `DECIMAL(12,2)` range. Null is not zero; this slice does not expand that range or add independent diagnosis for out-of-range numeric input. Conservation assertions cover accepted amounts.

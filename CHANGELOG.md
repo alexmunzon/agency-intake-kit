@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Export versioned reconciliation candidate evidence with statement and policy lineage, explicit states and signed amounts.
+
 - Preserve conservative reconciliation states and carrier isolation; keep weak/conflicting evidence unresolved.
 - Preserve optional unresolved-evidence row references for absent CRM and missing, blank or malformed DOB. Keep raw safety gates, load exclusions and unavailable comparisons unchanged.
 

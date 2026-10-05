@@ -57,6 +57,11 @@ def test_each_rule_finds_exactly_its_ground_truth_defects(
         _key(rule_id, v.model_dump()) for v in defected.variances.variances if v.rule_id == rule_id
     }
     assert planted and found == planted | LINK_CONFLICTS.get(rule_id, set())
+    conflicts = [link for link in defected.links if link.reason == "conflicting_name_dob"]
+    assert len(conflicts) == 3
+    assert all(
+        {c.policy_id for c in link.candidates} == {"P-01323", "P-01324"} for link in conflicts
+    )
 
 
 def test_each_leg_file_holds_its_own_rule(defected: TieOutResult) -> None:
@@ -234,6 +239,7 @@ def test_a_name_and_dob_match_is_weak_and_flagged() -> None:
     assert (leg_b.matched, leg_b.weak_matched, leg_b.unmatched) == (0, 0, 1)
     assert [r.rule_id for r in result.exceptions] == ["TIE-001", "TIE-002", "TIE-006"]
     assert result.exceptions[-1].severity == "INFO"
+    assert result.links[0].state == "provisional" and result.links[0].policy_id is None
 
 
 def test_status_conflict_and_unpaid_policy() -> None:
