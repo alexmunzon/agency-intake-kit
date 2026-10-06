@@ -4,6 +4,8 @@ Validate, reconcile, and show the health of a newly acquired insurance agency's 
 
 Live demo: https://agency-intake-kit.vercel.app
 
+Start the [three-demo walkthrough](docs/demo-walkthrough.md): [1. Intake Kit](https://agency-intake-kit.vercel.app), [2. Bob Resolve](https://bob-resolve-nine.vercel.app), [3. Plan Diff](https://plan-diff.vercel.app). These are separate working demos with shared trust principles. No client data moves between the sites.
+
 **Result on the synthetic test agency:** all 717 planted mistakes found across 22 scored mistake types (recall 1.00 for every type), with 0 false alarms on 11,234 clean rows (`detection.clean_rows` and `detection.false_positive_rows` in `dashboard/public/demo-run/scorecard.json`). A clean row is one with no planted mistake. Measured on synthetic data, not a real agency.
 
 ![Overview page: a status banner answering whether the agency can go live, with counts of blockers, errors, and warnings](docs/screenshots/overview-1440.png)
@@ -143,7 +145,7 @@ How well does each approach turn a messy column header into the right standard f
 Read these numbers as a check on a seen set, not accuracy on unfamiliar exports. The 134 headers were written by the builder, and 79 of them come from the fixture files the synonym list was built against. The benchmark asks Jev about the header text and source kind only, with no masked sample values, and uses a single 0.60 cutoff where the pipeline uses 0.60 and 0.85, so it does not match the pipeline's request exactly. Jev runs in replay, which answers only questions it has already recorded, so on a new export an unfamiliar column gets no Jev answer and goes to a person, the same as with Jev off.
 
 <!-- benchmark:start -->
-Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 synthetic variants), Jev in replay. Small synthetic set; method and caveats in [docs/benchmark-header-mapping.md](docs/benchmark-header-mapping.md).
+Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 synthetic variants), Jev in replay. A small seen regression set, not accuracy on unfamiliar exports. Replay sends an unfamiliar column with no recording to a person. Method and caveats in [docs/benchmark-header-mapping.md](docs/benchmark-header-mapping.md).
 
 | Approach | Accuracy | Coverage | Wrong mappings | Not recorded | Model calls | Est. cost per 1,000 headers |
 |---|---|---|---|---|---|---|
@@ -171,7 +173,7 @@ Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 s
 
 ## Part of a series
 
-This is the first project built in the Agency Data Trust Series. Next: bob-resolve (matching the same person across files without an SSN) and plan-diff (comparing plan documents across carriers). See [ROADMAP.md](ROADMAP.md).
+This is the first project built in the Agency Data Trust Series. [Bob Resolve](https://bob-resolve-nine.vercel.app) demonstrates conservative identity matching without SSNs; its default synthetic run uses MBI before masking it for display. [Plan Diff](https://plan-diff.vercel.app) compares benefit documents with source/page citations and explicit uncertainty. Each site uses its own frozen run. The broader integration plan remains in [ROADMAP.md](ROADMAP.md).
 
 ## License
 

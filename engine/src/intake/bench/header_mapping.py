@@ -330,7 +330,8 @@ def render_readme_block(result: BenchResult) -> str:
         START,
         f"Header mapping benchmark on {len(result.items)} labeled headers ({fixture} from the "
         f"fixture files, {len(result.items) - fixture} synthetic variants), Jev in replay. "
-        "Small synthetic set; method and caveats in "
+        "A small seen regression set, not accuracy on unfamiliar exports. Replay sends an "
+        "unfamiliar column with no recording to a person. Method and caveats in "
         "[docs/benchmark-header-mapping.md](docs/benchmark-header-mapping.md).",
         "",
         *table_rows(result),
@@ -367,6 +368,9 @@ def render_doc(result: BenchResult) -> str:
         f"fixture files and {total - fixture} synthetic variants written for this benchmark, some "
         "of which hold no canonical field. Every header in it is synthetic and the set is small, "
         "so these numbers describe this set only, not real agency files.",
+        "The builder wrote these labels and built the synonym list against the fixture files. "
+        "This is a seen regression set, not accuracy on unfamiliar exports. Replay sends an "
+        "unfamiliar column with no recording to a person, just as Jev off does.",
         "",
         *table_rows(result),
         "",
@@ -378,9 +382,11 @@ def render_doc(result: BenchResult) -> str:
         "- **Wrong mappings:** a header mapped to the wrong field. This is the costly mistake: "
         "data lands in the wrong place quietly, where an unmapped column is at least flagged.",
         "- **Not recorded:** Jev runs in replay here, reading saved answers (cassettes). A header "
-        "with no saved answer is not scored at all. It is never counted as wrong or missed, "
-        "which would make Jev look worse than it is. With recordings for only some headers, "
-        "accuracy covers the scored headers only, so compare rows with that in mind.",
+        "with no saved answer is excluded from the accuracy denominator and counted here. "
+        "It remains unresolved in the pipeline. With partial recordings, accuracy covers only "
+        "the scored subset and must not be presented as full-set or unfamiliar-export accuracy.",
+        "- **Model calls in replay:** these are recorded-answer lookups, not new API requests. "
+        "This replay makes zero paid calls. Costs below estimate the equivalent live requests.",
         "- **Est. cost:** estimated from the token counts in the replies, at published prices: "
         "Jev $0.042 per million input tokens, output free (docs/jev.md); Sonnet "
         f"(`{BENCH_SONNET_MODEL}`) $2 per million input and $10 per million output tokens "
@@ -394,6 +400,9 @@ def render_doc(result: BenchResult) -> str:
         "that source's tables plus none as options. It sends the header text and source kind "
         f"only, never values. An answer below {BENCH_JEV_MIN_CONFIDENCE} confidence counts as "
         "unmapped, as in SPEC. Sonnet gets the same options as a strict JSON answer.",
+        "This benchmark does not reproduce the pipeline request: it omits the pipeline's "
+        "masked sample values and uses one 0.60 cutoff instead of the pipeline's 0.60 and 0.85 "
+        "review/accept thresholds. It measures this header-only task, not end-to-end mapping.",
         "",
         "| Approach | Model calls | Wall time | Latency |",
         "|---|---|---|---|",

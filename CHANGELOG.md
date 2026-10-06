@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Connect the three separate recruiting demos with ordered navigation and a shared walkthrough. Preserve the seen-set, replay and pipeline-mismatch caveats when regenerating header-mapping benchmark documentation.
+
 - Fix the Exceptions page scrolling sideways on desktop windows about 1024 to 1150 pixels wide: the page column can now shrink beside the sidebar, so the wide table scrolls in its own box.
 
 - Keep an invalid Jev answer (malformed, an option not offered, or the wrong question) unresolved instead of crashing the import: a header stays unmapped with MAP-002 "invalid model answer", an enum value stays as written for a person, a triaged exception keeps its severity and fix in the human queue, and the PII gate redacts the whole text (fails closed).

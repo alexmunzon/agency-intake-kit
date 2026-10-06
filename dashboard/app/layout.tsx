@@ -46,6 +46,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 </li>
               ))}
             </ul>
+            <section aria-label="Agency Data Trust Series" className="border-t border-slate-200 px-4 py-3 text-xs lg:px-5 dark:border-slate-800">
+              <p className="font-semibold">Agency Data Trust Series</p>
+              <p className="mt-1 text-slate-600 dark:text-slate-400">Separate demos, shared trust principles.</p>
+              <ol className="mt-2 flex flex-wrap gap-x-4 gap-y-2 lg:flex-col">
+                <li><span aria-current="page" className="font-medium">1. Intake Kit</span></li>
+                <li><a href="https://bob-resolve-nine.vercel.app" className="text-indigo-700 underline dark:text-indigo-300">2. Bob Resolve</a></li>
+                <li><a href="https://plan-diff.vercel.app" className="text-indigo-700 underline dark:text-indigo-300">3. Plan Diff</a></li>
+              </ol>
+            </section>
           </nav>
           <main className="mx-auto w-full max-w-[1120px] min-w-0 px-4 py-6 sm:px-10">
             <LoadedRunBanner />

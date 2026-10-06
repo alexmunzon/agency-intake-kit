@@ -14,4 +14,14 @@ describe("RootLayout", () => {
     const main = new DOMParser().parseFromString(html, "text/html").querySelector("main");
     expect(main?.className.split(" ")).toContain("min-w-0");
   });
+
+  it("links the three separate demos in walkthrough order without claiming a connected pipeline", () => {
+    const html = renderToStaticMarkup(<RootLayout params={Promise.resolve({})}>page</RootLayout>);
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const series = doc.querySelector('[aria-label="Agency Data Trust Series"]');
+    expect(series?.textContent).toContain("Separate demos");
+    expect(series?.querySelector('[aria-current="page"]')?.textContent).toBe("1. Intake Kit");
+    expect(series?.querySelector('a[href="https://bob-resolve-nine.vercel.app"]')?.textContent).toBe("2. Bob Resolve");
+    expect(series?.querySelector('a[href="https://plan-diff.vercel.app"]')?.textContent).toBe("3. Plan Diff");
+  });
 });
