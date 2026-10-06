@@ -34,6 +34,9 @@ describe("Responsive presentation source contracts", () => {
   });
 
   it("contains wide tables in their own bounded scrollers without hiding evidence", () => {
+    const stack = blockAt(".page-stack {");
+    expect(stack).toContain("grid-template-columns: minmax(0, 1fr)");
+    expect(stack).toContain("min-width: 0");
     const wrapper = blockAt(".evidence-table-wrap {");
     expect(wrapper).toContain("max-width: 100%");
     expect(wrapper).toContain("min-width: 0");
