@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Add optional observed carrier and statement-period dimensions for independent statement amounts; unknowns remain explicit and existing load gates are unchanged.
+
 - Show validated independent statement amounts and source references in Tie-out while preserving unavailable, excluded and raw-blocked states and existing run gates.
 
 - Preserve exact received statement amounts with row exclusions and provenance when CRM is absent, without changing FAILED/no-clean/NOT_RUN gates.
