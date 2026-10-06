@@ -1,5 +1,17 @@
 # Agency Data Trust Series: Roadmap
 
+## Bounded statement carrier and period evidence (2026-10-05)
+
+An optional `statement_groups.json` companion preserves one full lineage reference per independent statement amount row, with observed mapped carrier and canonical YYYY-MM period or explicit null unknowns. No carrier is inferred from a source name or filename. Mapping decisions remain deterministic and read-only; manual ignore and ambiguous columns remain unknown. Raw-blocked and unavailable totals have no grouping rows. Existing `statement_totals.json` v1, FAILED/no-clean/NOT_RUN semantics, signed amounts and exclusions remain unchanged.
+
+The dashboard follow-up validates a complete one-to-one lineage correspondence before deriving carrier/period sums and valid/excluded counts. Unknown dimensions never imply complete coverage, null never becomes zero, and these are received-row amounts, not deduplicated receipts or authoritative policy attribution. Full M1 and M2 remain incomplete. Delivery requires local verification, independent exact-commit review and a green exact-head hosted gate.
+
+## Latest delivery: independent statement amounts (2026-10-05)
+
+PR95 engine and PR96 dashboard are delivered. Engine reviewed `6c8c6d33c7849d1baf8c4ef53954ddedfecdbbb8`, merged `c526518abedf26934f1e1a1913cc54905d4775b0`, hosted `37401821907` SUCCESS. Dashboard reviewed `4c2adb886d2769ad931f75f4653329eca73c0762`, merged `4e93d9d031ff53dcb69d21fc03d69c118f04a3aa`, hosted `37402632455` SUCCESS. Both merge trees equal their independently reviewed trees. Final local gate passed 908 Python and 236 dashboard tests plus Ruff/format/mypy, lint/types/build. Production `dpl_2QgMnYnCuyKp3wqRgF6kLvfVochG` is READY at the dashboard merge SHA.
+
+Production IAB verified exact signed totals, true zero versus unavailable/all-excluded/empty/missing states, raw blocker suppression, source provenance, 25-row pagination, same-ID replacement, malformed/wrong-run/wrong-total and inconsistent-context rejection preserving prior evidence, legacy imports, clear and reload. FAILED/no-clean/NOT_RUN remain intact. Actual 1440x960 and 375x812 viewports had matching document widths and zero observed console errors. Twelve synthetic scenarios used Jev off with zero calls and cost. Screenshots, walkthrough, measurements and exact-commit reviews are current in demo-delivery. This completes the bounded absent-CRM amount slice, not grouped carrier/period totals, receipt deduplication, policy attribution or full M1. Earlier future-work statements about this bounded slice are historical.
+
 ## Bounded statement amounts dashboard (2026-10-05)
 
 PR95 engine merged at `c526518abedf26934f1e1a1913cc54905d4775b0`, tree-identical to independently reviewed `6c8c6d33c7849d1baf8c4ef53954ddedfecdbbb8`, after hosted gate `37401821907` succeeded. Local verification passed 908 Python and 215 dashboard tests plus all static/build checks. The numeric-overflow review finding was repaired and covered before merge.
