@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Roadmap: record Bob Resolve v1 passing its live exit walkthrough, public demo links, and Intake v1 staying frozen.
+
 - Add optional observed carrier and statement-period dimensions for independent statement amounts; unknowns remain explicit and existing load gates are unchanged.
 
 - Validate optional carrier/period statement metadata against every amount row and show exact grouped totals with explicit unknowns, exclusions and unchanged run gates.
