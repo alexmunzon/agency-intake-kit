@@ -306,7 +306,7 @@ These become tests. Examples 5 and 6 must be blocked. The named records in examp
 
 ## PR plan
 
-Each PR is under 400 changed lines, excluding generated files (lockfiles, committed fixture data, generated docs). Lanes: **A** data pipeline, **B** Jev and rules, **C** dashboard. "Serial" PRs run alone. Merge in dependency order, lower number first when two are ready together. Each lane has one PR open at a time, and two lanes at once is the practical limit on this machine.
+PRs have no size limit and related changes may share one PR (Alex, 2026-10-06; this plan was written under an older 400-line cap). Lanes: **A** data pipeline, **B** Jev and rules, **C** dashboard. "Serial" PRs run alone. Merge in dependency order, lower number first when two are ready together. Each lane has one PR open at a time, and two lanes at once is the practical limit on this machine.
 
 | PR | Name | Lane | Needs merged first | Main files | Est. lines | Tests | Done when |
 |---|---|---|---|---|---|---|---|

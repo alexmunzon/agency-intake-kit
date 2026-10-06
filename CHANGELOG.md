@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Docs: remove the 400-line PR cap and the one-PR-per-session rule from CLAUDE.md, SPEC.md, ROADMAP.md and the build guide (Alex, 2026-10-06). Every PR still gets tests first, an independent review, a green hosted check before merge, a live check after deploy, and Alex's approval for each push, PR and merge.
+
 - Fix the Exceptions page scrolling sideways on desktop windows about 1024 to 1150 pixels wide: the page column can now shrink beside the sidebar, so the wide table scrolls in its own box.
 
 - Keep an invalid Jev answer (malformed, an option not offered, or the wrong question) unresolved instead of crashing the import: a header stays unmapped with MAP-002 "invalid model answer", an enum value stays as written for a person, a triaged exception keeps its severity and fix in the human queue, and the PII gate redacts the whole text (fails closed).
