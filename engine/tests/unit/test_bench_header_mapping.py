@@ -150,6 +150,22 @@ def test_full_replay_run_has_three_rows(monkeypatch: pytest.MonkeyPatch) -> None
     assert "Header mapping benchmark" in render_doc(result)
 
 
+def test_generated_reports_keep_seen_set_and_pipeline_caveats() -> None:
+    result = run_benchmark(
+        FIXED, _replay(DEFAULT_CASSETTE_DIR), DEFAULT_CASSETTE_DIR, None, "skipped: no key"
+    )
+    for report in (render_readme_block(result), render_doc(result)):
+        assert "seen regression set" in report
+        assert "not accuracy on unfamiliar exports" in report
+        assert "unfamiliar column" in report
+    doc = render_doc(result)
+    assert "does not reproduce the pipeline request" in doc
+    assert "0.60 and 0.85" in doc
+    assert "excluded from the accuracy denominator" in doc
+    assert "This replay makes zero paid calls" in doc
+    assert "make Jev look worse" not in doc
+
+
 def test_jev_is_at_least_as_accurate_where_it_answered() -> None:
     labels = load_labels()
     synonyms = run_synonyms(labels).guesses
