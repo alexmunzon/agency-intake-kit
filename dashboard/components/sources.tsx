@@ -24,7 +24,7 @@ function SourceCard({ summary }: { summary: SourceSummary }) {
     <section aria-label={file.file_name} className={cn(CARD, "relative overflow-hidden p-4 pl-6")}>
       <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1.5", TONES[tone].band)} />
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-mono text-sm font-medium">{file.file_name}</h2>
+        <h2 className="font-mono text-sm font-medium break-all">{file.file_name}</h2>
         <SeverityBadge tone={tone} label={status} />
       </div>
       <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-5">

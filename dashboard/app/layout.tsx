@@ -47,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               ))}
             </ul>
           </nav>
-          <main className="mx-auto w-full max-w-[1120px] px-4 py-6 sm:px-10">
+          <main className="mx-auto w-full max-w-[1120px] min-w-0 px-4 py-6 sm:px-10">
             <LoadedRunBanner />
             {children}
           </main>
