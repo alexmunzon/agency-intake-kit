@@ -35,6 +35,8 @@ class IngestResult:
 
 def read_manifest(drop: Path) -> list[ManifestEntry] | None:
     path = drop / MANIFEST_NAME
+    if path.is_symlink():
+        raise ValueError("drop manifest cannot be a symlink")
     if not path.exists():
         return None
     files = json.loads(path.read_text(encoding="utf-8"))["files"]
@@ -65,6 +67,8 @@ def ingest(drop: Path, *, run_id: str, mapping_version: str = RAW_MAPPING_VERSIO
         by_file.setdefault(entry.file_name, []).append(entry)
     for file_name, group in by_file.items():
         path = drop / file_name
+        if path.is_symlink() or not path.resolve().is_relative_to(drop.resolve()):
+            raise ValueError("drop files must stay inside the drop folder")
         if not path.is_file():
             missing.extend(group)
             continue

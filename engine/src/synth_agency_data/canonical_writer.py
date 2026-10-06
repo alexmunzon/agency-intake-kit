@@ -35,15 +35,25 @@ def _cell(value: Any) -> str:
     return str(value)
 
 
-def _row_ref(world: World, d: dict[str, Any]) -> int | None:
+RowIndexes = dict[tuple[str, tuple[str, ...]], dict[tuple[Any, ...], int]]
+
+
+def _row_ref(world: World, d: dict[str, Any], indexes: RowIndexes | None = None) -> int | None:
     if d["source"] not in world.tables or d["defect_type"] in AGGREGATE_DEFECTS:
         return None  # a file-level defect or a total (TIE-005) has no canonical row
     rows = world.tables[d["source"]]
     key = d["record_key"]
-    hits = [i for i, r in enumerate(rows) if all(r[k] == v for k, v in key.items())]
-    if not hits:
-        raise ValueError(f"defect {d['defect_type']} points at a missing record {key}")
-    return hits[-1] + 2
+    indexes = {} if indexes is None else indexes
+    fields = tuple(sorted(key))
+    shape = (d["source"], fields)
+    if shape not in indexes:
+        indexes[shape] = {
+            tuple(row[field] for field in fields): i + 2 for i, row in enumerate(rows)
+        }
+    try:
+        return indexes[shape][tuple(key[field] for field in fields)]
+    except KeyError as error:
+        raise ValueError(f"defect {d['defect_type']} points at a missing record {key}") from error
 
 
 def write_world(
@@ -69,7 +79,11 @@ def write_tables(world: World, canonical: Path) -> None:
 def write_ground_truth(world: World, out_dir: Path, defects: Sequence[dict[str, Any]]) -> None:
     # Each defect: {source, record_key, row_ref, defect_type, expected_rule_ids, scored,
     # injected_values}, plus source_file, sheet, source_row once PR 3b writes the drop.
-    truth = {"seed": world.seed, "defects": [{**d, "row_ref": _row_ref(world, d)} for d in defects]}
+    indexes: RowIndexes = {}
+    truth = {
+        "seed": world.seed,
+        "defects": [{**d, "row_ref": _row_ref(world, d, indexes)} for d in defects],
+    }
     (out_dir / "ground_truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
 
 

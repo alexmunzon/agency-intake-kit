@@ -38,13 +38,18 @@ export function LoadRun({ demoRunId }: { demoRunId: string }) {
 
   async function load(files: PickedFile[]) {
     setBusy(true);
-    const result = await readRunFiles(files);
-    setBusy(false);
-    if (result.ok) {
-      setErrors([]);
-      setLoaded(result.loaded);
-    } else {
-      setErrors(result.errors);
+    try {
+      const result = await readRunFiles(files);
+      if (result.ok) {
+        setErrors([]);
+        setLoaded(result.loaded);
+      } else {
+        setErrors(result.errors);
+      }
+    } catch {
+      setErrors(["The files could not be read. Pick them again."]);
+    } finally {
+      setBusy(false);
     }
   }
 

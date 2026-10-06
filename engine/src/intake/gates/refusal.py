@@ -27,6 +27,7 @@ from agency_schema.exceptions import SSN_PATTERN, ExceptionRecord, minimize_valu
 from agency_schema.formats import is_valid_npn
 from agency_schema.models import TABLE_MODELS
 from intake.config import (
+    NINE_DIGIT_PATTERN,
     SSN_HEADER_MASK_DIGITS,
     SSN_HEADER_PHRASES,
     SSN_HEADER_WORDS,
@@ -84,7 +85,7 @@ def _values_look_like_ssns(column: pl.Series) -> bool:
 
 
 def _is_ssn_column(name: str, column: pl.Series) -> bool:
-    if _header_says_ssn(name):
+    if re.search(NINE_DIGIT_PATTERN, name) or SSN_PATTERN.search(name) or _header_says_ssn(name):
         return True
     if _header_is_known_id(name):
         return False

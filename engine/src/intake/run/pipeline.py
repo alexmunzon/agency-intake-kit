@@ -21,7 +21,7 @@ import polars as pl
 
 from agency_schema.enums import Severity
 from agency_schema.exceptions import ExceptionRecord
-from agency_schema.outputs import JevMode, RtsCoverage, RunStatus
+from agency_schema.outputs import JevMode, LegStatus, RtsCoverage, RunStatus
 from agency_schema.run_dir import check_run_dir
 from intake.checks import run_cross_record_checks
 from intake.exceptions.pii import pii_gate
@@ -32,7 +32,7 @@ from intake.ingest import MANIFEST_NAME, IngestResult, ingest
 from intake.mapping.headers import SOURCE_TABLES, _missing_required, map_table
 from intake.mapping.jev_mapping import Asker, map_with_jev
 from intake.mapping.store import mapping_dir_for
-from intake.readers import LINEAGE_COLUMN
+from intake.readers import LINEAGE_COLUMN, file_exception
 from intake.report.html import render_report
 from intake.rules import run_row_rules
 from intake.rules.frames import client_frame, policy_frame
@@ -43,6 +43,7 @@ from intake.run.canonicalize import (
     canonicalize,
     check_enrollment,
 )
+from intake.run.clean import clean_model_records
 from intake.run.jev import RunJevClient
 from intake.run.scoring import Score, load_ground_truth, score
 from intake.run.unresolved_evidence import collect_unresolved_evidence
@@ -275,6 +276,20 @@ def _run_into(
     if tie is None:
         tie = tieout_not_run(_stop_reason(records))
         tables = {}
+    unavailable = [leg.leg.value for leg in tie.legs if leg.status == LegStatus.NOT_RUN]
+    if unavailable and not _blocked(records) and not any(r.rule_id == "CMP-002" for r in records):
+        records.append(
+            file_exception(
+                "CMP-002",
+                Severity.WARNING,
+                "reconciliation",
+                "Required reconciliation inputs are unavailable; not run: "
+                + ", ".join(unavailable),
+                "Supply the missing reconciliation inputs",
+            )
+        )
+    if not _blocked(records):
+        records += clean_model_records(tables, records)
     records = apply_policy(_unique(_with_sources(records, raw)))
     if not _blocked(records):  # a blocked run makes no model call, triage included
         records = triage(attach_rows(records, triage_frames(tables)), client)
