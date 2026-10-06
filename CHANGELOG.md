@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Docs: qualify the 79.9% to 96.3% header mapping figures as a small seen synthetic set, not accuracy on unfamiliar exports, and note that replay sends unfamiliar columns to a person.
+
 - Roadmap: record Bob Resolve v1 passing its live exit walkthrough, public demo links, and Intake v1 staying frozen.
 
 - Add optional observed carrier and statement-period dimensions for independent statement amounts; unknowns remain explicit and existing load gates are unchanged.
