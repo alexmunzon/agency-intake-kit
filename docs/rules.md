@@ -32,7 +32,7 @@ the load file, a warning passes with a flag, and info is only logged.
 | ING-004 | Warning | ING | no | Delimiter guessed with low confidence |
 | LIC-001 | Error | LIC | no | Agent license states do not include the policy state (client address state when the policy has none) |
 | MAP-001 | Warning | MAP | no | Column could not be mapped |
-| MAP-002 | Warning | MAP | no | Mapping confidence between thresholds, or Jev gave no answer |
+| MAP-002 | Warning | MAP | no | Mapping confidence between thresholds, or Jev gave no usable answer |
 | MAP-003 | Blocker | MAP | yes | Required canonical field missing (a drop with no CRM misses them all) |
 | MAP-004 | Error | MAP | no | Canonical row violates its declared load-table schema or depends on an excluded parent |
 | MBI-001 | Error | MBI | no | MBI format invalid |

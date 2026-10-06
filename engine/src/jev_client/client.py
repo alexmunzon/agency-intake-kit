@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from pydantic import SecretStr
+from pydantic import SecretStr, ValidationError
 
 from agency_schema.outputs import JevMode
 from intake.config import (
@@ -51,6 +51,18 @@ class JevHTTPError(RuntimeError):
 
 class JevBadReply(ValueError):
     """The API answered (and billed) but the reply does not fit the questions asked."""
+
+    def __init__(self, message: str, *, key: str = "", saved_at: Path | None = None) -> None:
+        super().__init__(message)
+        self.request_hash = key
+        self.saved_at = saved_at
+
+    def log_safe(self) -> str:
+        """For logs: the request and any saved cassette, never the reply (it may echo text)."""
+        text = f"request {self.request_hash[:12]}"
+        if self.saved_at:
+            text += f"; the paid reply was saved at {self.saved_at}, delete it to re-record"
+        return text
 
 
 ERROR_EXCERPT_CHARS = 200
@@ -164,7 +176,13 @@ class JevClient:
             where = ""
             if saved_at:
                 where = f" The paid reply was saved at {saved_at}; delete it to re-record."
-            raise JevBadReply(f"Jev reply rejected: {error}.{where}") from error
+            # Field locations only: pydantic's text echoes the reply, which may hold note text.
+            detail = str(error)
+            if isinstance(error, ValidationError):
+                places = ", ".join(".".join(map(str, e["loc"])) for e in error.errors())
+                detail = f"{error.error_count()} invalid field(s): {places}"
+            message = f"Jev reply rejected: {detail}.{where}"
+            raise JevBadReply(message, key=request_hash(body), saved_at=saved_at) from error
         return response
 
     def _count(self, usage: Any) -> None:
@@ -204,7 +222,8 @@ class JevClient:
                         data = None
                     if not isinstance(data, dict):
                         self._count(None)
-                        raise JevBadReply("Jev reply rejected: the body is not a JSON object.")
+                        message = "Jev reply rejected: the body is not a JSON object."
+                        raise JevBadReply(message, key=request_hash(body))
                     return data
                 if reply.status_code not in RETRY_STATUSES or attempt == JEV_MAX_TRIES:
                     excerpt = redact_error_body(reply.text, self._key.get_secret_value())

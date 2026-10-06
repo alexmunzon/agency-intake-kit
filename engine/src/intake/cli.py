@@ -280,12 +280,14 @@ def record_mapping(
             if json.loads(path.read_text(encoding="utf-8"))["response"]["model"] == HANDMADE_MODEL:
                 path.unlink()  # a hand-made stand-in; the real answer replaces it
     client = _record_client(cassettes)
+    asker = Asker(client)
     with tempfile.TemporaryDirectory() as tmp:
-        fill_drop(drop, Path(tmp), now, Asker(client))
+        fill_drop(drop, Path(tmp), now, asker)
     usage = client.usage
     typer.echo(
         f"Done. Answers {usage.calls}, input tokens {usage.input_tokens}, "
-        f"estimated cost ${usage.estimated_cost_usd}"
+        f"estimated cost ${usage.estimated_cost_usd}, "
+        f"invalid answers {asker.invalid} (not used, a person decides)"
     )
 
 

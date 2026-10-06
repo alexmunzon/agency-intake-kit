@@ -152,7 +152,7 @@ state, and similar) are sent as is; anything else is sent as a shape. Notes are 
 | 0.80 or more (`TRIAGE_ENTRY_ERROR`) | SUGGESTED_FIX |
 | 0.20 or less (`TRIAGE_BUSINESS_EVENT`) | BUSINESS_EVENT |
 | in between | REVIEW |
-| no answer (off mode or spend guard) | UNREVIEWED, the human queue |
+| no answer (off mode or spend guard), or an invalid answer | UNREVIEWED, the human queue; severity, blocks_load and fix unchanged |
 
 Blockers go to REVIEW and info stays UNREVIEWED without a call. PII-001 is never triaged.
 
@@ -171,8 +171,8 @@ is replaced in place by a typed placeholder such as `[REDACTED:phone]`, and PII-
 never the raw value. Text that still holds a date, a drug-like word, or a health word after that
 goes to the noul question, already redacted and with every digit replaced by `#`. At or above
 0.50 (`PII_REDACT`) the whole text becomes `[redacted]` and PII-001 fires. With no answer (off
-mode or the spend guard) the text is redacted too: the gate fails closed. Identical texts are
-asked once. The gate's returned text is what every output writes.
+mode or the spend guard), or an invalid answer, the text is redacted too: the gate fails
+closed. Identical texts are asked once. The gate's returned text is what every output writes.
 
 **Expected calls for fixtures/agency-a** (a real `intake run` in replay, asserted in
 `tests/unit/test_triage.py`):
@@ -222,6 +222,7 @@ average over 40 characters, have more than 3 spaces, or hold any 9-digit number 
 | 0.60 up to 0.85 (`MAP_SUGGEST`) | Mapped, plus MAP-002 each run until a person confirms it |
 | Below 0.60, or `none` | Unmapped, PR 5's MAP-001 stays |
 | No answer (off, spend guard) | Unmapped, MAP-001 plus MAP-002 in the REVIEW lane |
+| Invalid answer (bad JSON, an option not offered, wrong question) | Not used. Unmapped, MAP-001 plus MAP-002 (`invalid_reply`); an enum value stays as written |
 
 **Question 2, value to enum** (`intake/mapping/enums.py`), one per distinct value the word table
 does not know:

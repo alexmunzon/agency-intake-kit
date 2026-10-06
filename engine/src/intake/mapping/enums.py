@@ -96,7 +96,7 @@ class EnumDecision:
     normalized: str | None  # the enum value, None when a person decides
     method: Literal["table", "jev", "person"]
     confidence: float | None
-    reason: str | None  # why a person decides: low_confidence, unknown, mode_off, risky_value
+    reason: str | None  # why: low_confidence, unknown, mode_off, risky_value, invalid_reply
 
 
 def _key(value: str) -> str:
