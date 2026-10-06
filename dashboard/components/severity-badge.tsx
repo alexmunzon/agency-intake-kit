@@ -20,7 +20,7 @@ export function SeverityIcon({ tone, className }: { tone: Tone; className?: stri
 
 export function SeverityBadge({ tone, label }: { tone: Tone; label?: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-1.5 py-0.5 text-xs font-medium dark:border-slate-800">
+    <span className="severity-badge inline-flex items-center gap-1 rounded-md border border-border px-1.5 py-0.5 text-xs font-medium">
       <SeverityIcon tone={tone} className="size-3.5" />
       {label ?? TONES[tone].label}
     </span>

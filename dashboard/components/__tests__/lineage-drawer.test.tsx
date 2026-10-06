@@ -14,6 +14,6 @@ describe("LineageDrawer Jev scores", () => {
 
     const row = screen.getByText("Impact score on the load (0 to 2)").parentElement!;
     expect(within(row).getByText("1.43 / 2")).toBeInTheDocument();
-    expect(row.querySelector(".bg-indigo-600")?.getAttribute("style")).toContain("width: 71.5%");
+    expect(row.querySelector('[data-score="impact_score"]')?.getAttribute("style")).toContain("width: 71.5%");
   });
 });

@@ -31,27 +31,30 @@ function StatusBanner({ run }: { run: Run }) {
   const { status, status_reason } = run.manifest;
   const { tone, answer, word, fallback } = ANSWERS[status];
   return (
-    <section aria-label="Run status" className={cn(CARD, "relative overflow-hidden p-4 pl-6")}>
-      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1.5", TONES[tone].band)} />
-      <p className="flex items-center gap-2 text-lg font-semibold">
-        <SeverityIcon tone={tone} className="size-5" />
-        {answer}
-      </p>
-      <p className="mt-1 text-sm">
-        <SeverityBadge tone={tone} label={word} /> {status_reason ?? fallback}{" "}
+    <section aria-label="Run status" data-tone={tone} className={cn(CARD, "decision-panel relative overflow-hidden")}>
+      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", TONES[tone].band)} />
+      <div className="decision-content">
+        <div className="min-w-0">
+          <p className="eyebrow mb-2">Readiness decision</p>
+          <p className="decision-title flex items-start gap-2 font-semibold">
+            <SeverityIcon tone={tone} className="mt-0.5 size-5" />
+            {answer}
+          </p>
+          <p className="decision-detail mt-2 text-sm">
+            <SeverityBadge tone={tone} label={word} /> <span>{status_reason ?? fallback}</span>
+          </p>
+          <ul className="mt-2 text-sm tabular-nums">
+            {shortFiles(run).map((file) => (
+              <li key={file.source}>
+                {`${file.file_name}: expected ${file.rows_expected?.toLocaleString("en-US")} rows, received ${file.rows_received.toLocaleString("en-US")}.`}
+              </li>
+            ))}
+          </ul>
+        </div>
         {run.exceptions.length > 0 && (
-          <Link href="/exceptions" className="text-indigo-700 underline dark:text-indigo-300">
-            See the exceptions
-          </Link>
+          <Link href="/exceptions" className="review-action">See the exceptions <span aria-hidden>→</span></Link>
         )}
-      </p>
-      <ul className="mt-1 text-sm tabular-nums">
-        {shortFiles(run).map((file) => (
-          <li key={file.source}>
-            {`${file.file_name}: expected ${file.rows_expected?.toLocaleString("en-US")} rows, received ${file.rows_received.toLocaleString("en-US")}.`}
-          </li>
-        ))}
-      </ul>
+      </div>
     </section>
   );
 }
@@ -59,21 +62,21 @@ function StatusBanner({ run }: { run: Run }) {
 function SourceBars({ rows }: { rows: SourceCounts[] }) {
   const widest = Math.max(1, ...rows.map((row) => row.total));
   return (
-    <section aria-labelledby="by-source" className={cn(CARD, "p-4")}>
-      <h2 id="by-source" className="text-sm font-medium">Exceptions by source file</h2>
-      {rows.length === 0 && <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">No exceptions.</p>}
-      <ul className="mt-3 space-y-2">
+    <section aria-labelledby="by-source" className={cn(CARD, "source-evidence p-5")}>
+      <div className="panel-heading"><h2 id="by-source">Exceptions by source file</h2><span className="text-xs text-muted-foreground">Severity distribution</span></div>
+      {rows.length === 0 && <p className="mt-2 text-sm text-muted-foreground">No exceptions.</p>}
+      <ul className="mt-3 space-y-1">
         {rows.map(({ source, counts, total }) => (
-          <li key={source} className="grid grid-cols-[10.5rem_1fr] items-center gap-x-3 gap-y-1 text-sm sm:grid-cols-[11rem_1fr_15rem]">
+          <li key={source} className="source-evidence-row grid min-w-0 grid-cols-[minmax(0,1fr)_1fr] items-center gap-x-4 gap-y-1 text-sm sm:grid-cols-[11rem_1fr_15rem]">
             <span className="truncate font-mono text-xs" title={source}>{source}</span>
-            <span aria-hidden className="flex h-3 overflow-hidden rounded bg-slate-100 dark:bg-slate-800">
+            <span aria-hidden className="flex h-3 overflow-hidden rounded bg-muted">
               <span className="flex" style={{ width: `${(100 * total) / widest}%` }}>
                 {SEVERITY_TILES.filter(({ key }) => counts[key] > 0).map(({ key, tone }) => (
                   <span key={key} className={TONES[tone].band} style={{ flexGrow: counts[key] }} />
                 ))}
               </span>
             </span>
-            <span className="col-span-2 text-xs text-slate-600 tabular-nums sm:col-span-1 dark:text-slate-400">
+            <span className="col-span-2 text-xs text-muted-foreground tabular-nums sm:col-span-1">
               {SEVERITY_TILES.filter(({ key }) => counts[key] > 0)
                 .map(({ key }) => plural(counts[key], key))
                 .join(", ")}
@@ -94,10 +97,10 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
   const rts = rtsChecked(run);
   const jevOff = manifest.jev.mode === "off";
   return (
-    <div className="space-y-4">
-      <PageHeader run={run} question="Can this agency go live?" />
+    <div className="page-stack">
+      <PageHeader run={run} question="Can this agency go live?">Validate the incoming book, prioritize fixes, and trace the evidence before release.</PageHeader>
       <StatusBanner run={run} />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <section aria-label="Load quality" className="metric-strip">
         {SEVERITY_TILES.map(({ key, tone, label, context }) => {
           // A blocker stops the run before row checks. Raw-stage checks (like a missing file) still ran,
           // so a count found before the stop is shown with that context. Zero there means not checked.
@@ -116,35 +119,38 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
           value={failed ? "None" : scorecard.rows_clean.toLocaleString("en-US")}
           context={failed ? "No load files written" : `of ${scorecard.rows_in.toLocaleString("en-US")} rows read`}
         />
-      </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {tieOut.checked ? (
+      </section>
+      <section aria-label="Financial and operational checks" className="space-y-3">
+        <h2 className="section-eyebrow">Financial and operational checks</h2>
+        <div className="overview-check-grid grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {tieOut.checked ? (
+            <Tile
+              label="Check variance sum"
+              note={VARIANCE_SUM_NOTE}
+              value={formatMoney(tieOut.dollars)}
+              context={`${plural(tieOut.count, "item")}, ${tieOut.ran === tieOut.legs ? `all ${tieOut.legs}` : `${tieOut.ran} of ${tieOut.legs}`} checks ran${otherText(otherDifferences(tieFiles.variances))}`}
+            />
+          ) : (
+            <Tile label="Check variance sum" value="Not checked" context={tieOut.reason} muted />
+          )}
           <Tile
-            label="Check variance sum"
-            note={VARIANCE_SUM_NOTE}
-            value={formatMoney(tieOut.dollars)}
-            context={`${plural(tieOut.count, "item")}, ${tieOut.ran === tieOut.legs ? `all ${tieOut.legs}` : `${tieOut.ran} of ${tieOut.legs}`} checks ran${otherText(otherDifferences(tieFiles.variances))}`}
+            label="RTS gaps"
+            value={rts ? rtsMatrix(run.rts).gapPolicies.toLocaleString("en-US") : "Not checked"}
+            context={rts ? "Policies sold without ready-to-sell status" : "The run stopped before this check"}
+            muted={!rts}
           />
-        ) : (
-          <Tile label="Check variance sum" value="Not checked" context={tieOut.reason} muted />
-        )}
-        <Tile
-          label="RTS gaps"
-          value={rts ? rtsMatrix(run.rts).gapPolicies.toLocaleString("en-US") : "Not checked"}
-          context={rts ? "Policies sold without ready-to-sell status" : "The run stopped before this check"}
-          muted={!rts}
-        />
-        <Tile
-          label="Jev AI review"
-          value={jevOff ? "Off" : plural(manifest.jev.calls, "call")}
-          context={`${formatMoney(manifest.jev.estimated_cost_usd)} estimated, ${manifest.jev.mode} mode`}
-        />
-        <Tile
-          label="Run time"
-          value={durationText(run)}
-          context={frozenClock(run) ? `Frozen clock, run on ${runDateText(run)}` : `Run on ${runDateText(run)}`}
-        />
-      </div>
+          <Tile
+            label="Jev AI review"
+            value={jevOff ? "Off" : plural(manifest.jev.calls, "call")}
+            context={`${formatMoney(manifest.jev.estimated_cost_usd)} estimated, ${manifest.jev.mode} mode`}
+          />
+          <Tile
+            label="Run time"
+            value={durationText(run)}
+            context={frozenClock(run) ? `Frozen clock, run on ${runDateText(run)}` : `Run on ${runDateText(run)}`}
+          />
+        </div>
+      </section>
       <SourceBars rows={countsBySource(run)} />
     </div>
   );

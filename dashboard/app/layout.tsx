@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { ShieldCheck } from "lucide-react";
 import { LoadedRunBanner, LoadedRunProvider } from "@/components/loaded-run";
 import { NavLink } from "@/components/nav-link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
-
-const inter = Inter({ variable: "--font-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Agency Intake Kit",
@@ -28,35 +26,39 @@ const THEME_SCRIPT = `(function(){var d=null;try{var t=localStorage.getItem("the
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="flex min-h-full flex-col bg-slate-50 text-slate-900 lg:flex-row dark:bg-slate-950 dark:text-slate-100">
+      <body className="flex min-h-full flex-col bg-background text-foreground lg:flex-row">
         <LoadedRunProvider>
-          <nav aria-label="Main" className="border-b border-slate-200 bg-white lg:w-60 lg:shrink-0 lg:border-r lg:border-b-0 dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-center justify-between gap-2 px-4 pt-3 pb-2 lg:px-5 lg:pt-6">
-              <p className="text-sm font-semibold">Agency Intake Kit</p>
-              <ThemeToggle />
+          <a href="#main-content" className="skip-link">Skip to content</a>
+          <nav aria-label="Main" className="app-sidebar">
+            <div className="sidebar-brand">
+              <span className="brand-symbol"><ShieldCheck aria-hidden className="size-5" /></span>
+              <div>
+                <p className="brand-title">Agency Intake Kit</p>
+                <p className="brand-caption">Data trust series / 01</p>
+              </div>
             </div>
-            <ul className="flex gap-1 overflow-x-auto px-2 pb-2 text-sm lg:flex-col lg:px-3">
+            <p className="sidebar-label">Assessment workspace</p>
+            <ul className="sidebar-pages">
               {PAGES.map(({ label, href }) => (
-                <li key={label} className="shrink-0">
-                  <NavLink href={href} label={label} />
-                </li>
+                <li key={label}><NavLink href={href} label={label} /></li>
               ))}
             </ul>
-            <section aria-label="Agency Data Trust Series" className="border-t border-slate-200 px-4 py-3 text-xs lg:px-5 dark:border-slate-800">
-              <p className="font-semibold">Agency Data Trust Series</p>
-              <p className="mt-1 text-slate-600 dark:text-slate-400">Separate demos, shared trust principles.</p>
-              <ol className="mt-2 flex flex-wrap gap-x-4 gap-y-2 lg:flex-col">
-                <li><span aria-current="page" className="font-medium">1. Intake Kit</span></li>
-                <li><a href="https://bob-resolve-nine.vercel.app" className="text-indigo-700 underline dark:text-indigo-300">2. Bob Resolve</a></li>
-                <li><a href="https://plan-diff.vercel.app" className="text-indigo-700 underline dark:text-indigo-300">3. Plan Diff</a></li>
+            <section aria-label="Agency Data Trust Series" className="sidebar-series">
+              <p>Agency Data Trust Series</p>
+              <p>Separate demos, shared trust principles.</p>
+              <ol>
+                <li><span aria-current="page">1. Intake Kit</span></li>
+                <li><a href="https://bob-resolve-nine.vercel.app" className="underline">2. Bob Resolve</a></li>
+                <li><a href="https://plan-diff.vercel.app" className="underline">3. Plan Diff</a></li>
               </ol>
             </section>
+            <div className="sidebar-footer"><ThemeToggle /></div>
           </nav>
-          <main className="mx-auto w-full max-w-[1120px] min-w-0 px-4 py-6 sm:px-10">
+          <main id="main-content" tabIndex={-1} className="app-main min-w-0">
             <LoadedRunBanner />
             {children}
           </main>

@@ -41,10 +41,10 @@ export function LinkEvidencePanel({ links }: { links?: LinkEvidence[] }) {
   const shown = links?.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE) ?? [];
 
   return (
-    <section aria-label="Policy link evidence" className="space-y-3">
+    <section aria-label="Policy link evidence" className="evidence-section space-y-3">
       <div>
         <h2 className="text-lg font-semibold">Policy link evidence</h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-muted-foreground">
           These are supplied statement-line records. A confirmed link is a deterministic match, not a human approval or proof that the package is complete.
         </p>
       </div>
@@ -56,35 +56,35 @@ export function LinkEvidencePanel({ links }: { links?: LinkEvidence[] }) {
         <>
           <dl className="grid grid-cols-2 gap-2 text-sm tabular-nums sm:grid-cols-4" aria-label="Link state counts">
             {STATES.map((state) => (
-              <div key={state} className="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+              <div key={state} className="rounded-lg border border-border p-3">
                 <dt className="capitalize">{state}</dt>
                 <dd className="text-lg font-semibold">{links.filter((link) => link.state === state).length.toLocaleString("en-US")}</dd>
               </div>
             ))}
           </dl>
-          <div className="max-w-full overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-            <table className="w-full min-w-[44rem] text-left text-sm">
+          <div role="region" aria-label="Statement lines and candidate policies table" tabIndex={0} className="evidence-table-wrap max-w-full overflow-x-auto rounded-lg border border-border">
+            <table className="evidence-table w-full min-w-[44rem] text-left">
               <caption className="p-3 text-left font-medium">Statement lines and candidate policies</caption>
-              <thead><tr className="border-b border-slate-200 dark:border-slate-800">
+              <thead><tr className="border-b border-border">
                 <th className="p-3">Statement source</th><th className="p-3">State and reason</th>
                 <th className="p-3">Amount</th><th className="p-3">Selected policy</th><th className="p-3">Evidence</th>
               </tr></thead>
               <tbody>
                 {shown.map((link) => (
-                  <tr key={JSON.stringify([link.lineage.source_file, link.lineage.sheet, link.lineage.row_number])} className="border-t border-slate-200 align-top dark:border-slate-800">
+                  <tr key={JSON.stringify([link.lineage.source_file, link.lineage.sheet, link.lineage.row_number])} className="border-t border-border align-top">
                     <td className="p-3 break-all">{location(link.lineage)}</td>
                     <td className="p-3"><span className="capitalize font-medium">{link.state}</span><span className="block">{REASONS[link.reason] ?? link.reason}</span></td>
                     <td className="p-3 tabular-nums whitespace-nowrap">{link.amount === null ? "Not reported" : formatMoney(link.amount)}</td>
                     <td className="p-3 font-mono break-all">{link.state === "confirmed" ? link.policy_id : "None confirmed"}</td>
                     <td className="p-3">
                       <details>
-                        <summary className="cursor-pointer text-indigo-700 underline dark:text-indigo-300">Source and candidates</summary>
+                        <summary className="cursor-pointer text-primary underline underline-offset-4">Source and candidates</summary>
                         <div className="mt-2 space-y-3 min-w-64">
                           <div><p className="font-medium">Statement lineage</p><LineageDetails lineage={link.lineage} /></div>
                           {link.candidates.length === 0 ? <p>No candidate recorded.</p> : (
                             <ul className="space-y-3">
                               {link.candidates.map((candidate) => (
-                                <li key={candidate.policy_id} className="border-t border-slate-200 pt-2 dark:border-slate-800">
+                                <li key={candidate.policy_id} className="border-t border-border pt-2">
                                   <p>Candidate <span className="font-mono break-all">{candidate.policy_id}</span> by {candidate.methods.map(method => METHODS[method]).join(", ")}</p>
                                   <LineageDetails lineage={candidate.lineage} />
                                 </li>

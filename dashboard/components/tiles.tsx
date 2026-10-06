@@ -1,7 +1,7 @@
 import { SeverityIcon, type Tone } from "@/components/severity-badge";
 import { cn } from "@/lib/utils";
 
-export const CARD = "rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900";
+export const CARD = "consulting-panel rounded-lg border border-border bg-card";
 
 interface TileProps {
   label: string;
@@ -18,17 +18,17 @@ export function Tile({ label, value, context, note, tone, muted }: TileProps) {
     <div
       role="group"
       aria-label={label}
-      className={cn(CARD, "p-4", muted && "border-dashed bg-slate-100 dark:bg-slate-950")}
+      className={cn(CARD, "metric-tile p-4", muted && "border-dashed bg-muted dark:bg-muted")}
     >
-      <p className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+      <p className="metric-label flex items-center gap-1.5 text-muted-foreground">
         {tone && !muted && <SeverityIcon tone={tone} />}
         {label}
       </p>
-      <p className={cn("mt-1 text-2xl font-semibold tabular-nums", muted && "text-slate-600 dark:text-slate-400")}>
+      <p className={cn("metric-value mt-1 font-semibold tabular-nums", muted && "text-muted-foreground")}>
         {value}
       </p>
-      {context && <p className="mt-1 text-xs text-slate-600 tabular-nums dark:text-slate-400">{context}</p>}
-      {note && <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">{note}</p>}
+      {context && <p className="metric-context mt-1 text-xs text-muted-foreground tabular-nums">{context}</p>}
+      {note && <p className="metric-note mt-2 text-xs text-muted-foreground">{note}</p>}
     </div>
   );
 }
