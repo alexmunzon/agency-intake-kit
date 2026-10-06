@@ -1,5 +1,11 @@
 # SPEC: agency-intake-kit
 
+## Bounded statement amounts dashboard (2026-10-05)
+
+PR95 engine merged at `c526518abedf26934f1e1a1913cc54905d4775b0`, tree-identical to independently reviewed `6c8c6d33c7849d1baf8c4ef53954ddedfecdbbb8`, after hosted gate `37401821907` succeeded. Local verification passed 908 Python and 215 dashboard tests plus all static/build checks. The numeric-overflow review finding was repaired and covered before merge.
+
+Optional `statement_totals.json` imports now have a separate Tie-out panel for exact signed received-row totals, excluded reasons and full source lineage, paginated 25 rows. Strict validation binds run IDs, amounts, counts, status and raw blockers; CRM-present or nonfailed runs cannot accept this artifact. Missing, empty, blocked, all-excluded and real zero states remain distinct. Existing FAILED/no-clean/NOT_RUN behavior, candidates and finance stay unchanged. This is not a deduplicated receipt ledger, policy attribution or full M1 completion. Final exact-head review, hosted gate and production browser verification remain delivery requirements.
+
 ## Bounded independent statement amounts (2026-10-05)
 
 When CRM is absent, the run emits optional `statement_totals.json` containing exact signed received-row amounts and source lineage. Only deterministic amount mapping is used; blank, malformed, sub-cent and unavailable/ambiguous mappings remain explicitly excluded. Raw safety/completeness blockers yield BLOCKED with no usable amounts. No valid rows means a null total; valid rows netting to zero means 0.00. The run remains FAILED, clean output stays absent and all book comparisons stay NOT_RUN. This artifact is not a deduplicated receipt ledger or policy attribution. Browser presentation follows separately; full M1 remains incomplete.
