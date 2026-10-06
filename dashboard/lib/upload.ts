@@ -1,6 +1,7 @@
 import { FILE_NAMES, parseJson, parseRun, type Run, type RunFiles } from "@/lib/run-loader";
 import { parseTieOut, TIE_OUT_FILES, type TieOut } from "@/lib/tie-out";
 import { parseFinanceReview, type FinanceReview } from "@/lib/finance-review";
+import { parseLinkEvidence, type LinkEvidence } from "@/lib/link-evidence";
 
 // Reads a run you pick in the browser. Nothing is uploaded: the files are read into this tab's
 // memory and checked with the same parsers the demo run uses. Every problem names its file.
@@ -15,6 +16,7 @@ export interface LoadedRun {
   run: Run;
   tieOut: TieOut;
   finance?: FinanceReview;
+  links?: LinkEvidence[];
 }
 
 export type UploadResult = { ok: true; loaded: LoadedRun } | { ok: false; errors: string[] };
@@ -25,10 +27,12 @@ export const MAX_FILE_BYTES = 50 * 1024 * 1024;
 // tie_out names are unique, and anything else (clean/*.csv, for example) is never read.
 const RUN_NAMES = Object.values(FILE_NAMES);
 const FINANCE_FILE = "finance.json";
+const LINKS_FILE = "tie_out/links.jsonl";
 const WANTED = new Map<string, string>([
   ...RUN_NAMES.map((name): [string, string] => [name, name]),
   ...TIE_OUT_FILES.map((stem): [string, string] => [`${stem}.json`, `tie_out/${stem}.json`]),
   [FINANCE_FILE, FINANCE_FILE],
+  ["links.jsonl", LINKS_FILE],
 ]);
 
 function checkJson(name: string, text: string): string[] {
@@ -74,6 +78,11 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
   }
   const financeFile = picked.get(FINANCE_FILE);
   if (financeFile) texts.set(FINANCE_FILE, await financeFile.text());
+  const linksFile = picked.get(LINKS_FILE);
+  if (linksFile) {
+    try { texts.set(LINKS_FILE, await linksFile.text()); }
+    catch { errors.push(`${LINKS_FILE}: could not read the file. Pick it again.`); }
+  }
   if (errors.length > 0) return { ok: false, errors };
 
   try {
@@ -90,6 +99,8 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
       (Object.entries(FILE_NAMES) as [keyof RunFiles, string][]).map(([key, name]) => [key, texts.get(name)!]),
     ) as RunFiles;
     const run = parseRun(runFiles);
+    const linksText = texts.get(LINKS_FILE);
+    const links = linksText === undefined ? undefined : parseLinkEvidence(linksText, run.manifest.run_id);
     const tieFiles = Object.fromEntries(TIE_OUT_FILES.map((stem) => [stem, texts.get(`tie_out/${stem}.json`)!]));
     return {
       ok: true,
@@ -98,6 +109,7 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
         run,
         tieOut: parseTieOut(tieFiles, run),
         ...(finance ? { finance } : {}),
+        ...(links !== undefined ? { links } : {}),
       },
     };
   } catch (error) {

@@ -1,5 +1,17 @@
 # SPEC: agency-intake-kit
 
+## Bounded candidate evidence adapter (2026-10-05)
+
+An optional `tie_out/links.jsonl` import carries versioned candidate evidence into the selected run in browser memory. Missing remains unavailable; a present empty file remains empty. Existing packages stay valid. Validate statement and candidate lineage against the manifest run, state/reason consistency and exact signed decimal text before accepting the package. Duplicate JSON keys, duplicate source rows, duplicate candidates, wrong-run evidence, malformed amounts and unsupported states refuse the import with a file-specific error. Examples: a confirmed strong link is retained; one name/DOB candidate stays provisional; ambiguous candidates never select a policy; unmatched has no candidates; negative amounts retain their sign; null does not become zero. Candidate rendering is the next separate slice. This adapter does not resolve identities, recalculate totals or change engine gates.
+
+
+## M1 matching and candidate export delivered (2026-10-05)
+
+PR90 conservative matching and PR91 candidate export are delivered. Matching reviewed `1ff293d`, merged `f30e909`, hosted run `37387664841` SUCCESS; export reviewed `7efec734`, merged `860b61a7589d915b31385c6a162131c1531ada4c`, hosted run `37388137441` SUCCESS. Separate bounded independent reviews passed. Final local gate passed 866 Python and 138 dashboard tests, lint, types and build. Production `dpl_BqQRqHrHCzAhbWgj2LDnTqa4mBWj` is READY at 860b61a. IAB verified 12-file synthetic import,8 matched / 1 unresolved,315.00 statement total, hidden finance example, reload reset and no observed errors or document overflow at actual 1440x960 / 375x812. Candidate UI and independent missing-book totals remain future work; full M1 is not complete.
+
+The current dashboard sums both sides of an unresolved 52.50 attribution to 105.00 in review differences. This is not unique missing revenue; statement totals remain 315.00. A later candidate presentation slice must distinguish attribution uncertainty from missing cash.
+
+
 ## Bounded M1 reconciliation links (2026-10-05)
 
 The tie-out retains every matching candidate and source lineage in optional `tie_out/links.jsonl`. Each statement row is confirmed, provisional, ambiguous or unmatched, with a reason and exact signed amount. Confirmed means a deterministic strong-key link, not human approval or verified customer identity. Name/DOB alone never confirms. Duplicate or conflicting strong keys and incompatible weak evidence remain unresolved; compatible same-person weak alternatives do not override a unique strong match. Policy references are carrier-scoped and blank keys never match.

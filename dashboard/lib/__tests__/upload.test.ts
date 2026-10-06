@@ -30,7 +30,39 @@ describe("readRunFiles", () => {
     expect(result.loaded.label).toBe("sample-run-partial");
     expect(result.loaded.run.exceptions).toHaveLength(12);
     expect(result.loaded.tieOut.legs.map((leg) => leg.status)).toEqual(["RAN", "RAN", "NOT_RUN"]);
+    expect(result.loaded.links).toBeUndefined();
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("keeps a present empty links artifact distinct from a legacy run", async () => {
+    const result = await readRunFiles([...await runFiles("sample-run"), picked("links.jsonl", "")]);
+    if (!result.ok) throw new Error(result.errors.join("; "));
+    expect(result.loaded.links).toEqual([]);
+  });
+
+  it("retains a same-run confirmed link", async () => {
+    const lineage = { source_file: "statement.csv", sheet: null, row_number: 2, raw_hash: "a".repeat(64), run_id: "sample-run", mapping_version: "v1" };
+    const record = { schema_version: 1, lineage, state: "confirmed", reason: "strong_key", policy_id: "P-1", amount: "12.50", candidates: [{ policy_id: "P-1", methods: ["POLICY_REF"], lineage: { ...lineage, source_file: "crm.csv" } }] };
+    const result = await readRunFiles([...await runFiles("sample-run"), picked("links.jsonl", `${JSON.stringify(record)}\n`)]);
+    if (!result.ok) throw new Error(result.errors.join("; "));
+    expect(result.loaded.links).toEqual([record]);
+  });
+
+  it.each(["wrong-run", "malformed"])("rejects %s links with file context", async (kind) => {
+    const text = kind === "malformed" ? "{oops\n" : JSON.stringify({ schema_version: 1, lineage: { source_file: "s.csv", sheet: null, row_number: 2, raw_hash: "a".repeat(64), run_id: "other-run", mapping_version: "v1" }, state: "unmatched", reason: "no_candidate", policy_id: null, amount: "1.00", candidates: [] });
+    const result = await readRunFiles([...await runFiles("sample-run"), picked("links.jsonl", text)]);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.join(" ")).toMatch(/links\.jsonl/);
+  });
+
+  it("rejects duplicate links files and names link read failures", async () => {
+    const files = await runFiles("sample-run");
+    const result = await readRunFiles([...files, picked("links.jsonl", ""), picked("links.jsonl", "")]);
+    expect(result).toEqual({ ok: false, errors: ["tie_out/links.jsonl: picked twice. Pick one copy."] });
+    const broken = { ...picked("links.jsonl", ""), text: async () => { throw new Error("read failed"); } };
+    const failed = await readRunFiles([...files, broken]);
+    expect(failed.ok).toBe(false);
+    if (!failed.ok) expect(failed.errors.join(" ")).toMatch(/links\.jsonl/);
   });
 
   it("names every missing file", async () => {
