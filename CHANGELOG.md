@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Show validated independent statement amounts and source references in Tie-out while preserving unavailable, excluded and raw-blocked states and existing run gates.
+
 - Preserve exact received statement amounts with row exclusions and provenance when CRM is absent, without changing FAILED/no-clean/NOT_RUN gates.
 
 - Validate optional unresolved evidence imports and show absent CRM and missing, blank or malformed DOB reasons with source provenance in Runs. Preserve missing/empty distinctions and existing run gates.

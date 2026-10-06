@@ -18,10 +18,61 @@ async function runFiles(sample: string): Promise<PickedFile[]> {
 }
 
 const swap = (files: PickedFile[], name: string, text: string) => files.map((f) => (f.name === name ? picked(name, text) : f));
+async function noCrmFailedFiles(rawBlocked = true): Promise<PickedFile[]> {
+  let files = await runFiles("sample-run-failed");
+  const manifest = JSON.parse(await files.find(f => f.name === "manifest.json")!.text());
+  manifest.inputs = manifest.inputs.filter((input: { source: string }) => input.source !== "crm");
+  manifest.status_reason = rawBlocked ? "Statement file was truncated" : "No CRM file was received";
+  files = swap(files, "manifest.json", JSON.stringify(manifest));
+  const card = JSON.parse(await files.find(f => f.name === "scorecard.json")!.text());
+  card.exceptions_by_severity = { blocker: 1, error: 0, warning: 0, info: 0 };
+  card.exceptions_by_rule = { [rawBlocked ? "CMP-001" : "MAP-003"]: 1 };
+  card.tie_out = card.tie_out.map((leg: Record<string, unknown>) => ({ ...leg, not_run_reason: rawBlocked ? "Raw completeness blocker" : "No policy book was received" }));
+  files = swap(files, "scorecard.json", JSON.stringify(card));
+  const original = JSON.parse((await files.find(f => f.name === "exceptions.jsonl")!.text()).split("\n")[0]);
+  files = swap(files, "exceptions.jsonl", JSON.stringify({ ...original, rule_id: rawBlocked ? "CMP-001" : "MAP-003",
+    family: rawBlocked ? "CMP" : "MAP", source: rawBlocked ? "statement_harborline" : "crm",
+    message: rawBlocked ? "Statement file was truncated" : "CRM file absent" }));
+  return files;
+}
 
 afterEach(() => vi.restoreAllMocks());
 
 describe("readRunFiles", () => {
+  it("retains an optional same-run statement total, keeping absent distinct from blocked", async () => {
+    const files = await noCrmFailedFiles();
+    const legacy = await readRunFiles(files);
+    if (!legacy.ok) throw new Error(legacy.errors.join("; "));
+    expect(legacy.loaded.statementTotals).toBeUndefined();
+    const blocked = { schema_version: 1, run_id: "sample-run-failed", status: "BLOCKED", reason: "raw_gate_blocked",
+      valid_line_count: 0, excluded_line_count: 0, total_paid: null, lines: [] };
+    const attached = await readRunFiles([...files, picked("statement_totals.json", JSON.stringify(blocked))]);
+    if (!attached.ok) throw new Error(attached.errors.join("; "));
+    expect(attached.loaded.statementTotals?.status).toBe("BLOCKED");
+    const wrong = await readRunFiles([...files, picked("statement_totals.json", JSON.stringify({ ...blocked, run_id: "other" }))]);
+    expect(wrong.ok).toBe(false);
+    if (!wrong.ok) expect(wrong.errors.join(" ")).toMatch(/statement_totals\.json/);
+    const withCrm = await readRunFiles([...await runFiles("sample-run-failed"), picked("statement_totals.json", JSON.stringify(blocked))]);
+    expect(withCrm.ok).toBe(false);
+    if (!withCrm.ok) expect(withCrm.errors.join(" ")).toMatch(/statement_totals\.json/);
+    const passed = await runFiles("sample-run");
+    const passedManifest = JSON.parse(await passed.find(f => f.name === "manifest.json")!.text());
+    passedManifest.inputs = passedManifest.inputs.filter((input: { source: string }) => input.source !== "crm");
+    const nonfailed = await readRunFiles([...swap(passed, "manifest.json", JSON.stringify(passedManifest)),
+      picked("statement_totals.json", JSON.stringify({ ...blocked, run_id: "sample-run" }))]);
+    expect(nonfailed.ok).toBe(false);
+    if (!nonfailed.ok) expect(nonfailed.errors.join(" ")).toMatch(/statement_totals\.json/);
+    const noRawBlocker = await readRunFiles([...await noCrmFailedFiles(false), picked("statement_totals.json", JSON.stringify(blocked))]);
+    expect(noRawBlocker.ok).toBe(false);
+    if (!noRawBlocker.ok) expect(noRawBlocker.errors.join(" ")).toMatch(/statement_totals\.json/);
+    const available = { ...blocked, status: "AVAILABLE", reason: null, valid_line_count: 1, total_paid: "12.50",
+      lines: [{ source: "statement_harborline", lineage: { source_file: "s.csv", sheet: null, row_number: 2,
+        raw_hash: "a".repeat(64), run_id: "sample-run-failed", mapping_version: "unmapped" }, amount: "12.50", reason: "valid" }] };
+    const usableWithRawBlocker = await readRunFiles([...files, picked("statement_totals.json", JSON.stringify(available))]);
+    expect(usableWithRawBlocker.ok).toBe(false);
+    if (!usableWithRawBlocker.ok) expect(usableWithRawBlocker.errors.join(" ")).toMatch(/statement_totals\.json/);
+  });
+
   it("loads a second run held in memory, ignoring files that are not run files", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const files = [...(await runFiles("sample-run-partial")), picked("policies.csv", "policy_id\n")];

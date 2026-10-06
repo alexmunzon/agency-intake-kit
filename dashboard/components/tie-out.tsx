@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { LinkEvidencePanel } from "@/components/link-evidence-panel";
+import { StatementTotalsPanel } from "@/components/statement-totals-panel";
 import type { LinkEvidence } from "@/lib/link-evidence";
+import type { StatementTotals } from "@/lib/statement-totals";
 
 import { SeverityBadge, SeverityIcon, TONES, type Tone } from "@/components/severity-badge";
 import { CARD } from "@/components/tiles";
@@ -178,7 +180,7 @@ function TotalsTable({ totals, title, all }: { totals: Totals; title: string; al
   );
 }
 
-export function TieOutView({ run, tieOut, links }: { run: Run; tieOut: TieOut; links?: LinkEvidence[] }) {
+export function TieOutView({ run, tieOut, links, statementTotals }: { run: Run; tieOut: TieOut; links?: LinkEvidence[]; statementTotals?: StatementTotals }) {
   const summary = tieOutSummary(run);
   const other = otherDifferences(tieOut.variances);
   const messages = new Map(run.exceptions.map((record) => [record.id, record.message]));
@@ -196,6 +198,7 @@ export function TieOutView({ run, tieOut, links }: { run: Run; tieOut: TieOut; l
       <PageHeader run={run} question="Does the money agree?" />
       <Answer tone={answer[0]} text={answer[1]} detail={answer[2]} />
       {summary.checked && <p className="text-sm">{VARIANCE_SUM_NOTE}</p>}
+      <StatementTotalsPanel totals={statementTotals} />
       <LinkEvidencePanel links={links} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {LEGS.map(({ leg, title, proves }) => {

@@ -15,6 +15,18 @@ async function show(name: string) {
 const leg = (name: string) => within(screen.getByRole("group", { name }));
 
 describe("TieOutView", () => {
+  it("shows independent statement evidence while failed book checks remain not checked", async () => {
+    const dir = path.join(FIXTURES, "sample-run-failed");
+    const statementTotals = { schema_version: 1 as const, run_id: "sample-run-failed", status: "AVAILABLE" as const,
+      reason: null, valid_line_count: 1, excluded_line_count: 0, total_paid: "12.50",
+      lines: [{ source: "statement_harborline", lineage: { source_file: "s.csv", sheet: null, row_number: 2,
+        raw_hash: "a".repeat(64), run_id: "sample-run-failed", mapping_version: "unmapped" }, amount: "12.50", reason: "valid" as const }] };
+    render(<TieOutView run={await loadRunDir(dir)} tieOut={await loadTieOut(dir)} statementTotals={statementTotals} />);
+    expect(screen.getByText("Not checked. The run stopped before the tie-out.")).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "Statement totals" })).getByText("$12.50")).toBeInTheDocument();
+    expect(leg("A. Book vs statement").getByText("Not checked")).toBeInTheDocument();
+  });
+
   it("shows the three legs and example 4 for the warnings sample", async () => {
     await show("sample-run");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Does the money agree?");
