@@ -140,6 +140,8 @@ This is a demonstration of privacy habits, not a HIPAA compliance certification.
 
 How well does each approach turn a messy column header into the right standard field? Refreshed by `cd engine && uv run intake bench header-mapping`.
 
+Read these numbers as a check on a seen set, not accuracy on unfamiliar exports. The 134 headers were written by the builder, and 79 of them come from the fixture files the synonym list was built against. The benchmark asks Jev about the header text and source kind only, with no masked sample values, and uses a single 0.60 cutoff where the pipeline uses 0.60 and 0.85, so it does not match the pipeline's request exactly. Jev runs in replay, which answers only questions it has already recorded, so on a new export an unfamiliar column gets no Jev answer and goes to a person, the same as with Jev off.
+
 <!-- benchmark:start -->
 Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 synthetic variants), Jev in replay. Small synthetic set; method and caveats in [docs/benchmark-header-mapping.md](docs/benchmark-header-mapping.md).
 
