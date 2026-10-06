@@ -4,10 +4,11 @@ Each error and warning becomes one request with a minimized state: the rule, the
 value's shape (digits become 9, letters A), and a few neighbor fields from config. Requests
 with the same public hash are sent once per run and the answer is reused, so 40 missing MBIs
 on MA policies cost one call. The answer sets the lane and orders the queue; it never changes
-severity or blocks_load. In off mode, or after the spend guard trips, items stay UNREVIEWED,
-which is the human queue.
+severity or blocks_load. In off mode, after the spend guard trips, or when a reply does not
+fit the questions (JevBadReply), items stay UNREVIEWED, which is the human queue.
 """
 
+import logging
 import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
@@ -25,6 +26,7 @@ from intake.config import (
     TRIAGE_SHAPE_MAX_CHARS,
 )
 from jev_client import (
+    JevBadReply,
     JevClient,
     JevRequest,
     JevResponse,
@@ -38,6 +40,8 @@ from jev_client import (
     request_hash,
 )
 from jev_client.types import is_notes_key
+
+log = logging.getLogger("intake.triage")
 
 TRIAGED = frozenset({Severity.ERROR, Severity.WARNING})
 ENTRY_ERROR = NoulQuestion(
@@ -169,7 +173,12 @@ def triage(items: Sequence[TriageItem], client: JevClient) -> list[ExceptionReco
         request = triage_request(item)
         key = request_hash(request.body())
         if key not in answers:
-            answers[key] = client.ask(request)
+            try:
+                answers[key] = client.ask(request)
+            except JevBadReply as error:  # never applied: the rules' record goes to a person
+                log.warning("Jev triage answer not used, a person decides (%s)", error.log_safe())
+                qids = tuple(request.questions)
+                answers[key] = Unresolved(reason="invalid_reply", question_ids=qids)
         lane, scores = route(answers[key])
         update = {"lane": lane, "jev": scores}
         out.append(ExceptionRecord.model_validate({**item.record.model_dump(), **update}))

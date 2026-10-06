@@ -6,11 +6,13 @@ relationship word. Each match is replaced in place by a typed placeholder such a
 [REDACTED:phone], with no Jev call, so the value never leaves the machine. Layer 2: text that
 still holds a date, a drug-like word, or a health word goes to Jev's noul question, already
 redacted and with every digit masked. At or above PII_REDACT the whole text is redacted. If Jev
-cannot answer (off mode or the spend guard), it is redacted too: the gate fails closed.
+cannot answer (off mode, the spend guard, or a reply that does not fit the question), it is
+redacted too: the gate fails closed.
 Identical texts are asked once.
 """
 
 import hashlib
+import logging
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -24,6 +26,7 @@ from agency_schema.lineage import Lineage
 from agency_schema.registry import rule
 from intake.config import PII_HEALTH_WORDS, PII_REDACT, PII_REDACTED_TEXT, PII_RELATION_WORDS
 from jev_client import (
+    JevBadReply,
     JevClient,
     JevRequest,
     JevResponse,
@@ -33,6 +36,7 @@ from jev_client import (
     request_hash,
 )
 
+log = logging.getLogger("intake.pii")
 _DATE = re.compile(r"\b\d{1,4}[/-]\d{1,2}[/-]\d{1,4}\b")
 _DRUG = re.compile(r"\b\w+(pril|olol|statin|formin|sartan|cillin|azole|prazole|mab)\b|\bmg\b", re.I)
 _WORDS = re.compile(r"\b(" + "|".join(sorted(PII_HEALTH_WORDS)) + r")\w*\b", re.I)
@@ -235,7 +239,11 @@ def pii_gate(items: Sequence[FreeText], client: JevClient) -> list[GateResult]:
         request = pii_request(cleaned)
         key = request_hash(request.body())
         if key not in asked:
-            answer = client.ask(request)
+            try:
+                answer = client.ask(request)
+            except JevBadReply as error:  # an answer that does not fit is no answer: fail closed
+                log.warning("Jev PII answer not used, text redacted (%s)", error.log_safe())
+                answer = None
             pii = answer.answers["pii"] if isinstance(answer, JevResponse) else None
             asked[key] = pii.noul if isinstance(pii, NoulAnswer) else None
         probability = asked[key]  # None: Jev could not answer, so fail closed

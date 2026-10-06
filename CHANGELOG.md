@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Keep an invalid Jev answer (malformed, an option not offered, or the wrong question) unresolved instead of crashing the import: a header stays unmapped with MAP-002 "invalid model answer", an enum value stays as written for a person, a triaged exception keeps its severity and fix in the human queue, and the PII gate redacts the whole text (fails closed).
+
 - Docs: qualify the 79.9% to 96.3% header mapping figures as a small seen synthetic set, not accuracy on unfamiliar exports, and note that replay sends unfamiliar columns to a person.
 
 - Roadmap: record Bob Resolve v1 passing its live exit walkthrough, public demo links, and Intake v1 staying frozen.

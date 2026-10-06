@@ -5,8 +5,10 @@ source's tables does it hold? Sample values are masked with minimize_value first
 column that looks like free text or holds 9-digit values sends its header only. Routing:
 at or above MAP_AUTO maps, from MAP_SUGGEST up maps with MAP-002 for a person to confirm,
 below stays unmapped (PR 5's MAP-001 stays). No answer (off mode, budget spent) is MAP-002.
+A reply that does not fit the question is never applied: it stays unmapped with MAP-002 too.
 """
 
+import logging
 import re
 from dataclasses import dataclass
 from datetime import datetime
@@ -35,6 +37,7 @@ from intake.readers import LINEAGE_COLUMN, RawTable, file_exception
 from jev_client import (
     ChoiceAnswer,
     ChoiceQuestion,
+    JevBadReply,
     JevClient,
     JevRequest,
     JevResponse,
@@ -42,6 +45,8 @@ from jev_client import (
     request_hash,
 )
 from jev_client.client import DEFAULT_CASSETTE_DIR
+
+log = logging.getLogger("intake.mapping")
 
 MAPPING_CASSETTES = DEFAULT_CASSETTE_DIR / "mapping"
 NONE = "none"
@@ -74,13 +79,16 @@ class Asker:
     """Sends each distinct request once per run, keyed by the public request hash.
 
     With no client it only collects the requests (to count and price them) and answers
-    each one Unresolved, the same as off mode.
+    each one Unresolved, the same as off mode. A reply that does not fit the question
+    (JevBadReply) is answered Unresolved("invalid_reply"), so one bad answer goes to a person
+    instead of stopping the import.
     """
 
     def __init__(self, client: JevClient | None) -> None:
         self.client = client
         self.requests: dict[str, JevRequest] = {}
         self.asked = 0
+        self.invalid = 0  # distinct requests whose reply was rejected and not used
         self._answers: dict[str, JevResponse | Unresolved] = {}
 
     def ask(self, request: JevRequest) -> JevResponse | Unresolved:
@@ -91,7 +99,13 @@ class Asker:
             if self.client is None:
                 self._answers[key] = Unresolved(reason="mode_off", question_ids=("planned",))
             else:
-                self._answers[key] = self.client.ask(request)
+                try:
+                    self._answers[key] = self.client.ask(request)
+                except JevBadReply as error:
+                    log.warning("Jev answer not used, a person decides (%s)", error.log_safe())
+                    self.invalid += 1
+                    qids = tuple(request.questions)
+                    self._answers[key] = Unresolved(reason="invalid_reply", question_ids=qids)
         return self._answers[key]
 
 
@@ -108,7 +122,7 @@ class HeaderDecision:
     choice: str | None  # "table.field", None when Jev said none or gave no answer
     confidence: float | None
     route: Route
-    reason: str | None  # why a person decides: mode_off, budget_tripped, notes
+    reason: str | None  # why a person decides: mode_off, budget_tripped, notes, invalid_reply
 
 
 def tables_for(key: str) -> tuple[str, ...]:
@@ -227,6 +241,7 @@ def map_with_jev(
             extra.append(_map_002(table.source, key, entry.header, entry.field, at))
     for decision in decisions:
         if decision.route == "person":
-            why = f"needs a person: Jev gave no answer ({decision.reason})"
+            said = "invalid model answer" if decision.reason == "invalid_reply" else "no answer"
+            why = f"needs a person: Jev gave {said} ({decision.reason})"
             extra.append(_map_002(table.source, key, decision.header, None, why))
     return MappingResult(result.mapping, result.exceptions + extra, result.version), decisions

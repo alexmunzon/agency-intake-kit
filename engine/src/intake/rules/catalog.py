@@ -18,7 +18,7 @@ ENTRIES = (
     ("ING-003", N, "Trailing total or blank rows dropped"),
     ("ING-004", W, "Delimiter guessed with low confidence"),
     ("MAP-001", W, "Column could not be mapped"),
-    ("MAP-002", W, "Mapping confidence between thresholds, or Jev gave no answer"),
+    ("MAP-002", W, "Mapping confidence between thresholds, or Jev gave no usable answer"),
     ("MAP-003", B, "Required canonical field missing (a drop with no CRM misses them all)"),
     (
         "MAP-004",
