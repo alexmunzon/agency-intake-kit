@@ -1,0 +1,2 @@
+{"schema_version":1,"run_id":"run","source":"crm","reason":"crm_absent","lineage":null}
+{"schema_version":1,"run_id":"run","source":"statement_harborline","reason":"crm_absent","lineage":{"source_file":"statement_harborline.csv","sheet":null,"row_number":2,"raw_hash":"6e5954f5c8d3feedd2a9b3a78e415a4b2a741550a13c556668d110682c21ad79","run_id":"run","mapping_version":"unmapped"}}

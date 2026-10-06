@@ -1,0 +1,2 @@
+{"schema_version":1,"run_id":"run","source":"crm","reason":"dob_blank","lineage":{"source_file":"crm_export.csv","sheet":null,"row_number":3,"raw_hash":"b822eff28b25445336e26b9edb4d8df66f3cefa65416f0a7b7fabe7ec0f2d430","run_id":"run","mapping_version":"crm-e8d1fa78c841"}}
+{"schema_version":1,"run_id":"run","source":"crm","reason":"dob_malformed","lineage":{"source_file":"crm_export.csv","sheet":null,"row_number":4,"raw_hash":"6643d30f49c61a57f3588c64ef20de38af58e877dbfadaaeb5dedc89f5dbffb0","run_id":"run","mapping_version":"crm-e8d1fa78c841"}}
