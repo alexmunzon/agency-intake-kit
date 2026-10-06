@@ -1,5 +1,12 @@
 # Changelog
 
+## Repository hygiene, 2026-10-06
+
+- Add a README front door, architecture map, locked replay quickstart, documentation index and contributor guide without changing the frozen recruiting-demo feature scope.
+- Document synthetic-only threat boundaries, private reporting, credential hygiene, audit limits and the unpatched braces tooling advisory GHSA-vfj7-8cjw-p6xm. No security certification is claimed.
+- Pin the three existing CI actions to verified commit SHAs, disable checkout credential persistence, retain read-only permissions and add a 20-minute timeout plus superseded pull-request cancellation.
+- Ignore `.env.*` with an explicit `.env.example` allowance. Move shadcn to development dependencies after identifying its unchanged build-time CSS import; regenerate the npm lock without upgrading existing package versions. Builds still require development dependencies.
+
 ## Executive interface facelift, 2026-10-06
 
 - Apply one restrained navy and teal consulting presentation across Overview, Sources, Exceptions, Tie-out, Agents and Runs, including loaded-run views, evidence panels, filters and lineage details. Use the system font stack without a remote font fetch or new dependency.

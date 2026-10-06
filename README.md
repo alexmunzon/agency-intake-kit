@@ -2,11 +2,28 @@
 
 Validate, reconcile, and show the health of a newly acquired insurance agency's book of business, in one command. All data in this project is synthetic.
 
-Live demo: https://agency-intake-kit.vercel.app
+**[Open the live demo](https://agency-intake-kit.vercel.app)** · [Walkthrough](docs/demo-walkthrough.md) · [Documentation](docs/README.md) · [Contributing](CONTRIBUTING.md) · [Security and known risks](SECURITY.md)
 
 Start the [three-demo walkthrough](docs/demo-walkthrough.md): [1. Intake Kit](https://agency-intake-kit.vercel.app), [2. Bob Resolve](https://bob-resolve-nine.vercel.app), [3. Plan Diff](https://plan-diff.vercel.app). These are separate working demos with shared trust principles. No client data moves between the sites.
 
 **Result on the synthetic test agency:** all 717 planted mistakes found across 22 scored mistake types (recall 1.00 for every type), with 0 false alarms on 11,234 clean rows (`detection.clean_rows` and `detection.false_positive_rows` in `dashboard/public/demo-run/scorecard.json`). A clean row is one with no planted mistake. Measured on synthetic data, not a real agency.
+
+## Start here
+
+- **Review the product:** follow the [two-minute tour](#two-minute-tour), then the [three-demo walkthrough](docs/demo-walkthrough.md).
+- **Inspect the evidence:** the committed [scorecard](dashboard/public/demo-run/scorecard.json), [run manifest](dashboard/public/demo-run/manifest.json) and [end-to-end assertions](engine/tests/e2e/test_agency_a.py) make the result reproducible. See [benchmark methodology and caveats](docs/benchmark-header-mapping.md) for the separate header-mapping experiment.
+- **Run or contribute:** use the [locked quickstart](#run-it-in-five-commands) and [contributor checks](CONTRIBUTING.md). No API key is required in replay mode.
+- **Understand the boundary:** this is a synthetic-data recruiting demo. [Honest limits](#honest-limits) and [SECURITY.md](SECURITY.md) describe what has not been validated. The broader roadmap remains deferred.
+
+## Architecture at a glance
+
+- `engine/`: Python 3.12 CLI, schema validation, deterministic rules and DuckDB reconciliation. Jev handles bounded gaps; it never changes a rule verdict.
+- `fixtures/`: seeded synthetic inputs and ground truth. `engine/tests/` verifies rules, raw safety gates and the end-to-end demo.
+- `runs/`: local immutable run directories containing manifests, lineage, exceptions, clean outputs and reports. These generated runs are ignored by Git.
+- `dashboard/`: Next.js 16 and React 19 presentation of committed synthetic run files. Browser-selected Runs packages stay in the browser; there is no production account or upload service.
+- `docs/`: [design decisions](docs/adr/README.md), data contracts, evaluation caveats and the walkthrough. The root package coordinates development and verification scripts and intentionally has no dependencies or lockfile.
+
+Canonical locks are `engine/uv.lock` and `dashboard/package-lock.json`. The public dashboard and local CLI are separate surfaces; the [threat boundaries](SECURITY.md#threat-boundaries) apply to both.
 
 ![Overview page: a status banner answering whether the agency can go live, with counts of blockers, errors, and warnings](docs/screenshots/overview-1440.png)
 
@@ -96,17 +113,17 @@ Screenshots are made from the demo run by `npm run shots`; more are in [docs/scr
 
 ## Run it in five commands
 
-You need [uv](https://docs.astral.sh/uv/) (a Python package manager) and [nvm](https://github.com/nvm-sh/nvm) (a tool that installs the right Node version). No API key is needed.
+You need [uv](https://docs.astral.sh/uv/) and Node 24 (for example, installed with [nvm](https://github.com/nvm-sh/nvm)). The engine uses Python 3.12. No API key or environment file is needed for the committed replay demo. Install development dependencies too: Tailwind, TypeScript and the build-time `shadcn/tailwind.css` import require them.
 
 ```bash
 git clone https://github.com/alexmunzon/agency-intake-kit.git && cd agency-intake-kit
-(cd engine && uv sync)                          # Python 3.12 and the engine
+(cd engine && uv sync --locked)                 # Python 3.12 and the locked engine
 nvm install 24 && (cd dashboard && npm ci)      # Node 24 and the dashboard
-npm run demo                                    # run the synthetic agency, refresh the demo run
+JEV_MODE=replay npm run verify                  # lint, types, tests and production build
 (cd dashboard && npm run dev)                   # dashboard at http://localhost:3000
 ```
 
-`npm run demo` also writes `runs/demo/report.html`, a single page with the same numbers, and `runs/demo/clean/`, the load-ready files. `npm run verify` runs every check (lint, types, tests, build). To run your own drop folder: `cd engine && uv run intake run --in <drop folder> --out <run folder>`.
+The dashboard starts with its committed synthetic run. Optionally, `JEV_MODE=replay npm run demo` regenerates that run, replacing `runs/demo` and the committed dashboard demo copy; review the resulting diff. It also writes `runs/demo/report.html` and `runs/demo/clean/`. For a different synthetic drop folder, use `cd engine && uv run intake run --in <drop folder> --out <new run folder> --jev replay`. Never use real client or patient data. Live and record modes require explicit approval and can incur charges.
 
 ## How Jev is used, and what it costs
 
