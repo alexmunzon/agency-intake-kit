@@ -91,7 +91,7 @@ export function LoadRun({ demoRunId }: { demoRunId: string }) {
       >
         <p className="text-sm font-medium">Drop the run folder or its files here, or pick them below.</p>
         <p className={cn("text-xs", MUTED)}>
-          A run needs manifest.json, scorecard.json, exceptions.jsonl, rts_coverage.json, and the six files in tie_out. Add an optional finance.json for statement revenue review. Other files in the folder are skipped and never read.
+          A run needs manifest.json, scorecard.json, exceptions.jsonl, rts_coverage.json, and the six JSON files in tie_out. Optional finance.json adds statement revenue review; links.jsonl retains policy candidate evidence. Other files in the folder are skipped and never read.
         </p>
         <div>
           <label htmlFor="run-files" className="mb-1 block text-sm">Pick the run files</label>
