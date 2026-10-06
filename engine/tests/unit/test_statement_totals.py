@@ -48,15 +48,16 @@ def test_signed_rows_count_once_and_preserve_raw_lineage(tmp_path):
 
 
 def test_partial_and_zero_valid_are_distinct_from_true_zero(tmp_path):
-    table = statement(["Commission"], [[""], ["bad"], ["0.001"]])
+    table = statement(["Commission"], [[""], ["bad"], ["0.001"], ["1e+999999999"]])
     result = collect(tmp_path, table)
     assert (result.status, result.reason, result.total_paid) == ("PARTIAL", "excluded_rows", None)
     assert [line.reason for line in result.lines] == [
         "amount_blank",
         "amount_malformed",
         "amount_malformed",
+        "amount_malformed",
     ]
-    assert (result.valid_line_count, result.excluded_line_count) == (0, 3)
+    assert (result.valid_line_count, result.excluded_line_count) == (0, 4)
     zero = collect(tmp_path, statement(["Commission"], [["1.00"], ["-1.00"]]))
     assert (zero.status, zero.total_paid) == ("AVAILABLE", "0.00")
 

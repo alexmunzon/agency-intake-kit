@@ -3,7 +3,7 @@
 This review artifact never changes reconciliation, load status, or clean outputs.
 """
 
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, DecimalException
 from pathlib import Path
 from typing import Literal, Self
 
@@ -98,9 +98,11 @@ class StatementTotals(StrictModel):
 def _is_cents(value: str) -> bool:
     try:
         amount = Decimal(value)
-    except InvalidOperation:
+        return bool(
+            amount.is_finite() and abs(amount) < MONEY_LIMIT and value == _money_text(amount)
+        )
+    except DecimalException:
         return False
-    return bool(amount.is_finite() and abs(amount) < MONEY_LIMIT and value == _money_text(amount))
 
 
 def _money_text(value: Decimal) -> str:
@@ -128,13 +130,13 @@ def _amount_header(table: RawTable, drop: Path) -> str | None:
 def _line_amount(value: str | None) -> tuple[str | None, LineReason]:
     try:
         amount = parse_money(value)
-    except NotMoney:
-        return None, "amount_malformed"
-    if amount is None:
-        return None, "amount_blank"
-    if amount != amount.quantize(CENT):
-        return None, "amount_malformed"
-    return _money_text(amount), "valid"
+        if amount is None:
+            return None, "amount_blank"
+        if amount == amount.quantize(CENT):
+            return _money_text(amount), "valid"
+    except (NotMoney, DecimalException):
+        pass
+    return None, "amount_malformed"
 
 
 def _empty(run_id: str, reason: StatusReason) -> StatementTotals:
