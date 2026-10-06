@@ -31,6 +31,7 @@ from intake import __version__, config
 from intake.ingest import IngestResult
 from intake.readers import RawTable
 from intake.run.clean import clean_row_count, clean_tables, write_clean
+from intake.run.statement_totals import StatementTotals
 from intake.run.unresolved_evidence import UnresolvedEvidence, serialize_unresolved_evidence
 from intake.tieout import TieOutResult, write_tieout
 from jev_client import RunUsage
@@ -65,6 +66,7 @@ class RunOutputs:
     usage: RunUsage
     detection: DetectionSummary | None
     unresolved: tuple[UnresolvedEvidence, ...] = ()
+    statement_totals: StatementTotals | None = None
 
 
 def sha256_file(path: Path) -> str:
@@ -186,3 +188,7 @@ def write_run(o: RunOutputs, run_dir: Path) -> None:
     (run_dir / "unresolved_evidence.jsonl").write_text(
         serialize_unresolved_evidence(o.unresolved, o.run_id), encoding="utf-8"
     )
+    if o.statement_totals is not None:
+        (run_dir / "statement_totals.json").write_text(
+            o.statement_totals.model_dump_json(indent=2) + "\n", encoding="utf-8"
+        )

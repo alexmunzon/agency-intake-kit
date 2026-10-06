@@ -46,6 +46,7 @@ from intake.run.canonicalize import (
 from intake.run.clean import clean_model_records
 from intake.run.jev import RunJevClient
 from intake.run.scoring import Score, load_ground_truth, score
+from intake.run.statement_totals import collect_statement_totals
 from intake.run.unresolved_evidence import collect_unresolved_evidence
 from intake.run.write import RunOutputs, write_run
 from intake.tieout import TieOutResult, run_tieout
@@ -248,12 +249,13 @@ def _run_into(
     raw = ingest(drop, run_id=out.name)
     records = list(raw.exceptions) + run_raw_gates(raw)  # before any model call
     raw_blocked = _blocked(records)
+    book_absent = not any(t.source == "crm" for t in raw.tables)
     sources: list[MappedSource] = []
     tables: dict[str, pl.DataFrame] = {}
     tie: TieOutResult | None = None
     coverage = RtsCoverage(cells=())
     enrollment = None
-    if not any(t.source == "crm" for t in raw.tables):  # #59: no book, so stop before mapping
+    if book_absent:  # #59: no book, so stop before mapping
         records += _missing_required("crm", SOURCE_TABLES["crm"], set())
     if not _blocked(records):
         mapping_dir = tmp / "mapping"
@@ -314,6 +316,9 @@ def _run_into(
         usage=client.usage,
         detection=result_score.summary if result_score else None,
         unresolved=collect_unresolved_evidence(raw, sources, out.name, raw_blocked),
+        statement_totals=collect_statement_totals(raw, drop, out.name, raw_blocked)
+        if book_absent
+        else None,
     )
     write_run(outputs, tmp)
     check_run_dir(tmp)

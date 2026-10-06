@@ -1,5 +1,15 @@
 # Agency Data Trust Series: Roadmap
 
+## Bounded independent statement amounts (2026-10-05)
+
+When CRM is absent, the run emits optional `statement_totals.json` containing exact signed received-row amounts and source lineage. Only deterministic amount mapping is used; blank, malformed, sub-cent and unavailable/ambiguous mappings remain explicitly excluded. Raw safety/completeness blockers yield BLOCKED with no usable amounts. No valid rows means a null total; valid rows netting to zero means 0.00. The run remains FAILED, clean output stays absent and all book comparisons stay NOT_RUN. This artifact is not a deduplicated receipt ledger or policy attribution. Browser presentation follows separately; full M1 remains incomplete.
+
+## Latest delivery: unresolved evidence dashboard (2026-10-05)
+
+PR94 is delivered: independently reviewed exact head `d4d8d7d2a56763d4c90ae743747d104a8987d113`, merged `bd029845ab5e8bf45c39db35b81da64849cbdc79`, hosted verification `37398961419` SUCCESS. Reviewed and merged trees are identical (`e5d7cf73c69b87111be505b749fa7739f6338100`). Full local gate passed 901 Python and 215 dashboard tests plus Ruff/format/mypy, lint/types/build. Production `dpl_GrbhfgmYTYVZ2oh77jXDk4ogP6Lp` is READY at the merge SHA. Production IAB verified all four reasons and exact source provenance, absent versus empty artifacts, FAILED/no-clean/NOT_RUN semantics, malformed and wrong-run rejection preserving the prior run, replacement/clear/reload reset, and legacy imports. Actual 1440x960 and 375x812 viewports matched document width; no observed console errors. This completes the bounded unresolved-evidence dashboard slice, not full M1. Independent missing-book statement totals remain separate future work.
+
+This checkpoint supersedes older statements that CRM/DOB evidence imports or presentation remain unbuilt. Historical delivery notes remain for traceability.
+
 ## Bounded unresolved evidence dashboard (2026-10-05)
 
 Optional `unresolved_evidence.jsonl` imports show the four existing CRM/DOB reasons and exact source provenance in Runs, with 25-case pagination. Missing and empty artifacts remain distinct; an empty artifact never establishes completeness. Strict same-run parsing rejects malformed, duplicate or unexpected data without replacing the loaded run. These are source and row references, not people, load-ready records or resolved identities. Engine gates, candidate matching and financial totals are unchanged. Delivery remains subject to exact-head independent review, hosted verification and production browser checks. Independent absent-book statement totals remain a separate future slice.

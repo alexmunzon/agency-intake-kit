@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Preserve exact received statement amounts with row exclusions and provenance when CRM is absent, without changing FAILED/no-clean/NOT_RUN gates.
+
 - Validate optional unresolved evidence imports and show absent CRM and missing, blank or malformed DOB reasons with source provenance in Runs. Preserve missing/empty distinctions and existing run gates.
 
 - Show imported policy candidates and lineage on Tie-out, with separate link states and wording that distinguishes attribution uncertainty from missing revenue.
