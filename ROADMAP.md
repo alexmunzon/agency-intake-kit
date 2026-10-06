@@ -1,5 +1,15 @@
 # Agency Data Trust Series: Roadmap
 
+## Bounded unresolved evidence dashboard (2026-10-05)
+
+Optional `unresolved_evidence.jsonl` imports show the four existing CRM/DOB reasons and exact source provenance in Runs, with 25-case pagination. Missing and empty artifacts remain distinct; an empty artifact never establishes completeness. Strict same-run parsing rejects malformed, duplicate or unexpected data without replacing the loaded run. These are source and row references, not people, load-ready records or resolved identities. Engine gates, candidate matching and financial totals are unchanged. Delivery remains subject to exact-head independent review, hosted verification and production browser checks. Independent absent-book statement totals remain a separate future slice.
+
+## Latest delivery: policy evidence dashboard (2026-10-05)
+
+PR92 adapter and PR93 candidate view are delivered. Adapter reviewed `00d5eb82`, merged `007872791`, hosted run `37393760153` SUCCESS. View reviewed `e33b7f82`, merged `e6c51067c524fecf5bc079d7901f5f360e3506a0`, hosted run `37394208251` SUCCESS. Both bounded independent reviews passed on their exact heads. Final local gate passed 901 Python and 180 dashboard tests, lint, types and build. Production `dpl_CzjbdkUFu1Xsm2RvGHFZKu2ByjHg` is READY at e6c5106. IAB verified 12-file synthetic import, 8 confirmed / 1 provisional, expanded statement and candidate lineage, 315.00 paid including 52.50 unattributed, explicit variance-sum wording, reload reset, and legacy unavailable-evidence message. No observed console errors or document overflow at actual 1440x960 and 375x812. Full M1 is not complete; DOB/CRM unresolved-evidence presentation and independent missing-book statement totals remain future work.
+
+This delivery supersedes older statements below that candidate imports or presentation are still planned. Historical checkpoints remain for traceability. Confirmed means deterministic matching, not authenticated identity or human package approval.
+
 ## Bounded policy link evidence view (2026-10-05)
 
 Tie-out presents the imported artifact's four link states, signed line amounts, candidates and full source lineage, paginated 25 records at a time. Missing and empty evidence remain distinct; replacing an imported run never borrows previous candidates. A provisional candidate has no selected policy, an ambiguous line retains every candidate, a negative amount retains its sign, and null is not zero. Confirmation describes the matching rules, not human approval or package completeness. Legacy match counts retain the run's reported meaning. Overlapping check variances are explicitly not a missing-revenue total; net unattributed amounts remain included in statement paid. No engine totals, gates or identities change.

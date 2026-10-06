@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Validate optional unresolved evidence imports and show absent CRM and missing, blank or malformed DOB reasons with source provenance in Runs. Preserve missing/empty distinctions and existing run gates.
+
 - Show imported policy candidates and lineage on Tie-out, with separate link states and wording that distinguishes attribution uncertainty from missing revenue.
 
 - Accept optional versioned reconciliation candidate evidence in browser imports, with same-run lineage and strict state/amount validation.

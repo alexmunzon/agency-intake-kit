@@ -1,3 +1,4 @@
+import { parseUnresolvedEvidence, type UnresolvedEvidence } from "@/lib/unresolved-evidence";
 import { FILE_NAMES, parseJson, parseRun, type Run, type RunFiles } from "@/lib/run-loader";
 import { parseTieOut, TIE_OUT_FILES, type TieOut } from "@/lib/tie-out";
 import { parseFinanceReview, type FinanceReview } from "@/lib/finance-review";
@@ -17,6 +18,7 @@ export interface LoadedRun {
   tieOut: TieOut;
   finance?: FinanceReview;
   links?: LinkEvidence[];
+  unresolved?: UnresolvedEvidence[];
 }
 
 export type UploadResult = { ok: true; loaded: LoadedRun } | { ok: false; errors: string[] };
@@ -26,11 +28,13 @@ export const MAX_FILE_BYTES = 50 * 1024 * 1024;
 // The run file each picked name stands for. Matching by name lets you pick a whole run folder:
 // tie_out names are unique, and anything else (clean/*.csv, for example) is never read.
 const RUN_NAMES = Object.values(FILE_NAMES);
+const UNRESOLVED_FILE = "unresolved_evidence.jsonl";
 const FINANCE_FILE = "finance.json";
 const LINKS_FILE = "tie_out/links.jsonl";
 const WANTED = new Map<string, string>([
   ...RUN_NAMES.map((name): [string, string] => [name, name]),
   ...TIE_OUT_FILES.map((stem): [string, string] => [`${stem}.json`, `tie_out/${stem}.json`]),
+  [UNRESOLVED_FILE, UNRESOLVED_FILE],
   [FINANCE_FILE, FINANCE_FILE],
   ["links.jsonl", LINKS_FILE],
 ]);
@@ -88,6 +92,11 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
       errors.push(`${FINANCE_FILE}: could not read (${message(error)})`);
     }
   }
+  const unresolvedFile = picked.get(UNRESOLVED_FILE);
+  if (unresolvedFile) {
+    try { texts.set(UNRESOLVED_FILE, await unresolvedFile.text()); }
+    catch { errors.push(`${UNRESOLVED_FILE}: could not read the file. Pick it again.`); }
+  }
   const linksFile = picked.get(LINKS_FILE);
   if (linksFile) {
     try { texts.set(LINKS_FILE, await linksFile.text()); }
@@ -109,6 +118,8 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
       (Object.entries(FILE_NAMES) as [keyof RunFiles, string][]).map(([key, name]) => [key, texts.get(name)!]),
     ) as RunFiles;
     const run = parseRun(runFiles);
+    const unresolvedText = texts.get(UNRESOLVED_FILE);
+    const unresolved = unresolvedText === undefined ? undefined : parseUnresolvedEvidence(unresolvedText, run.manifest.run_id);
     const linksText = texts.get(LINKS_FILE);
     const links = linksText === undefined ? undefined : parseLinkEvidence(linksText, run.manifest.run_id);
     const tieFiles = Object.fromEntries(TIE_OUT_FILES.map((stem) => [stem, texts.get(`tie_out/${stem}.json`)!]));
@@ -119,6 +130,7 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
         run,
         tieOut: parseTieOut(tieFiles, run),
         ...(finance ? { finance } : {}),
+        ...(unresolved !== undefined ? { unresolved } : {}),
         ...(links !== undefined ? { links } : {}),
       },
     };
