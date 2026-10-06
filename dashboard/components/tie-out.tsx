@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
+import { LinkEvidencePanel } from "@/components/link-evidence-panel";
+import type { LinkEvidence } from "@/lib/link-evidence";
 
 import { SeverityBadge, SeverityIcon, TONES, type Tone } from "@/components/severity-badge";
 import { CARD } from "@/components/tiles";
 import { formatMoney } from "@/lib/money";
 import { plural, tieOutSummary } from "@/lib/overview";
 import type { Run } from "@/lib/run-loader";
-import { LEGS, differenceText, isZero, otherDifferences, otherText, totalsSum, type TieOut } from "@/lib/tie-out";
+import { LEGS, VARIANCE_SUM_NOTE, differenceText, otherDifferences, otherText, totalsSum, type TieOut } from "@/lib/tie-out";
 import type { LegResult, Totals, Variance } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -46,8 +48,8 @@ function LegCard({ result, title, proves }: { result: LegResult; title: string; 
   const count = (n: number | null) => (n === null ? "Not reported" : n.toLocaleString("en-US"));
   const stats: [string, string][] = ran
     ? [
-        ["Matched", count(result.matched)],
-        ["Unmatched", count(result.unmatched)],
+        ["Reported matches", count(result.matched)],
+        ["Reported unmatched", count(result.unmatched)],
         ["Weak matches", count(result.weak_matched)],
         ["Differences", result.variance_dollars === null ? "Not reported" : formatMoney(result.variance_dollars)],
       ]
@@ -102,7 +104,14 @@ function VarianceTable({ rows, messages }: { rows: Variance[]; messages: Map<str
               <td className={cn(STICKY, "font-mono")}>{row.carrier_member_id ?? "None"}</td>
               <td>{where(row)}</td>
               <td>
-                {row.paid === null && row.expected === null ? (
+                {row.rule_id === "TIE-001" || row.rule_id === "TIE-002" ? (
+                  <>
+                    <span>{row.rule_id === "TIE-001" ? "No confirmed payment link" : "No confirmed policy link"}</span>
+                    <span className={cn("block", MUTED)}>
+                      {row.paid === null ? "Statement amount not attributed" : `Statement ${formatMoney(row.paid)}`}; {row.expected === null ? "policy expectation not calculated" : `book expectation ${formatMoney(row.expected)}`}
+                    </span>
+                  </>
+                ) : row.paid === null && row.expected === null ? (
                   // A status disagreement (TIE-004) is not a money check, so there is no amount to show.
                   <span>Status only, no amount</span>
                 ) : (
@@ -138,12 +147,14 @@ function TotalsTable({ totals, title, all }: { totals: Totals; title: string; al
   const rows = [...totals.rows.map((row) => ({ ...row, total: false })), { key: all, ...sum, within_tolerance: null, total: true }];
   return (
     <div className={TABLE_WRAP}>
-      <table className={TABLE}>
-        <caption className="p-3 text-left text-sm font-medium">{title}</caption>
+      <table className={TABLE} aria-label={title}>
+        <caption className="p-3 text-left text-sm font-medium">
+          {title}<span className="block text-xs font-normal">Unattributed is the net statement amount without a policy link in this run, already included in Paid.</span>
+        </caption>
         <thead>
           <tr>
             <th className={STICKY}>{all === "All agents" ? "Agent (NPN)" : "Carrier"}</th>
-            <th>Expected</th><th>Paid</th><th>Difference</th><th>Unexplained</th><th>Tolerance</th>
+            <th>Expected</th><th>Paid</th><th>Difference</th><th>Unattributed (net)</th><th>Tolerance</th>
           </tr>
         </thead>
         <tbody>
@@ -153,7 +164,7 @@ function TotalsTable({ totals, title, all }: { totals: Totals; title: string; al
               <td>{formatMoney(row.book_expected)}</td>
               <td>{formatMoney(row.statement_paid)}</td>
               <td>{differenceText(row.difference)}</td>
-              <td>{isZero(row.unexplained_revenue) ? "None" : `${formatMoney(row.unexplained_revenue)} unexplained`}</td>
+              <td>{formatMoney(row.unexplained_revenue)}</td>
               <td>
                 {row.within_tolerance === null ? null : (
                   <SeverityBadge tone={row.within_tolerance ? "pass" : "error"} label={row.within_tolerance ? "Within" : "Outside"} />
@@ -167,7 +178,7 @@ function TotalsTable({ totals, title, all }: { totals: Totals; title: string; al
   );
 }
 
-export function TieOutView({ run, tieOut }: { run: Run; tieOut: TieOut }) {
+export function TieOutView({ run, tieOut, links }: { run: Run; tieOut: TieOut; links?: LinkEvidence[] }) {
   const summary = tieOutSummary(run);
   const other = otherDifferences(tieOut.variances);
   const messages = new Map(run.exceptions.map((record) => [record.id, record.message]));
@@ -184,6 +195,8 @@ export function TieOutView({ run, tieOut }: { run: Run; tieOut: TieOut }) {
     <div className="space-y-4">
       <PageHeader run={run} question="Does the money agree?" />
       <Answer tone={answer[0]} text={answer[1]} detail={answer[2]} />
+      {summary.checked && <p className="text-sm">{VARIANCE_SUM_NOTE}</p>}
+      <LinkEvidencePanel links={links} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {LEGS.map(({ leg, title, proves }) => {
           const result = tieOut.legs.find((item) => item.leg === leg);

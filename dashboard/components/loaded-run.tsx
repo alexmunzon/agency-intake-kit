@@ -62,7 +62,7 @@ export function RunSwitch({ page, children }: { page: PageName; children: ReactN
     case "exceptions":
       return <ExceptionsPage key={run.manifest.run_id} run={run} />;
     case "tie-out":
-      return <TieOutView run={run} tieOut={tieOut} />;
+      return <TieOutView key={run.manifest.run_id} run={run} tieOut={tieOut} links={loaded.links} />;
     case "agents":
       return <AgentsView run={run} />;
   }

@@ -1,5 +1,10 @@
 # Agency Data Trust Series: Roadmap
 
+## Bounded policy link evidence view (2026-10-05)
+
+Tie-out presents the imported artifact's four link states, signed line amounts, candidates and full source lineage, paginated 25 records at a time. Missing and empty evidence remain distinct; replacing an imported run never borrows previous candidates. A provisional candidate has no selected policy, an ambiguous line retains every candidate, a negative amount retains its sign, and null is not zero. Confirmation describes the matching rules, not human approval or package completeness. Legacy match counts retain the run's reported meaning. Overlapping check variances are explicitly not a missing-revenue total; net unattributed amounts remain included in statement paid. No engine totals, gates or identities change.
+
+
 ## Bounded candidate evidence adapter (2026-10-05)
 
 An optional `tie_out/links.jsonl` import carries versioned candidate evidence into the selected run in browser memory. Missing remains unavailable; a present empty file remains empty. Existing packages stay valid. Validate statement and candidate lineage against the manifest run, state/reason consistency and exact signed decimal text before accepting the package. Duplicate JSON keys, duplicate source rows, duplicate candidates, wrong-run evidence, malformed amounts and unsupported states refuse the import with a file-specific error. Examples: a confirmed strong link is retained; one name/DOB candidate stays provisional; ambiguous candidates never select a policy; unmatched has no candidates; negative amounts retain their sign; null does not become zero. Candidate rendering is the next separate slice. This adapter does not resolve identities, recalculate totals or change engine gates.

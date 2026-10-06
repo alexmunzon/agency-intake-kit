@@ -22,11 +22,11 @@ describe("TieOutView", () => {
     expect(leg("B. Statement vs book").getByText("$61.05")).toBeInTheDocument();
     const row = within(screen.getByRole("row", { name: /HL-998213/ }));
     expect(row.getByText("TIE-002")).toBeInTheDocument();
-    expect(row.getByText("$61.05 more paid")).toBeInTheDocument();
+    expect(row.getByText("No confirmed policy link")).toBeInTheDocument();
     expect(row.getByText("Harborline 2026-08, line 212")).toBeInTheDocument();
     expect(row.getByText("Harborline paid a commission for a member who is not in the book")).toBeInTheDocument();
     const carriers = within(screen.getByRole("table", { name: "Totals by carrier" }));
-    expect(carriers.getByRole("row", { name: /Harborline/ })).toHaveTextContent("$61.05 unexplained");
+    expect(carriers.getByRole("row", { name: /Harborline/ })).toHaveTextContent("$61.05");
     expect(carriers.getByRole("row", { name: /All carriers/ })).toHaveTextContent("$30.05 more paid");
     const agents = within(screen.getByRole("table", { name: "Totals by agent" }));
     expect(agents.getByRole("row", { name: /2210457/ })).toHaveTextContent("$31.00 less paid");

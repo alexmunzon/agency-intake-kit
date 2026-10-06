@@ -10,7 +10,7 @@ import {
   type SourceCounts,
 } from "@/lib/overview";
 import type { Run } from "@/lib/run-loader";
-import { otherDifferences, otherText, type TieOut } from "@/lib/tie-out";
+import { otherDifferences, otherText, VARIANCE_SUM_NOTE, type TieOut } from "@/lib/tie-out";
 import type { RunStatus, SeverityCounts } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -120,12 +120,13 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {tieOut.checked ? (
           <Tile
-            label="Tie-out differences"
+            label="Check variance sum"
+            note={VARIANCE_SUM_NOTE}
             value={formatMoney(tieOut.dollars)}
             context={`${plural(tieOut.count, "item")}, ${tieOut.ran === tieOut.legs ? `all ${tieOut.legs}` : `${tieOut.ran} of ${tieOut.legs}`} checks ran${otherText(otherDifferences(tieFiles.variances))}`}
           />
         ) : (
-          <Tile label="Tie-out differences" value="Not checked" context={tieOut.reason} muted />
+          <Tile label="Check variance sum" value="Not checked" context={tieOut.reason} muted />
         )}
         <Tile
           label="RTS gaps"
