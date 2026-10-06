@@ -221,3 +221,5 @@ New runs also write `tie_out/links.jsonl`: one record per checked statement row,
 Non-confirmed rows keep their dollars in statement totals and unexplained revenue but do not pay a policy or trigger its rate/status checks. Existing six tie-out files remain compatible; `weak_matched` counts confirmed matches only and provisional evidence is in links.jsonl. Dashboard imports currently skip the new artifact. Missing-book runs still report NOT_RUN; this slice does not implement independent absent-book statement totals or change the finance ledger.
 
 Link amounts use the existing tie-out `DECIMAL(12,2)` range. Null is not zero; this slice does not expand that range or add independent diagnosis for out-of-range numeric input. Conservation assertions cover accepted amounts.
+
+Optional `tie_out/links.jsonl` is shown on Tie-out for imported runs, with state counts, candidate/source lineage and 25-row pages. Missing evidence is unavailable, not an all-matched result. Check-variance sums may overlap; net unattributed dollars are already included in statement paid.

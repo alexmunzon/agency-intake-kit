@@ -29,8 +29,8 @@ describe("Overview", () => {
     expect(tile("Info").getByText("3")).toBeInTheDocument();
     expect(tile("Clean rows").getByText("7,761")).toBeInTheDocument();
     expect(tile("Clean rows").getByText("of 7,765 rows read")).toBeInTheDocument();
-    expect(tile("Tie-out differences").getByText("$85.55")).toBeInTheDocument();
-    expect(tile("Tie-out differences").getByText("3 items, all 3 checks ran, plus 1 commission off the rate table or totals ($6.50)")).toBeInTheDocument();
+    expect(tile("Check variance sum").getByText("$85.55")).toBeInTheDocument();
+    expect(tile("Check variance sum").getByText("3 items, all 3 checks ran, plus 1 commission off the rate table or totals ($6.50)")).toBeInTheDocument();
     expect(tile("RTS gaps").getByText("1")).toBeInTheDocument();
     expect(tile("RTS gaps").getByText("Policies sold without ready-to-sell status")).toBeInTheDocument();
     expect(tile("Jev AI review").getByText("38 calls")).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe("Overview", () => {
     expect(tile("Errors").getByText("Not checked")).toBeInTheDocument();
     expect(tile("Warnings").getByText("Not checked")).toBeInTheDocument();
     expect(tile("Clean rows").getByText("None")).toBeInTheDocument();
-    expect(tile("Tie-out differences").getByText("Not checked")).toBeInTheDocument();
+    expect(tile("Check variance sum").getByText("Not checked")).toBeInTheDocument();
     expect(tile("RTS gaps").getByText("Not checked")).toBeInTheDocument();
     expect(tile("Clean rows").getByText("No load files written")).toBeInTheDocument();
     expect(tile("Jev AI review").getByText("0 calls")).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe("Overview", () => {
     await show("sample-run-passed");
     expect(screen.getByText("Yes. Every check passed.")).toBeInTheDocument();
     expect(tile("Clean rows").getByText("7,765")).toBeInTheDocument();
-    expect(tile("Tie-out differences").getByText("$0.00")).toBeInTheDocument();
+    expect(tile("Check variance sum").getByText("$0.00")).toBeInTheDocument();
     expect(tile("RTS gaps").getByText("0")).toBeInTheDocument();
     expect(tile("Errors").getByText("0")).toBeInTheDocument();
   });
@@ -93,8 +93,8 @@ describe("Overview", () => {
 
   it("says 2 of 3 checks ran for a partial tie-out (#18)", async () => {
     await show("sample-run-partial");
-    expect(tile("Tie-out differences").getByText("$85.55")).toBeInTheDocument();
-    expect(tile("Tie-out differences").getByText("2 items, 2 of 3 checks ran, plus 1 commission off the rate table or totals ($6.50)")).toBeInTheDocument();
+    expect(tile("Check variance sum").getByText("$85.55")).toBeInTheDocument();
+    expect(tile("Check variance sum").getByText("2 items, 2 of 3 checks ran, plus 1 commission off the rate table or totals ($6.50)")).toBeInTheDocument();
     expect(tile("Warnings").getByText("5")).toBeInTheDocument();
   });
 });

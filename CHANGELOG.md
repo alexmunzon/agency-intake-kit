@@ -8,6 +8,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Show imported policy candidates and lineage on Tie-out, with separate link states and wording that distinguishes attribution uncertainty from missing revenue.
+
 - Accept optional versioned reconciliation candidate evidence in browser imports, with same-run lineage and strict state/amount validation.
 
 - Export versioned reconciliation candidate evidence with statement and policy lineage, explicit states and signed amounts.

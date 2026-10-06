@@ -7,12 +7,13 @@ interface TileProps {
   label: string;
   value: string;
   context?: string;
+  note?: string;
   tone?: Tone;
   /** Shown flat and gray when the run never reached this check. */
   muted?: boolean;
 }
 
-export function Tile({ label, value, context, tone, muted }: TileProps) {
+export function Tile({ label, value, context, note, tone, muted }: TileProps) {
   return (
     <div
       role="group"
@@ -27,6 +28,7 @@ export function Tile({ label, value, context, tone, muted }: TileProps) {
         {value}
       </p>
       {context && <p className="mt-1 text-xs text-slate-600 tabular-nums dark:text-slate-400">{context}</p>}
+      {note && <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">{note}</p>}
     </div>
   );
 }

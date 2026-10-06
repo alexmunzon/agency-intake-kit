@@ -11,11 +11,12 @@ export interface TieOut {
   byCarrier: Totals;
   byAgent: Totals;
 }
+export const VARIANCE_SUM_NOTE = "Sum across checks; a line can appear more than once. This is not a missing-revenue total.";
 
 export const LEGS: { leg: TieOutLeg; file: string; title: string; proves: string }[] = [
-  { leg: "BOOK_VS_STATEMENT", file: "leg_book_vs_statement", title: "A. Book vs statement", proves: "Every active policy has a commission line" },
-  { leg: "STATEMENT_VS_BOOK", file: "leg_statement_vs_book", title: "B. Statement vs book", proves: "Every commission line matches a policy in the book" },
-  { leg: "CRM_VS_STATEMENT", file: "leg_crm_vs_statement", title: "C. CRM vs statement", proves: "CRM status agrees with the carrier" },
+  { leg: "BOOK_VS_STATEMENT", file: "leg_book_vs_statement", title: "A. Book vs statement", proves: "Policy payment links reported by the run" },
+  { leg: "STATEMENT_VS_BOOK", file: "leg_statement_vs_book", title: "B. Statement vs book", proves: "Statement policy links reported by the run" },
+  { leg: "CRM_VS_STATEMENT", file: "leg_crm_vs_statement", title: "C. CRM vs statement", proves: "CRM status comparison for linked policies" },
 ];
 /** File stems in tie_out/, legs first. */
 export const TIE_OUT_FILES = [...LEGS.map((leg) => leg.file), "variances", "totals_by_carrier", "totals_by_agent"];
