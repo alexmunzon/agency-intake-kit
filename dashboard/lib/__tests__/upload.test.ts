@@ -39,6 +39,28 @@ async function noCrmFailedFiles(rawBlocked = true): Promise<PickedFile[]> {
 afterEach(() => vi.restoreAllMocks());
 
 describe("readRunFiles", () => {
+  it("imports grouping only alongside matching statement evidence and rejects malformed sidecars", async () => {
+    const files = await noCrmFailedFiles();
+    const totals = picked("statement_totals.json", JSON.stringify({ schema_version: 1, run_id: "sample-run-failed",
+      status: "BLOCKED", reason: "raw_gate_blocked", valid_line_count: 0, excluded_line_count: 0, total_paid: null, lines: [] }));
+    const groups = picked("statement_groups.json", JSON.stringify({ schema_version: 1, run_id: "sample-run-failed", lines: [] }));
+    const accepted = await readRunFiles([...files, totals, groups]);
+    if (!accepted.ok) throw new Error(accepted.errors.join("; "));
+    expect(accepted.loaded.statementGroups).toEqual([]);
+    const legacy = await readRunFiles([...files, totals]);
+    if (!legacy.ok) throw new Error(legacy.errors.join("; "));
+    expect(legacy.loaded.statementGroups).toBeUndefined();
+    for (const rejected of [await readRunFiles([...files, groups]),
+      await readRunFiles([...files, totals, picked("statement_groups.json", "{PRIVATE")]),
+      await readRunFiles([...files, totals, picked("statement_groups.json", JSON.stringify({ schema_version: 1,
+        run_id: "sample-run-failed", lines: [{ lineage: { source_file: "extra.csv", sheet: null, row_number: 2,
+          raw_hash: "a".repeat(64), run_id: "sample-run-failed", mapping_version: "unmapped" }, carrier: null, statement_period: null }] }))]),
+      await readRunFiles([...files, totals, groups, groups])]) {
+      expect(rejected.ok).toBe(false);
+      if (!rejected.ok) expect(rejected.errors.join(" ")).toMatch(/statement_groups.json/);
+    }
+  });
+
   it("retains an optional same-run statement total, keeping absent distinct from blocked", async () => {
     const files = await noCrmFailedFiles();
     const legacy = await readRunFiles(files);

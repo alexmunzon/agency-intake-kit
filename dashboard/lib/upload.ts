@@ -1,4 +1,5 @@
 import { parseUnresolvedEvidence, type UnresolvedEvidence } from "@/lib/unresolved-evidence";
+import { parseStatementGroups, type StatementGroup } from "@/lib/statement-groups";
 import { parseStatementTotals, type StatementTotals } from "@/lib/statement-totals";
 import { FILE_NAMES, parseJson, parseRun, type Run, type RunFiles } from "@/lib/run-loader";
 import { parseTieOut, TIE_OUT_FILES, type TieOut } from "@/lib/tie-out";
@@ -21,6 +22,7 @@ export interface LoadedRun {
   links?: LinkEvidence[];
   unresolved?: UnresolvedEvidence[];
   statementTotals?: StatementTotals;
+  statementGroups?: StatementGroup[];
 }
 
 export type UploadResult = { ok: true; loaded: LoadedRun } | { ok: false; errors: string[] };
@@ -31,6 +33,7 @@ export const MAX_FILE_BYTES = 50 * 1024 * 1024;
 // tie_out names are unique, and anything else (clean/*.csv, for example) is never read.
 const RUN_NAMES = Object.values(FILE_NAMES);
 const UNRESOLVED_FILE = "unresolved_evidence.jsonl";
+const STATEMENT_GROUPS_FILE = "statement_groups.json";
 const STATEMENT_TOTALS_FILE = "statement_totals.json";
 const FINANCE_FILE = "finance.json";
 const LINKS_FILE = "tie_out/links.jsonl";
@@ -39,6 +42,7 @@ const WANTED = new Map<string, string>([
   ...TIE_OUT_FILES.map((stem): [string, string] => [`${stem}.json`, `tie_out/${stem}.json`]),
   [UNRESOLVED_FILE, UNRESOLVED_FILE],
   [STATEMENT_TOTALS_FILE, STATEMENT_TOTALS_FILE],
+  [STATEMENT_GROUPS_FILE, STATEMENT_GROUPS_FILE],
   [FINANCE_FILE, FINANCE_FILE],
   ["links.jsonl", LINKS_FILE],
 ]);
@@ -106,6 +110,11 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
     try { texts.set(STATEMENT_TOTALS_FILE, await statementTotalsFile.text()); }
     catch { errors.push(`${STATEMENT_TOTALS_FILE}: could not read the file. Pick it again.`); }
   }
+  const groupsFile = picked.get(STATEMENT_GROUPS_FILE);
+  if (groupsFile) {
+    try { texts.set(STATEMENT_GROUPS_FILE, await groupsFile.text()); }
+    catch { errors.push(`${STATEMENT_GROUPS_FILE}: could not read the file. Pick it again.`); }
+  }
   const linksFile = picked.get(LINKS_FILE);
   if (linksFile) {
     try { texts.set(LINKS_FILE, await linksFile.text()); }
@@ -139,6 +148,8 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
       record => record.severity === "BLOCKER" && ["CMP-001", "SSN-001"].includes(record.rule_id)))) {
       throw new Error(`${STATEMENT_TOTALS_FILE}: inconsistent with raw safety gates`);
     }
+    const groupsText = texts.get(STATEMENT_GROUPS_FILE);
+    const statementGroups = groupsText === undefined ? undefined : parseStatementGroups(groupsText, statementTotals);
     const linksText = texts.get(LINKS_FILE);
     const links = linksText === undefined ? undefined : parseLinkEvidence(linksText, run.manifest.run_id);
     const tieFiles = Object.fromEntries(TIE_OUT_FILES.map((stem) => [stem, texts.get(`tie_out/${stem}.json`)!]));
@@ -151,6 +162,7 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
         ...(finance ? { finance } : {}),
         ...(unresolved !== undefined ? { unresolved } : {}),
         ...(statementTotals !== undefined ? { statementTotals } : {}),
+        ...(statementGroups !== undefined ? { statementGroups } : {}),
         ...(links !== undefined ? { links } : {}),
       },
     };
