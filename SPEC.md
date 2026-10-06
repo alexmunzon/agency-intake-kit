@@ -1,5 +1,13 @@
 # SPEC: agency-intake-kit
 
+## Recruiting v1 scope control (2026-10-05)
+
+The frozen recruiting v1 finish lines in ROADMAP.md supersede broader next-feature instructions below. Finish the current grouping view, verify a trustworthy walkthrough and freeze Intake; full M1-M4 is deferred. Workspace CLAUDE.md is the canonical working-rules source. Bob, Plan and Commons remain paused.
+
+## Bounded grouped statement view (2026-10-05)
+
+Optional `statement_groups.json` must match every amount row by all six lineage fields. Tie-out derives exact signed carrier/month totals and valid/excluded counts, with unknown dimensions and null versus genuine zero kept distinct. Malformed or inconsistent imports retain the prior run; legacy packages remain usable with grouping unavailable. Pagination resets on replacement and clear. These are observed labels and received-row sums, not deduplicated receipts, identity attribution or source readiness. Final exact-head review, hosted verification and deployed IAB verification remain delivery requirements.
+
 ## Bounded statement carrier and period evidence (2026-10-05)
 
 An optional `statement_groups.json` companion preserves one full lineage reference per independent statement amount row, with observed mapped carrier and canonical YYYY-MM period or explicit null unknowns. No carrier is inferred from a source name or filename. Mapping decisions remain deterministic and read-only; manual ignore and ambiguous columns remain unknown. Raw-blocked and unavailable totals have no grouping rows. Existing `statement_totals.json` v1, FAILED/no-clean/NOT_RUN semantics, signed amounts and exclusions remain unchanged.

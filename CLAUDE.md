@@ -1,5 +1,7 @@
 # agency-intake-kit
 
+Current workspace working rules are canonical in `../CLAUDE.md`, section Current recruiting-demo working rules. Read both active Intake handoffs and reconcile saved/remote state first. The frozen recruiting v1 finish lines in ROADMAP.md control scope; complete current grouping delivery, verify the walkthrough, then freeze Intake. Historical broader roadmap work does not authorize another feature or resume Bob/Plan/Commons.
+
 Agency intake toolkit for the Agency Data Trust Series. Synthetic data only. See ROADMAP.md (why) and SPEC.md (what).
 
 ## Commands
