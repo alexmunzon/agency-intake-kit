@@ -1,6 +1,23 @@
 # SPEC: agency-intake-kit
 
+## Bounded M1 reconciliation links (2026-10-05)
+
+The tie-out retains every matching candidate and source lineage in optional `tie_out/links.jsonl`. Each statement row is confirmed, provisional, ambiguous or unmatched, with a reason and exact signed amount. Confirmed means a deterministic strong-key link, not human approval or verified customer identity. Name/DOB alone never confirms. Duplicate or conflicting strong keys and incompatible weak evidence remain unresolved; compatible same-person weak alternatives do not override a unique strong match. Policy references are carrier-scoped and blank keys never match.
+
+Only confirmed links drive policy payment, status and rate checks. Statement totals still count each row once, and non-confirmed signed amounts remain in unexplained revenue. Existing safety/load gates remain authoritative. Without a book the tie-out stays NOT_RUN; independent absent-book statement totals, candidate dashboard and authenticated resolution remain later work. Existing imports skip the optional links artifact. Local verification, exact-commit review and green exact-head hosted verification remain delivery gates.
+
+
+## Bounded conservative matching (2026-10-05)
+
+Reconciliation attributes a policy only when supplied strong keys consistently identify it.
+Name/DOB alone stays provisional; conflicting or duplicate candidates remain unresolved.
+Carrier-scoped joins preserve separate policies. Signed statement totals remain counted once.
+Candidate export and dashboard presentation follow in separate slices.
+
+
 ## Bounded M1 evidence slice (2026-10-05)
+
+PR88 merged at `a347a7f71c4fa8e522ac36725d5423c2a6990a9f` after independent review of `28df8cf7e6efb4e7450bbaabf477aae8a2af8842` and successful hosted run `37384084858`. Local verification passed 846 Python and 138 dashboard tests plus lint/types/build. Production deployment `dpl_9xa2s33a1XoJdMnuAL7DR9PNJw8X` is READY at the merge commit. IAB verified desktop/mobile, an 11-file synthetic failed-run import, unchanged FAILED/no clean/NOT_RUN semantics, reload reset and no observed browser errors or document overflow. This completes the bounded CLI evidence slice only; evidence UI and conservative reconciliation links remain planned.
 
 The CLI writes optional `unresolved_evidence.jsonl` with versioned reason codes and source-row lineage for absent CRM, missing DOB column, blank DOB and malformed DOB. An absent CRM produces a source summary plus references to received rows. These are review references, not customer records, retained raw values or resolved revenue attribution. Raw gate blockers produce an empty evidence file; consult the manifest and exceptions for refusal reasons. Existing FAILED status, clean-output exclusion and NOT_RUN comparisons remain authoritative.
 

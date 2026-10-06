@@ -1,4 +1,4 @@
--- 01 Match keys: type the text, then tie each commission line to one policy in the book.
+-- 01 Match keys: type the text, then retain every policy candidate for each statement line.
 -- Money is DECIMAL(12,2) everywhere, never a float, so cents are never lost. prepare.py has
 -- already read dates (ISO), periods (YYYY-MM), and amounts (plain decimals), so a cast here
 -- only fails on a value prepare.py counted as unreadable, and that value is NULL, never a crash.
@@ -13,8 +13,9 @@ SELECT CAST(line_tolerance_usd AS DECIMAL(12, 2)) AS line_usd,
        CAST(new_business_months AS INTEGER) AS new_business_months
 FROM settings;
 
--- The book: one row per policy_id. A duplicated policy (DUP-001, DUP-003) keeps its first
--- row, so a copy never doubles what the agency expects to be paid.
+-- The book: one row per carrier and policy_id. A duplicated policy (DUP-001, DUP-003)
+-- keeps its first row within that carrier, so a copy never doubles expected payment.
+-- Different carriers may legitimately reuse the same policy_id.
 CREATE OR REPLACE VIEW book AS
 SELECT * EXCLUDE (copy_number)
 FROM (
@@ -24,7 +25,7 @@ FROM (
            upper(trim(status)) AS status,
            coalesce(nullif(trim(writing_agent_npn), ''), '(blank)') AS agent_npn,
            _rec,
-           row_number() OVER (PARTITION BY policy_id ORDER BY _rec) AS copy_number
+           row_number() OVER (PARTITION BY carrier, policy_id ORDER BY _rec) AS copy_number
     FROM raw_policies
 )
 WHERE copy_number = 1;
@@ -51,43 +52,100 @@ FROM raw_commission_lines;
 CREATE OR REPLACE MACRO name_key(full_name) AS regexp_replace(lower(full_name), '[^a-z]', '', 'g');
 
 CREATE OR REPLACE VIEW book_people AS
-SELECT DISTINCT b.policy_id, b.carrier,
+SELECT DISTINCT b.policy_id, b._rec AS policy_rec, b.carrier,
        name_key(c.first_name || ' ' || c.last_name) AS person,
        TRY_CAST(c.dob AS DATE) AS dob
 FROM book AS b
 JOIN raw_clients AS c ON c.client_id = b.client_id;
 
--- Each line tries three keys in order and keeps the first that works:
---   1. MEMBER_ID: same carrier and carrier_member_id (the strong key)
---   2. POLICY_REF: the policy id the carrier printed
---   3. NAME_DOB: same carrier, name, and date of birth (a weak match, TIE-006)
--- A line no key can place has policy_id NULL: an orphan payment (TIE-002).
-CREATE OR REPLACE VIEW line_match AS
-WITH by_member AS (
-    SELECT s._rec, min(b.policy_id) AS policy_id
-    FROM statement_lines AS s
-    JOIN book AS b ON b.carrier = s.carrier AND b.carrier_member_id = s.carrier_member_id
-    GROUP BY s._rec
-),
-by_ref AS (
-    SELECT s._rec, min(b.policy_id) AS policy_id
-    FROM statement_lines AS s
-    JOIN book AS b ON b.carrier = s.carrier AND b.policy_id = s.policy_ref
-    GROUP BY s._rec
-),
-by_name AS (
-    SELECT s._rec, min(p.policy_id) AS policy_id
-    FROM statement_lines AS s
-    JOIN book_people AS p
-      ON p.carrier = s.carrier AND p.person = name_key(s.member_name) AND p.dob = s.member_dob
-    GROUP BY s._rec
-)
-SELECT s.*,
-       coalesce(m.policy_id, r.policy_id, n.policy_id) AS policy_id,
-       CASE WHEN m.policy_id IS NOT NULL THEN 'MEMBER_ID'
-            WHEN r.policy_id IS NOT NULL THEN 'POLICY_REF'
-            WHEN n.policy_id IS NOT NULL THEN 'NAME_DOB' END AS match_method
+-- Candidate edges preserve all matching evidence. policy_rec points to the deduplicated book
+-- row, so downstream output can recover its lineage. Blank identifiers and empty name keys
+-- do not match each other. A policy reference must agree on carrier as well as policy ID.
+CREATE OR REPLACE VIEW line_candidates AS
+SELECT DISTINCT s._rec, b.policy_id, b._rec AS policy_rec, 'MEMBER_ID' AS match_method
 FROM statement_lines AS s
-LEFT JOIN by_member AS m USING (_rec)
-LEFT JOIN by_ref AS r USING (_rec)
-LEFT JOIN by_name AS n USING (_rec);
+JOIN book AS b ON b.carrier = s.carrier
+              AND trim(b.carrier_member_id) = trim(s.carrier_member_id)
+WHERE nullif(trim(s.carrier), '') IS NOT NULL
+  AND nullif(trim(s.carrier_member_id), '') IS NOT NULL
+  AND nullif(trim(b.carrier_member_id), '') IS NOT NULL
+UNION ALL
+SELECT DISTINCT s._rec, b.policy_id, b._rec AS policy_rec, 'POLICY_REF' AS match_method
+FROM statement_lines AS s
+JOIN book AS b ON b.carrier = s.carrier AND trim(b.policy_id) = trim(s.policy_ref)
+WHERE nullif(trim(s.carrier), '') IS NOT NULL
+  AND nullif(trim(s.policy_ref), '') IS NOT NULL
+UNION ALL
+SELECT DISTINCT s._rec, p.policy_id, p.policy_rec, 'NAME_DOB' AS match_method
+FROM statement_lines AS s
+JOIN book_people AS p ON p.carrier = s.carrier
+                     AND p.person = name_key(s.member_name)
+                     AND p.dob = s.member_dob
+WHERE nullif(trim(s.carrier), '') IS NOT NULL
+  AND nullif(name_key(s.member_name), '') IS NOT NULL
+  AND nullif(p.person, '') IS NOT NULL
+  AND s.member_dob IS NOT NULL;
+
+-- One output row per statement _rec. A unique strong candidate remains confirmed when
+-- name/DOB also includes that candidate, even if other people share the name/DOB. A weak
+-- candidate set that excludes it is contradictory. All edges stay available for review.
+-- max(policy_id) is read only when its distinct strong count is one, never as a tie breaker.
+CREATE OR REPLACE VIEW line_match AS
+WITH candidate_counts AS (
+    SELECT _rec, count(DISTINCT policy_id) AS candidate_count,
+           count(DISTINCT policy_id) FILTER (
+               WHERE match_method IN ('MEMBER_ID', 'POLICY_REF')) AS strong_candidate_count,
+           count(DISTINCT policy_id) FILTER (
+               WHERE match_method = 'NAME_DOB') AS weak_candidate_count,
+           max(policy_id) FILTER (
+               WHERE match_method IN ('MEMBER_ID', 'POLICY_REF')) AS sole_strong_policy_id,
+           count(*) FILTER (WHERE match_method = 'MEMBER_ID') > 0 AS strong_member_matched,
+           count(*) FILTER (WHERE match_method = 'POLICY_REF') > 0 AS strong_ref_matched
+    FROM line_candidates
+    GROUP BY _rec
+),
+evidence AS (
+    SELECT s.*,
+           coalesce(c.candidate_count, 0) AS candidate_count,
+           coalesce(c.strong_candidate_count, 0) AS strong_candidate_count,
+           coalesce(c.weak_candidate_count, 0) AS weak_candidate_count,
+           c.sole_strong_policy_id,
+           nullif(trim(s.carrier_member_id), '') IS NOT NULL AS strong_member_supplied,
+           nullif(trim(s.policy_ref), '') IS NOT NULL AS strong_ref_supplied,
+           coalesce(c.strong_member_matched, false) AS strong_member_matched,
+           coalesce(c.strong_ref_matched, false) AS strong_ref_matched,
+           EXISTS (
+               SELECT 1 FROM line_candidates AS w
+               WHERE w._rec = s._rec AND w.match_method = 'NAME_DOB'
+                 AND w.policy_id = c.sole_strong_policy_id
+           ) AS weak_includes_strong
+    FROM statement_lines AS s
+    LEFT JOIN candidate_counts AS c USING (_rec)
+),
+classified AS (
+    SELECT *, CASE
+        WHEN candidate_count = 0 THEN 'no_candidate'
+        WHEN strong_candidate_count > 1 THEN 'multiple_candidates'
+        WHEN (strong_member_supplied AND NOT strong_member_matched)
+          OR (strong_ref_supplied AND NOT strong_ref_matched) THEN 'unmatched_strong_key'
+        WHEN strong_candidate_count = 1 AND weak_candidate_count > 0
+          AND NOT weak_includes_strong THEN 'conflicting_name_dob'
+        WHEN strong_candidate_count = 1 THEN 'strong_key'
+        WHEN weak_candidate_count > 1 THEN 'multiple_candidates'
+        ELSE 'name_dob_only' END AS link_reason
+    FROM evidence
+),
+states AS (
+    SELECT *, CASE link_reason
+        WHEN 'strong_key' THEN 'confirmed'
+        WHEN 'name_dob_only' THEN 'provisional'
+        WHEN 'no_candidate' THEN 'unmatched'
+        ELSE 'ambiguous' END AS link_state
+    FROM classified
+)
+SELECT * EXCLUDE (sole_strong_policy_id),
+       CASE WHEN link_state = 'confirmed' THEN sole_strong_policy_id END AS policy_id,
+       CASE WHEN link_state = 'confirmed' AND strong_member_matched THEN 'MEMBER_ID'
+            WHEN link_state = 'confirmed' AND strong_ref_matched THEN 'POLICY_REF'
+            WHEN link_state = 'provisional' THEN 'NAME_DOB' END AS match_method
+FROM states;

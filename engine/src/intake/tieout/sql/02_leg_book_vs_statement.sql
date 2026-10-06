@@ -33,8 +33,8 @@ SELECT d.*,
        coalesce(l.only_weak, false) AS weak
 FROM book_due AS d
 LEFT JOIN (
-    SELECT policy_id, statement_period, bool_and(match_method = 'NAME_DOB') AS only_weak
+    SELECT carrier, policy_id, statement_period, bool_and(match_method = 'NAME_DOB') AS only_weak
     FROM line_match
     WHERE policy_id IS NOT NULL
-    GROUP BY policy_id, statement_period
-) AS l USING (policy_id, statement_period);
+    GROUP BY carrier, policy_id, statement_period
+) AS l USING (carrier, policy_id, statement_period);
