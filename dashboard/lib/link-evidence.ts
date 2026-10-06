@@ -99,7 +99,7 @@ function candidate(value: unknown, runId: string, where: string): LinkCandidate 
 function evidence(value: unknown, runId: string, where: string): LinkEvidence {
   const row = object(value, where);
   exact(row, ["schema_version", "lineage", "state", "reason", "policy_id", "amount", "candidates"], where);
-  if (row.schema_version !== 1 || !Object.hasOwn(REASONS, row.state as string)) fail(where);
+  if (row.schema_version !== 1 || typeof row.state !== "string" || !Object.hasOwn(REASONS, row.state)) fail(where);
   const state = row.state as LinkState;
   if (!REASONS[state].includes(row.reason as LinkReason)) fail(where);
   if (row.policy_id !== null) nonempty(row.policy_id, where);

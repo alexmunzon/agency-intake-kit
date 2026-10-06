@@ -5,6 +5,7 @@ synonym table, so a mapping a person confirmed or corrected is reused. Writing w
 read gives back the same bytes, so an unchanged mapping never churns in git.
 """
 
+import re
 from pathlib import Path
 from typing import Annotated, Literal, Self
 
@@ -52,7 +53,12 @@ def mapping_dir_for(drop_dir: Path) -> Path:
 
 
 def mapping_path(mapping_dir: Path, source: str) -> Path:
-    return mapping_dir / f"{source}.yaml"
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", source):
+        raise ValueError("mapping source must be a safe file identifier")
+    path = mapping_dir / f"{source}.yaml"
+    if mapping_dir.is_symlink() or path.is_symlink():
+        raise ValueError("mapping folders and files cannot be symlinks")
+    return path
 
 
 def dump_mapping(mapping: SourceMapping) -> str:

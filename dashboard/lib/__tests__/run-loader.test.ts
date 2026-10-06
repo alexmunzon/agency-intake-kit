@@ -37,6 +37,33 @@ describe("loadRunDir", () => {
 });
 
 describe("parseRun", () => {
+  it("refuses exception files with counts from another run", async () => {
+    const files = await rawFiles("sample-run");
+    const other = await rawFiles("sample-run-passed");
+    expect(() => parseRun({ ...files, exceptions: other.exceptions })).toThrow(/exceptions\.jsonl/);
+  });
+
+  it("refuses foreign lineage even when the exception counts agree", async () => {
+    const files = await rawFiles("sample-run");
+    const rows = files.exceptions.split("\n").filter(Boolean).map((line) => JSON.parse(line));
+    const row = rows.find((record) => record.lineage);
+    expect(row).toBeDefined();
+    row.lineage.run_id = "foreign";
+    expect(() => parseRun({ ...files, exceptions: rows.map((row) => JSON.stringify(row)).join("\n") })).toThrow(/lineage/);
+  });
+
+  it("refuses missing RTS coverage when the scorecard declares a gap", async () => {
+    const files = await rawFiles("sample-run");
+    expect(() => parseRun({ ...files, rts: JSON.stringify({ cells: [] }) })).toThrow(/gap count/);
+  });
+
+  it("refuses RTS references that do not name an RTS exception", async () => {
+    const files = await rawFiles("sample-run");
+    const rts = JSON.parse(files.rts);
+    rts.cells.find((cell: { coverage: string }) => cell.coverage === "USED_WITHOUT_RTS").exception_ids = ["unknown"];
+    expect(() => parseRun({ ...files, rts: JSON.stringify(rts) })).toThrow(/RTS-001/);
+  });
+
   it("refuses money written as a number", async () => {
     const files = await rawFiles("sample-run");
     const manifest = JSON.parse(files.manifest);

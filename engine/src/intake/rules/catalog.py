@@ -2,7 +2,7 @@
 
 Readers (ING), raw gates (SSN, CMP), mapping (MAP), and the tie-out (TIE) emit their records
 themselves, because they need files, a mapping store, or DuckDB rather than one frame. They
-register here so the catalog and docs/rules.md list all 46 rules. Each function returns nothing.
+register here so the catalog and docs/rules.md list every rule. Each function returns nothing.
 """
 
 import polars as pl
@@ -20,6 +20,11 @@ ENTRIES = (
     ("MAP-001", W, "Column could not be mapped"),
     ("MAP-002", W, "Mapping confidence between thresholds, or Jev gave no answer"),
     ("MAP-003", B, "Required canonical field missing (a drop with no CRM misses them all)"),
+    (
+        "MAP-004",
+        E,
+        "Canonical row violates its declared load-table schema or depends on an excluded parent",
+    ),
     ("SSN-001", B, "A column looks like SSNs; runs on raw frames before any model call"),
     ("CMP-001", B, "Rows received differ from rows expected; runs on raw frames"),
     ("CMP-002", W, "A source is missing entirely"),

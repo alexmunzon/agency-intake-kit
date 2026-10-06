@@ -15,10 +15,14 @@ from collections.abc import Set as AbstractSet
 from pathlib import Path
 
 import polars as pl
+from pydantic import ValidationError
 
-from agency_schema.enums import Severity
+from agency_schema.enums import PolicyStatus, Severity
 from agency_schema.exceptions import ExceptionRecord
+from agency_schema.models import TABLE_MODELS
 from intake.config import LIST_SEPARATOR
+from intake.rules import catalog as _catalog  # noqa: F401 (registers MAP-004)
+from intake.rules.frames import hit
 from intake.run.canonicalize import DATES, FIELDS, MONEY
 
 log = logging.getLogger(__name__)
@@ -56,13 +60,147 @@ def excluded_units(records: list[ExceptionRecord], table: str) -> pl.DataFrame:
     Households follow their primary client instead: their lineage is that client's CRM row,
     which also holds a policy whose errors are no reason to drop the household.
     """
-    errors = [r for r in records if r.severity == Severity.ERROR]
+    errors = [r for r in records if r.severity == Severity.ERROR and r.rule_id != "MAP-004"]
     every = {r.rule_id for r in errors}
     rules = {"clients": CLIENT_RULES, "policies": every - CLIENT_RULES, "households": set()}
-    return _units(errors, rules.get(table, every)).select(UNIT).unique()
+    targeted = [
+        r for r in records if r.rule_id == "MAP-004" and (r.field or "").startswith(f"{table}.")
+    ]
+    return (
+        pl.concat([_units(errors, rules.get(table, every)), _units(targeted)]).select(UNIT).unique()
+    )
 
 
 def clean_tables(
+    tables: Mapping[str, pl.DataFrame], records: list[ExceptionRecord]
+) -> dict[str, pl.DataFrame]:
+    """Build load tables and retain every schema error in the caller's records list.
+
+    The pipeline collects these errors before status/triage. Direct callers receive the
+    same visible evidence; invalid rows and the existing client dependents are excluded.
+    """
+    clean = _clean_tables(tables, records)
+    invalid = _schema_records(clean, tables)
+    invalid += _dependent_records(clean, invalid)
+    if invalid:
+        records.extend(invalid)
+        clean = _clean_tables(tables, records)
+    return clean
+
+
+def clean_model_records(
+    tables: Mapping[str, pl.DataFrame], records: list[ExceptionRecord]
+) -> list[ExceptionRecord]:
+    """Validate prospective load rows before run status or files are calculated."""
+    clean = _clean_tables(tables, records)
+    invalid = _schema_records(clean, tables)
+    return invalid + _dependent_records(clean, invalid)
+
+
+def _schema_records(
+    clean: Mapping[str, pl.DataFrame], raw: Mapping[str, pl.DataFrame]
+) -> list[ExceptionRecord]:
+    records = []
+    source_rows = {}
+    for table, frame in clean.items():
+        model = TABLE_MODELS[table]
+        for row in frame.iter_rows(named=True):
+            lineage = {f: row[f"lineage_{f}"] for f in LINEAGE_FIELDS}
+            values = {f: row.get(f) for f in model.model_fields if f != "lineage"}
+            for field in ("members", "license_states"):
+                if field in values:
+                    values[field] = (
+                        tuple((values[field] or "").split(LIST_SEPARATOR)) if values[field] else ()
+                    )
+            try:
+                model.model_validate({**values, "lineage": lineage})
+            except ValidationError as exc:
+                if table not in source_rows:
+                    source_rows[table] = {
+                        (
+                            r["lineage"]["source_file"],
+                            r["lineage"]["sheet"],
+                            r["lineage"]["row_number"],
+                        ): r
+                        for r in raw[table].iter_rows(named=True)
+                    }
+                original_row = source_rows[table][
+                    (lineage["source_file"], lineage["sheet"], lineage["row_number"])
+                ]
+                for error in exc.errors(
+                    include_input=False, include_context=False, include_url=False
+                ):
+                    field = ".".join(str(part) for part in error["loc"])
+                    original = original_row.get(str(error["loc"][0]))
+                    records.append(
+                        hit(
+                            "MAP-004",
+                            {"lineage": lineage},
+                            f"{table}.{field}",
+                            None if original is None else str(original),
+                            f"{table}: {field} is missing or invalid for the load file",
+                            "Correct the required or invalid field before loading this row",
+                        )
+                    )
+    return records
+
+
+def _dependent_records(
+    clean: Mapping[str, pl.DataFrame], invalid: list[ExceptionRecord]
+) -> list[ExceptionRecord]:
+    """Keep evidence for rows that cannot load after a required parent fails validation."""
+    failures = {
+        (r.field.split(".")[0], r.lineage.source_file, r.lineage.sheet, r.row_number)
+        for r in invalid
+        if r.field and r.lineage
+    }
+    bad = {}
+    for table, key in (("clients", "client_id"), ("agents", "npn")):
+        frame = clean.get(table)
+        bad[table] = (
+            {
+                row[key]
+                for row in frame.iter_rows(named=True)
+                if (
+                    table,
+                    row["lineage_source_file"],
+                    row["lineage_sheet"],
+                    row["lineage_row_number"],
+                )
+                in failures
+            }
+            if frame is not None
+            else set()
+        )
+    records = []
+    seen = {r.id for r in invalid}
+    for table, field, parent in (
+        ("policies", "client_id", "clients"),
+        ("households", "primary_client_id", "clients"),
+        ("policies", "writing_agent_npn", "agents"),
+        ("rts", "npn", "agents"),
+    ):
+        frame = clean.get(table)
+        if frame is None or not bad[parent]:
+            continue
+        for row in frame.iter_rows(named=True):
+            if row[field] not in bad[parent]:
+                continue
+            record = hit(
+                "MAP-004",
+                {"lineage": {f: row[f"lineage_{f}"] for f in LINEAGE_FIELDS}},
+                f"{table}.{field}",
+                row[field],
+                f"{table}: {field} references a {parent} row excluded from the load file",
+                "Correct the required parent row before loading this dependent row",
+            )
+            if record.id not in seen:
+                records.append(record)
+                seen.add(record.id)
+    return records
+
+
+def _clean_tables(
     tables: Mapping[str, pl.DataFrame], records: list[ExceptionRecord]
 ) -> dict[str, pl.DataFrame]:
     warnings = (
@@ -87,6 +225,15 @@ def clean_tables(
     if "clients" in out and "households" in out:
         primary = out["clients"].select(pl.col("client_id").alias("primary_client_id"))
         out["households"] = out["households"].join(primary, on="primary_client_id", how="semi")
+        client_ids = set(out["clients"]["client_id"])
+        out["households"] = out["households"].with_columns(
+            pl.col("members").map_elements(
+                lambda value: LIST_SEPARATOR.join(
+                    member for member in value.split(LIST_SEPARATOR) if member in client_ids
+                ),
+                return_dtype=pl.String,
+            )
+        )
     lin = pl.col("lineage").struct
     return {
         name: _typed(
@@ -119,6 +266,14 @@ def _typed(frame: pl.DataFrame, table: str = "") -> pl.DataFrame:
         elif column in FLAGS:
             casts[column] = pl.col(column) == "true"
     typed = frame.with_columns(expr.alias(c) for c, expr in casts.items())
+    if table == "policies" and "status" in typed.columns:
+        # STA-001 keeps the raw value in the exception; the load table uses its promised fix.
+        typed = typed.with_columns(
+            pl.when(pl.col("status").is_in([status.value for status in PolicyStatus]))
+            .then(pl.col("status"))
+            .otherwise(pl.lit("UNKNOWN"))
+            .alias("status")
+        )
     for column in casts:
         if column in FLAGS:
             continue

@@ -58,13 +58,14 @@ describe("parseLinkEvidence", () => {
     ["duplicate candidate ID", input(record({ candidates: [candidate(), candidate()] }))],
     ["candidate wrong run", input(record({ candidates: [candidate("P-1", ["POLICY_REF"], lineage({ run_id: "run-2" }))] }))],
     ["impossible state/reason", input(record({ state: "unmatched" }))],
+    ["object state", input(record({ state: { toString: null } }))],
     ["unknown reason", input(record({ reason: "maybe" }))],
     ["unknown field", input(record({ unexpected: true }))],
     ["numeric amount", input(record({ amount: 12.3 }))],
     ["overprecision", input(record({ amount: "12.345" }))],
     ["out of range", input(record({ amount: "10000000000.00" }))],
   ])("rejects %s", (_label, text) => {
-    expect(() => parseLinkEvidence(text, "run-1")).toThrow();
+    expect(() => parseLinkEvidence(text, "run-1")).toThrow(/links\.jsonl/);
   });
 
   it("rejects duplicate source locations even when their hashes differ", () => {

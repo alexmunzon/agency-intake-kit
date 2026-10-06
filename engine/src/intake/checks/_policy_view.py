@@ -11,7 +11,9 @@ import polars as pl
 from intake.config import PLAN_YEAR_DECEMBER_ROLLS_FORWARD, RTS_TRUE_VALUES
 from intake.normalize import loose_date, split_list
 
-RTS_COLUMNS = "npn carrier state plan_year line_of_business appointed certified end_date".split()
+RTS_COLUMNS = (
+    "npn carrier state plan_year line_of_business appointed certified effective_date end_date"
+).split()
 RTS_KEY = ["_npn", "_carrier", "_state", "_plan_year", "_lob"]
 
 
@@ -29,8 +31,10 @@ def _date(name: str) -> pl.Expr:
     return loose_date(name)
 
 
-def held_rts(rts: pl.DataFrame) -> pl.DataFrame:
-    """RTS rows that are appointed and certified, grouped by key with their latest end date."""
+def _rts_intervals(rts: pl.DataFrame) -> pl.DataFrame:
+    """Readable appointed/certified intervals. An invalid end is never an open interval."""
+    if "effective_date" not in rts.columns:
+        rts = rts.with_columns(pl.lit(None, dtype=pl.String).alias("effective_date"))
     yes = list(RTS_TRUE_VALUES)
     return (
         rts.filter(
@@ -43,10 +47,20 @@ def held_rts(rts: pl.DataFrame) -> pl.DataFrame:
             _text("state", upper=True).alias("_state"),
             pl.col("plan_year").str.strip_chars().cast(pl.Int32, strict=False).alias("_plan_year"),
             _text("line_of_business", upper=True).alias("_lob"),
+            _date("effective_date").alias("_start"),
             _date("end_date").alias("_end"),
+            (pl.col("end_date").is_null() | (_text("end_date") == "")).alias("_open"),
         )
+        .filter(pl.col("_start").is_not_null() & (pl.col("_open") | pl.col("_end").is_not_null()))
+    )
+
+
+def held_rts(rts: pl.DataFrame) -> pl.DataFrame:
+    """Readable RTS records held by key; policy eligibility checks each interval separately."""
+    return (
+        _rts_intervals(rts)
         .group_by(RTS_KEY)
-        .agg(pl.col("_end").is_null().any().alias("_open"), pl.col("_end").max().alias("_ended"))
+        .agg(pl.col("_open").any(), pl.col("_end").max().alias("_ended"))
     )
 
 
@@ -88,15 +102,24 @@ def policy_view(tables: dict[str, pl.DataFrame]) -> pl.DataFrame:
             pl.col("_licenses").list.contains(pl.col("_state")).fill_null(False).alias("_licensed")
         )
     )
-    view = view.join(held_rts(rts), on=RTS_KEY, how="left", nulls_equal=False)
+    intervals = view.select("_rec", "_eff", *RTS_KEY).join(
+        _rts_intervals(rts), on=RTS_KEY, how="left", nulls_equal=False
+    )
+    eligible = pl.col("_start") <= pl.col("_eff")
+    covered = eligible & (pl.col("_open") | (pl.col("_end") >= pl.col("_eff")))
+    states = intervals.group_by("_rec").agg(
+        eligible.fill_null(False).any().alias("_eligible"),
+        covered.fill_null(False).any().alias("_covered"),
+        pl.when(eligible).then(pl.col("_end")).max().alias("_ended"),
+    )
+    view = view.join(states, on="_rec", how="left")
     evaluable = pl.col("_agent_known") & pl.all_horizontal(pl.col(c).is_not_null() for c in RTS_KEY)
-    covered = pl.col("_open").fill_null(False) | (pl.col("_ended") >= pl.col("_eff"))
     return view.with_columns(
         pl.when(~evaluable)
         .then(None)
-        .when(pl.col("_open").is_null())
+        .when(~pl.col("_eligible"))
         .then(pl.lit("MISSING"))
-        .when(covered)
+        .when(pl.col("_covered"))
         .then(pl.lit("HELD"))
         .otherwise(pl.lit("EXPIRED"))
         .alias("_rts")

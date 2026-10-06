@@ -96,7 +96,9 @@ def build_frame(
     mapping_version: str,
 ) -> pl.DataFrame:
     """Rows of (1-based row number, raw cells) to a raw frame with the lineage column."""
-    names = column_names(header)
+    # Keep unnamed surplus cells visible to the raw privacy gate and row fingerprint.
+    width = max([len(header), *(len(row) for _, row in rows)])
+    names = column_names([*header, *([None] * (width - len(header)))])
     width = len(names)
     cells = [list(r[:width]) + [None] * (width - len(r)) for _, r in rows]
     data = {n: [row[i] or None for row in cells] for i, n in enumerate(names)}
