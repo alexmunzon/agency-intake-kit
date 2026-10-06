@@ -1,5 +1,12 @@
 # Changelog
 
+## Executive interface facelift, 2026-10-06
+
+- Apply one restrained navy and teal consulting presentation across Overview, Sources, Exceptions, Tie-out, Agents and Runs, including loaded-run views, evidence panels, filters and lineage details. Use the system font stack without a remote font fetch or new dependency.
+- Put the existing readiness decision first, followed by a compact five-cell desktop load-quality strip and a separate financial and operational check grid. Keep every count, semantic label, variance qualification, synthetic-data notice and not-checked state unchanged.
+- Present evidence in readable, bounded tables with keyboard-focusable scroll regions and consistent headers. Retain import, filter, pagination and drawer behavior; add a keyboard skip link and presentation-contract tests. Engines, rules, fixtures and data contracts are unchanged.
+- Phone styles cover 375px and 390px with 44px navigation/control targets, full-width filters, wrapped references and contained table scrolling. Responsive source and keyboard accessibility contracts are tested; new phone screenshots and browser accessibility checks are not claimed by this change.
+
 ## Audit safety repairs, 2026-10-05
 
 Validate clean rows against the declared table schemas before publishing status, emit traceable MAP-004 errors, and exclude invalid rows and affected dependents. Exactly three blockers remain. Correct RTS interval coverage, household references, unknown status handling, carrier joins, raw surplus gates and hashes, safe mapping paths, SSN header checks, and budget accounting. Validate dashboard counts and lineage and recover from local file read failures. Cache synthetic row references.

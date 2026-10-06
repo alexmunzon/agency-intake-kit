@@ -11,7 +11,7 @@ export function AgentsView({ run }: { run: Run }) {
   const question = "Is every writing agent allowed to sell what they sold?";
   if (!rtsChecked(run)) {
     return (
-      <div className="space-y-4">
+      <div className="page-stack">
         <PageHeader run={run} question={question} />
         <Answer tone="blocker" text="Not checked. The run stopped before RTS was checked." detail={run.manifest.status_reason} />
       </div>
@@ -24,7 +24,7 @@ export function AgentsView({ run }: { run: Run }) {
   );
   const count = matrix.gapPolicies;
   return (
-    <div className="space-y-4">
+    <div className="page-stack">
       <PageHeader run={run} question={question} />
       {count > 0 ? (
         <Answer
@@ -44,7 +44,7 @@ export function AgentsView({ run }: { run: Run }) {
                 const record = records.get(id);
                 const lineage = record?.lineage;
                 return (
-                  <li key={id} aria-label={id} className="border-t border-slate-200 pt-2 first:border-0 first:pt-0 dark:border-slate-800">
+                  <li key={id} aria-label={id} className="border-t border-border pt-2 first:border-0 first:pt-0">
                     <p className="flex flex-wrap items-center gap-2">
                       <SeverityBadge tone="error" label="RTS-001" />
                       <span className="font-mono text-xs">{id}</span>
@@ -59,7 +59,7 @@ export function AgentsView({ run }: { run: Run }) {
           </ul>
         </section>
       )}
-      <div className={TABLE_WRAP}>
+      <div role="region" aria-label="Writing agents table" tabIndex={0} className={TABLE_WRAP}>
         <table className={TABLE}>
           <caption className="p-3 text-left text-sm font-medium">Writing agents</caption>
           <thead>

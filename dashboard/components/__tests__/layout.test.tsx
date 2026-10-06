@@ -3,12 +3,20 @@ import { describe, expect, it, vi } from "vitest";
 
 import RootLayout from "@/app/layout";
 
-vi.mock("next/font/google", () => ({ Inter: () => ({ variable: "font-sans" }) }));
 vi.mock("next/navigation", () => ({ usePathname: () => "/exceptions" }));
 
 // jsdom cannot measure layout, so this checks the class that lets the page column shrink.
 // Without it, a wide table pushes the page past the window beside the desktop sidebar.
 describe("RootLayout", () => {
+  it("gives keyboard users a skip link to the focusable main content without changing navigation", () => {
+    const html = renderToStaticMarkup(<RootLayout params={Promise.resolve({})}>page</RootLayout>);
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    expect(doc.querySelector('a[href="#main-content"]')?.textContent).toBe("Skip to content");
+    expect(doc.querySelector("main")?.id).toBe("main-content");
+    expect(doc.querySelector("main")?.getAttribute("tabindex")).toBe("-1");
+    expect(doc.querySelectorAll('nav[aria-label="Main"] ul a')).toHaveLength(6);
+  });
+
   it("lets the page column shrink beside the sidebar so wide tables scroll in their own box", () => {
     const html = renderToStaticMarkup(<RootLayout params={Promise.resolve({})}>page</RootLayout>);
     const main = new DOMParser().parseFromString(html, "text/html").querySelector("main");

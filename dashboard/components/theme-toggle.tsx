@@ -28,7 +28,7 @@ export function ThemeToggle() {
       type="button"
       aria-pressed={dark}
       onClick={toggle}
-      className="flex shrink-0 items-center gap-1.5 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-700 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-indigo-600 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus-visible:outline-indigo-400"
+      className="theme-toggle"
     >
       <Moon aria-hidden className="size-3.5" />
       Dark mode

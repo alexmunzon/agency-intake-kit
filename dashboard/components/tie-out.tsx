@@ -15,33 +15,35 @@ import { LEGS, VARIANCE_SUM_NOTE, differenceText, otherDifferences, otherText, t
 import type { LegResult, Totals, Variance } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export const TABLE_WRAP = "overflow-x-auto rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900";
-export const TABLE = "w-full whitespace-nowrap text-left text-xs tabular-nums [&_td]:h-9 [&_td]:px-3 [&_th]:h-9 [&_th]:px-3 [&_th]:font-medium [&_tr]:border-t [&_tr]:border-slate-200 dark:[&_tr]:border-slate-800";
-export const STICKY = "sticky left-0 bg-white dark:bg-slate-900";
-const MUTED = "text-slate-600 dark:text-slate-400";
+export const TABLE_WRAP = "evidence-table-wrap overflow-x-auto rounded-lg border border-border bg-card";
+export const TABLE = "evidence-table w-full whitespace-nowrap text-left tabular-nums";
+export const STICKY = "sticky left-0 bg-card";
+const MUTED = "text-muted-foreground";
 
-/** The run id, the page's one question, and an optional line under it. Shared by every page. */
+/** Run provenance stays visible beside the page's one decision question. */
 export function PageHeader({ run, question, children }: { run: Run; question: string; children?: ReactNode }) {
   return (
-    <header>
-      <p className={cn("text-sm", MUTED)}>
-        Run <span className="font-mono text-xs">{run.manifest.run_id}</span>. Synthetic data only.
-      </p>
-      <h1 className="text-2xl font-semibold tracking-tight">{question}</h1>
-      {children && <p className="mt-1 text-sm">{children}</p>}
+    <header className="page-header">
+      <div className="page-provenance">
+        <p className="eyebrow">Agency intake assessment</p>
+        <p className="run-reference">Run <span className="font-mono">{run.manifest.run_id}</span></p>
+        <span className="synthetic-label">Synthetic data only.</span>
+      </div>
+      <h1>{question}</h1>
+      {children && <p className="page-description">{children}</p>}
     </header>
   );
 }
 
 export function Answer({ tone, text, detail }: { tone: Tone; text: string; detail?: string | null }) {
   return (
-    <section aria-label="Answer" className={cn(CARD, "relative overflow-hidden p-4 pl-6")}>
-      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1.5", TONES[tone].band)} />
-      <p className="flex items-center gap-2 text-lg font-semibold">
-        <SeverityIcon tone={tone} className="size-5" />
+    <section aria-label="Answer" data-tone={tone} className={cn(CARD, "decision-panel relative overflow-hidden p-4 pl-6")}>
+      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", TONES[tone].band)} />
+      <p className="decision-title flex items-start gap-2 font-semibold">
+        <SeverityIcon tone={tone} className="mt-0.5 size-5" />
         {text}
       </p>
-      {detail && <p className="mt-1 text-sm">{detail}</p>}
+      {detail && <p className="decision-detail mt-2 text-sm">{detail}</p>}
     </section>
   );
 }
@@ -60,14 +62,14 @@ function LegCard({ result, title, proves }: { result: LegResult; title: string; 
     : [];
   const clean = ran && result.variance_count === 0;
   return (
-    <div role="group" aria-label={title} className={cn(CARD, "p-4", !ran && "border-dashed bg-slate-100 dark:bg-slate-950")}>
+    <div role="group" aria-label={title} className={cn(CARD, "p-4", !ran && "border-dashed bg-muted dark:bg-muted")}>
       <h2 className="text-sm font-medium">{title}</h2>
       <p className={cn("text-xs", MUTED)}>{proves}</p>
       <p className="mt-2">
         {ran ? (
           <SeverityBadge tone={clean ? "pass" : "warning"} label={clean ? "Checked, all agree" : `Checked, ${plural(result.variance_count ?? 0, "difference")}`} />
         ) : (
-          <span className="text-lg font-semibold text-slate-600 dark:text-slate-400">Not checked</span>
+          <span className="text-lg font-semibold text-muted-foreground">Not checked</span>
         )}
       </p>
       {ran ? (
@@ -94,7 +96,7 @@ function where(row: Variance): string {
 
 function VarianceTable({ rows, messages }: { rows: Variance[]; messages: Map<string, string> }) {
   return (
-    <div className={TABLE_WRAP}>
+    <div role="region" aria-label="Differences to review table" tabIndex={0} className={TABLE_WRAP}>
       <table className={TABLE}>
         <caption className="p-3 text-left text-sm font-medium">Differences to review</caption>
         <thead>
@@ -142,7 +144,7 @@ function TotalsTable({ totals, title, all }: { totals: Totals; title: string; al
     return (
       <div role="group" aria-label={title} className={cn(CARD, "border-dashed p-4")}>
         <h2 className="text-sm font-medium">{title}</h2>
-        <p className="text-lg font-semibold text-slate-600 dark:text-slate-400">Not checked</p>
+        <p className="text-lg font-semibold text-muted-foreground">Not checked</p>
         <p className={cn("text-xs", MUTED)}>{totals.not_run_reason}</p>
       </div>
     );
@@ -150,7 +152,7 @@ function TotalsTable({ totals, title, all }: { totals: Totals; title: string; al
   const sum = totalsSum(totals.rows);
   const rows = [...totals.rows.map((row) => ({ ...row, total: false })), { key: all, ...sum, within_tolerance: null, total: true }];
   return (
-    <div className={TABLE_WRAP}>
+    <div role="region" aria-label={`${title} table`} tabIndex={0} className={TABLE_WRAP}>
       <table className={TABLE} aria-label={title}>
         <caption className="p-3 text-left text-sm font-medium">
           {title}<span className="block text-xs font-normal">Unattributed is the net statement amount without a policy link in this run, already included in Paid.</span>
@@ -196,13 +198,10 @@ export function TieOutView({ run, tieOut, links, statementTotals, statementGroup
         ? ["warning", "Partly. The checks that ran agree.", `Only ${summary.ran} of ${summary.legs} checks ran.`]
         : ["warning", `Not fully. ${plural(total, "difference")} to review.`, `${formatMoney(summary.dollars)} in differences across ${summary.ran} of ${summary.legs} checks${otherText(other)}.`];
   return (
-    <div className="space-y-4">
+    <div className="page-stack">
       <PageHeader run={run} question="Does the money agree?" />
       <Answer tone={answer[0]} text={answer[1]} detail={answer[2]} />
-      {summary.checked && <p className="text-sm">{VARIANCE_SUM_NOTE}</p>}
-      <StatementTotalsPanel totals={statementTotals} />
-      <StatementGroupsPanel groups={statementGroups} />
-      <LinkEvidencePanel links={links} />
+      {summary.checked && <p className="trust-note text-sm">{VARIANCE_SUM_NOTE}</p>}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {LEGS.map(({ leg, title, proves }) => {
           const result = tieOut.legs.find((item) => item.leg === leg);
@@ -219,6 +218,9 @@ export function TieOutView({ run, tieOut, links, statementTotals, statementGroup
         <TotalsTable totals={tieOut.byCarrier} title="Totals by carrier" all="All carriers" />
         <TotalsTable totals={tieOut.byAgent} title="Totals by agent" all="All agents" />
       </div>
+      <StatementTotalsPanel totals={statementTotals} />
+      <StatementGroupsPanel groups={statementGroups} />
+      <LinkEvidencePanel links={links} />
     </div>
   );
 }

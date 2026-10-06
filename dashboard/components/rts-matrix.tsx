@@ -51,16 +51,16 @@ function PagedMatrix({ matrix }: { matrix: RtsMatrix }) {
           </Button>
         </nav>
       )}
-      <div className={TABLE_WRAP}>
+      <div role="region" aria-label="RTS matrix table" tabIndex={0} className={TABLE_WRAP}>
         <table className={TABLE}>
           <caption className="p-3 text-left text-sm font-medium whitespace-normal">
             RTS matrix: agent by carrier, state, and plan year
             {matrix.gapCells > 0 && (
-              <span className="block text-xs font-normal text-slate-600 dark:text-slate-400">
+              <span className="block text-xs font-normal text-muted-foreground">
                 {`Gaps: ${plural(matrix.gapCells, "agent, carrier, state and year combination")}.`}
               </span>
             )}
-            <span className="block text-xs font-normal text-slate-600 sm:hidden dark:text-slate-400">Scroll sideways to see the columns on this page.</span>
+            <span className="block text-xs font-normal text-muted-foreground sm:hidden">Scroll sideways to see the columns on this page.</span>
           </caption>
           <thead>
             <tr>
@@ -79,7 +79,7 @@ function PagedMatrix({ matrix }: { matrix: RtsMatrix }) {
                   const where = `${agent.npn}, ${column.label}`;
                   if (!cell) {
                     return (
-                      <td key={column.label} aria-label={`${where}: No RTS and no policies`} className="text-slate-600 dark:text-slate-400">
+                      <td key={column.label} aria-label={`${where}: No RTS and no policies`} className="text-muted-foreground">
                         None
                       </td>
                     );
@@ -97,7 +97,7 @@ function PagedMatrix({ matrix }: { matrix: RtsMatrix }) {
                         <SeverityIcon tone={state.tone} className="size-3.5" />
                         {state.label}
                       </span>
-                      <span className="block font-normal text-slate-600 dark:text-slate-400">{policies(cell.policy_count)}</span>
+                      <span className="block font-normal text-muted-foreground">{policies(cell.policy_count)}</span>
                     </td>
                   );
                 })}

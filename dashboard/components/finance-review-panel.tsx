@@ -8,7 +8,7 @@ import { CATEGORIES, type FinanceReview } from "@/lib/finance-review";
 
 const ROWS_PER_PAGE = 25;
 
-const MUTED = "text-sm text-slate-600 dark:text-slate-400";
+const MUTED = "text-sm text-muted-foreground";
 const WORDS = "whitespace-normal break-words [overflow-wrap:anywhere]";
 const label = (value: string) => value.replaceAll("_", " ");
 
@@ -17,7 +17,7 @@ export function FinanceReviewPanel({ statements }: { statements: readonly Financ
   return (
     <section aria-label="Finance review" className="min-w-0 space-y-6">
       <header>
-        <h2 className="text-2xl font-semibold">Review statement revenue</h2>
+        <h2 className="text-[22px] font-semibold tracking-tight">Review statement revenue</h2>
         <p className={MUTED}>
           Neutral finance review. Amounts retain their signs and server precision.
           Mapping approval records supplied provenance, not an authenticated authorization. Statement control checks are separate. Customer and policy attribution remain unresolved.
