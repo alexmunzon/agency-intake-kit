@@ -161,7 +161,7 @@ function ItemCard({ item, choice, onChange }: { item: MappingReviewItem; choice:
   const fields = correctableFields(item);
   const approvable = canApprove(item);
   const radio = (action: Action, label: React.ReactNode, disabled = false) => (
-    <label className={`flex min-w-0 items-start gap-2 text-sm ${disabled ? "opacity-60" : ""}`}>
+    <label className={`flex min-w-0 items-start gap-2 text-sm ${disabled ? "text-muted-foreground" : ""}`}>
       <input type="radio" name={group} value={action} checked={choice.action === action} disabled={disabled}
         onChange={() => onChange({ action, field: action === "correct" ? choice.field : null })} className="mt-1" />
       <span className={WORDS}>{label}</span>
@@ -218,7 +218,7 @@ function ItemCard({ item, choice, onChange }: { item: MappingReviewItem; choice:
           </label>
           <select id={selectId} value={choice.action === "correct" ? choice.field ?? "" : ""} disabled={choice.action !== "correct"}
             onChange={(event) => onChange({ action: "correct", field: event.target.value || null })}
-            className="w-full max-w-sm rounded-md border border-input bg-card px-2 py-1 font-mono text-xs text-foreground disabled:opacity-60">
+            className="w-full max-w-sm rounded-md border border-input bg-card px-2 py-1 font-mono text-xs text-foreground disabled:text-muted-foreground">
             <option value="">Pick a field</option>
             {fields.map((field) => <option key={field} value={field}>{field}</option>)}
           </select>

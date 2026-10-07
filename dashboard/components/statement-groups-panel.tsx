@@ -16,16 +16,16 @@ export function StatementGroupsPanel({ groups }: { groups?: StatementGroup[] }) 
     {groups === undefined ? <p className="text-sm">Grouping is unavailable. No statement_groups.json artifact is attached.</p>
       : groups.length === 0 ? <p className="text-sm">No statement rows are available for grouping. See statement evidence and run gates above.</p>
       : <ul className="grid gap-3 sm:grid-cols-2">{groups.slice(current * 25, (current + 1) * 25).map(group =>
-        <li key={JSON.stringify([group.carrier, group.statement_period])} className="space-y-1 rounded-lg border border-border p-3 text-sm break-all">
+        <li key={JSON.stringify([group.carrier, group.statement_period])} className="space-y-1 border-b border-border p-3 last:border-0 text-sm break-all">
           <h3 className="font-medium">{group.carrier === null ? "Carrier unavailable" : `Carrier label: ${group.carrier}`}</h3>
           <p>{group.statement_period === null ? "Statement period unavailable" : `Statement period: ${group.statement_period}`}</p>
           <p>{group.total_paid === null ? "No valid amounts" : <strong>{formatMoney(group.total_paid)}</strong>}</p>
           <p>{group.valid_line_count} valid, {group.excluded_line_count} excluded rows</p>
         </li>)}</ul>}
     {pages > 1 && <nav aria-label="Statement group pages" className="flex flex-wrap items-center gap-3 text-sm">
-      <button type="button" aria-label="Previous group page" disabled={current === 0} onClick={() => setPage(current - 1)} className="rounded border px-3 py-1 disabled:opacity-50">Previous</button>
+      <button type="button" aria-label="Previous group page" disabled={current === 0} onClick={() => setPage(current - 1)} className="rounded border px-3 py-1 disabled:bg-card disabled:text-muted-foreground">Previous</button>
       <span role="status">Group page {current + 1} of {pages}</span>
-      <button type="button" aria-label="Next group page" disabled={current === pages - 1} onClick={() => setPage(current + 1)} className="rounded border px-3 py-1 disabled:opacity-50">Next</button>
+      <button type="button" aria-label="Next group page" disabled={current === pages - 1} onClick={() => setPage(current + 1)} className="rounded border px-3 py-1 disabled:bg-card disabled:text-muted-foreground">Next</button>
     </nav>}
   </section>;
 }

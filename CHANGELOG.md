@@ -1,5 +1,10 @@
 # Changelog
 
+## Shared visual simplification, 2026-10-07
+
+- Use the shared warm offwhite page, white panels, charcoal text, dark-red primary action and neutral dark mode. Flatten card framing and decorative trim; preserve navigation geometry, routes, review gates and all evidence.
+- Keep status colors on labeled icons, with neutral notices and secondary controls. Retain readable disabled controls and keyboard focus in both modes. Keep proposal, confidence, mapping warnings, linked exceptions, refusal reasons and decisions visible; preserve native evidence disclosures and adjacent source citations.
+
 ## Offline integration CLI and local command registration, 2026-10-07
 
 - Add `intake integration export` for actual saved clean records and unresolved evidence, with explicit agency and expected run IDs and synthetic labeling. Publish canonical packets atomically to new files, preserving any existing successful output.

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CARD } from '@/components/tiles';
 import { assertReadinessContinuity, evaluateReadiness, parseReadiness, type ReadinessPackage } from '@/lib/source-readiness';
 
-const FIELD = 'w-full rounded border border-input bg-background p-2 text-sm';
+const FIELD = 'w-full rounded border border-input bg-card p-2 text-sm';
 const WORDS = 'min-w-0 break-words [overflow-wrap:anywhere]';
 const UNKNOWN = 'Not supplied';
 export function SourceReadiness() {
@@ -68,10 +68,10 @@ export function SourceReadiness() {
       </div>
       <details><summary className="cursor-pointer text-sm">Paste or edit a package</summary>
         <label className="mt-3 block text-sm">Package JSON<textarea className={`${FIELD} mt-1 font-mono`} rows={6} value={source} onChange={e => setSource(e.target.value)} /></label>
-        <Button className="mt-2" disabled={busy || !source.trim()} onClick={() => void load(async () => source)}>Validate and load JSON</Button>
+        <Button variant="outline" className="mt-2" disabled={busy || !source.trim()} onClick={() => void load(async () => source)}>Validate and load JSON</Button>
       </details>
       {busy && <p role="status">Validating evidence and references…</p>}
-      {error && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{error}</p>}
+      {error && <p role="alert" className="text-sm status-error">Error: {error}</p>}
     </section>
     <section aria-label="Coverage summary" className={`${CARD} space-y-2 p-4`}>
       <h2 className="text-xl font-semibold">{result?.complete ? 'Expected coverage complete' : `Readiness ${result?.state ?? 'unknown'}`}</h2>

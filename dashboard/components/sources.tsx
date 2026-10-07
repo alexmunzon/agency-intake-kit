@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { MappingReviewPanel } from "@/components/mapping-review-panel";
-import { SeverityBadge, TONES } from "@/components/severity-badge";
+import { SeverityBadge } from "@/components/severity-badge";
 import { PageHeader } from "@/components/tie-out";
 import { CARD } from "@/components/tiles";
 import { toneOf } from "@/lib/exceptions";
@@ -24,7 +24,6 @@ function SourceCard({ summary }: { summary: SourceSummary }) {
   const count = (n: number | null) => (n === null ? "Not stated" : n.toLocaleString("en-US"));
   return (
     <section aria-label={file.file_name} className={cn(CARD, "source-card relative overflow-hidden p-5 pl-6")}>
-      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", TONES[tone].band)} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-mono text-sm font-medium break-all">{file.file_name}</h2>
         <SeverityBadge tone={tone} label={status} />

@@ -28,16 +28,16 @@ export function RunUnresolvedEvidence() {
           {records.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map((record, index) => <EvidenceCase key={`${page}-${index}`} record={record} />)}
         </ul>
         {pages > 1 && <nav aria-label="Unresolved evidence pages" className="flex flex-wrap items-center gap-3">
-          <button type="button" aria-label="Previous evidence page" disabled={page === 0} onClick={() => setPage(page - 1)} className="rounded border px-3 py-1 disabled:opacity-50">Previous</button>
+          <button type="button" aria-label="Previous evidence page" disabled={page === 0} onClick={() => setPage(page - 1)} className="rounded border px-3 py-1 disabled:bg-card disabled:text-muted-foreground">Previous</button>
           <span role="status">Page {page + 1} of {pages}</span>
-          <button type="button" aria-label="Next evidence page" disabled={page === pages - 1} onClick={() => setPage(page + 1)} className="rounded border px-3 py-1 disabled:opacity-50">Next</button>
+          <button type="button" aria-label="Next evidence page" disabled={page === pages - 1} onClick={() => setPage(page + 1)} className="rounded border px-3 py-1 disabled:bg-card disabled:text-muted-foreground">Next</button>
         </nav>}
       </>}
   </section>;
 }
 function EvidenceCase({ record }: { record: UnresolvedEvidence }) {
   const lin = record.lineage;
-  return <li className="space-y-2 rounded-lg border border-border p-3 break-all">
+  return <li className="space-y-2 border-b border-border p-3 last:border-0 break-all">
     <p className="font-medium">{REASONS[record.reason]}</p>
     <p>Source: {record.source}</p>
     {lin ? <p>{lin.source_file}{lin.sheet === null ? "" : `, ${lin.sheet}`}, row {lin.row_number}</p>

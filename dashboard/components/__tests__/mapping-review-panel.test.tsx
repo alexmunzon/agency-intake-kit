@@ -47,6 +47,16 @@ describe("MappingReviewPanel", () => {
     expect(within(card("Comm Pd")).getByText(/too low/)).toBeInTheDocument();
   });
 
+  it("keeps low-confidence explanations, citations and review warnings visible", () => {
+    setup();
+    const premium = within(card("Prem Amt"));
+    for (const text of ["MAP-002:crm:Prem Amt", "72%", "crm_export.csv"]) expect(premium.getByText(text)).toBeVisible();
+    expect(premium.getByText(/below the 0.85 needed/)).toBeVisible();
+    expect(premium.getByRole("radio", { name: "Leave unresolved" })).toBeVisible();
+    expect(screen.getByText("A reviewer's note, not an authenticated approval")).toBeVisible();
+    expect(within(card("Agent Remarks")).getByText(/may hold notes, so its values were not sent to Jev/)).toBeVisible();
+  });
+
   it("labels live and recorded answers differently from replay", () => {
     const items = review.items.map((item, i) => (i === 1 ? { ...item, origin: "jev_live" as const } : i === 2 ? { ...item, origin: "jev_record" as const } : item));
     setup({ ok: true, review: { ...review, items } });

@@ -91,7 +91,7 @@ function PagedMatrix({ matrix }: { matrix: RtsMatrix }) {
                       key={column.label}
                       data-state={cell.coverage}
                       aria-label={`${where}: ${state.label}, ${policies(cell.policy_count)}`}
-                      className={cn(gap && "bg-orange-50 font-semibold outline-2 -outline-offset-2 outline-orange-600 dark:bg-orange-950")}
+                      className={cn(gap && "font-semibold")}
                     >
                       <span className="flex items-center gap-1">
                         <SeverityIcon tone={state.tone} className="size-3.5" />

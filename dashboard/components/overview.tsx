@@ -32,7 +32,6 @@ function StatusBanner({ run }: { run: Run }) {
   const { tone, answer, word, fallback } = ANSWERS[status];
   return (
     <section aria-label="Run status" data-tone={tone} className={cn(CARD, "decision-panel relative overflow-hidden")}>
-      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", TONES[tone].band)} />
       <div className="decision-content">
         <div className="min-w-0">
           <p className="eyebrow mb-2">Readiness decision</p>

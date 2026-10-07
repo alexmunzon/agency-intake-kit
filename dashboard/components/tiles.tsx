@@ -1,7 +1,7 @@
 import { SeverityIcon, type Tone } from "@/components/severity-badge";
 import { cn } from "@/lib/utils";
 
-export const CARD = "consulting-panel rounded-lg border border-border bg-card";
+export const CARD = "consulting-panel rounded-lg bg-card";
 
 interface TileProps {
   label: string;

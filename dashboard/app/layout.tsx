@@ -63,7 +63,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </nav>
           <main id="main-content" tabIndex={-1} className="app-main min-w-0">
             <LoadedRunBanner />
-            <aside aria-label="Review scope" className="mb-6 rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+            <aside aria-label="Review scope" className="trust-note mb-6 text-sm text-muted-foreground">
               Synthetic review only. Source completeness, exclusions, identity uncertainty, and financial totals require separate evidence. Browser review labels are not authenticated approval.
             </aside>
             {children}

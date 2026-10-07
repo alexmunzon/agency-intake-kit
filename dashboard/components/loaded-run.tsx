@@ -32,14 +32,14 @@ export function LoadedRunBanner() {
   const { loaded, setLoaded } = useLoadedRun();
   if (!loaded) return null;
   return (
-    <section aria-label="Your run" className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-primary/30 bg-accent px-4 py-3 text-sm">
+    <section aria-label="Your run" className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card px-4 py-3 text-sm">
       <p>
         Showing your run <span className="font-mono text-xs break-all">{loaded.label}</span>. It stays in this tab only, and a reload clears it.
       </p>
       <button
         type="button"
         onClick={() => setLoaded(null)}
-        className="rounded-md px-2 py-1 font-medium text-primary underline underline-offset-4 hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-primary"
+        className="rounded-md px-2 py-1 font-medium text-primary underline underline-offset-4 hover:bg-muted"
       >
         Back to the demo run
       </button>
