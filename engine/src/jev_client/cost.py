@@ -27,5 +27,6 @@ class RunUsage(StrictModel):
     input_tokens: Count
     output_tokens: Count
     estimated_cost_usd: UsdCost
+    invalid_answers: Count  # replies rejected as JevBadReply: never used, a person decides
     budget_usd: UsdCost
     budget_tripped: bool

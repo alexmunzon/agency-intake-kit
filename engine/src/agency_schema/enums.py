@@ -74,3 +74,10 @@ class Lane(StrEnum):
     REVIEW = "REVIEW"
     BUSINESS_EVENT = "BUSINESS_EVENT"
     UNREVIEWED = "UNREVIEWED"
+
+
+class JevMode(StrEnum):  # replay is the default; live and record spend money
+    REPLAY = "replay"
+    OFF = "off"
+    LIVE = "live"
+    RECORD = "record"

@@ -238,6 +238,48 @@ def bench_header_mapping(
         typer.echo(f"wrote {bench.DOC_PATH} and the README table")
 
 
+mapping_app = typer.Typer(help="Saved header mappings beside a drop.", no_args_is_help=True)
+app.add_typer(mapping_app, name="mapping")
+
+
+@mapping_app.command("apply")
+def mapping_apply(
+    decisions: Annotated[Path, typer.Argument(help="The decisions file the dashboard saved.")],
+    run_dir: Annotated[Path, typer.Option("--run", help="The run folder that was reviewed.")],
+    drop: Annotated[Path, typer.Option("--in", help="That run's drop folder.")],
+) -> None:
+    """Save a reviewer's mapping decisions into mapping/<source>.yaml beside the drop.
+
+    Refused, with nothing written, unless every decision matches the run's mapping_review.json
+    and the drop's files. If a write still fails part way, it lists the files already written.
+    The file is a reviewer's note, not an authenticated approval.
+    """
+    from intake.mapping.apply import ApplyRefused, apply_decisions
+
+    try:
+        summary = apply_decisions(decisions, run_dir, drop)
+    except ApplyRefused as refused:
+        if not refused.written:
+            typer.echo(f"Refused: {refused}. Nothing was written.", err=True)
+            raise typer.Exit(2) from None
+        typer.echo(f"Stopped: {refused}. These files were already written:", err=True)
+        for path in refused.written:
+            typer.echo(f"wrote {path}", err=True)
+        typer.echo(
+            "Each one's previous version, if it had one, is in the matching .yaml.prev file. "
+            "The other files were not changed.",
+            err=True,
+        )
+        raise typer.Exit(2) from None
+    typer.echo(
+        f"Applied: {summary.approved} approved, {summary.corrected} corrected, "
+        f"{summary.ignored} ignored. Columns with no decision stay unresolved."
+    )
+    for path in summary.files:
+        typer.echo(f"wrote {path}")
+    typer.echo("This is a reviewer's note, not an authenticated approval.")
+
+
 jev_app = typer.Typer(
     help="Jev (TypeSafe) recordings. Recording spends money.", no_args_is_help=True
 )
@@ -324,5 +366,6 @@ def record_run(
     usage = client.usage
     typer.echo(
         f"Done. Answers {usage.calls}, input tokens {usage.input_tokens}, "
-        f"estimated cost ${usage.estimated_cost_usd}, budget tripped {usage.budget_tripped}"
+        f"estimated cost ${usage.estimated_cost_usd}, budget tripped {usage.budget_tripped}, "
+        f"invalid answers {usage.invalid_answers} (not used, a person decides)"
     )

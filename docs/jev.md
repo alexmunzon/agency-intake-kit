@@ -64,6 +64,14 @@ The excerpt is redacted first: the key, the key's first 8 characters (some serve
 prefix), and any `Bearer ...` text become `[redacted]`, and it is cut at 200 characters so a 422
 that echoes the request does not spill it into logs.
 
+**In a run, an HTTP error fails safe.** Header and enum questions, triage, and the PII gate catch
+`JevHTTPError` the same way they catch an invalid answer: the header stays unmapped with MAP-002
+(reason `http_error`), the enum value stays as written, the triaged exception stays UNREVIEWED,
+and the PII gate redacts the whole text (fails closed). A request that gets no HTTP reply (a
+timeout or a refused connection) is treated the same way, as `http_error`, and is not retried,
+because a timed-out request may still be billed. The log names only the status code, or the kind
+of network error, never the body. A replay miss and the spend guard behave as before.
+
 ## Checking answers
 
 Every answer must line up with the questions asked, or `ask` raises `JevBadReply` (a `ValueError`):
@@ -131,7 +139,10 @@ cd engine && JEV_MODE=record uv run intake jev record-run --drop ../fixtures/age
 
 It refuses unless `JEV_MODE=record` is set. It first runs the drop in replay, prints the number of
 unrecorded requests and the estimated cost, then runs again in record mode, which pays only for
-requests with no cassette. The key is read from the environment and never printed. For agency-a
+requests with no cassette. The key is read from the environment and never printed. Both
+`record-mapping` and `record-run` end by printing the invalid answers (replies that did not fit
+the question; never used, a person decides). The manifest counts them too, as
+`jev.invalid_answers`. For agency-a
 the estimate was 157 triage requests, about 31,768 input tokens by the cautious 3 characters per
 token estimate, so about $0.0013. Recorded 2026-10-05 with Alex's approval: replay now answers
 all 164 questions of an agency-a run (7 mapping, 157 triage), 70,509 input tokens, estimated
@@ -223,6 +234,50 @@ average over 40 characters, have more than 3 spaces, or hold any 9-digit number 
 | Below 0.60, or `none` | Unmapped, PR 5's MAP-001 stays |
 | No answer (off, spend guard) | Unmapped, MAP-001 plus MAP-002 in the REVIEW lane |
 | Invalid answer (bad JSON, an option not offered, wrong question) | Not used. Unmapped, MAP-001 plus MAP-002 (`invalid_reply`); an enum value stays as written |
+| HTTP error, timeout or refused connection in live or record mode | Not used. Unmapped, MAP-001 plus MAP-002 (`http_error`); an enum value stays as written |
+
+**The review file.** Every run writes `mapping_review.json` with one item per header that the
+synonym table and saved decisions did not settle (every header Jev was asked about, plus any that
+ended unmapped). Two files under one source each get their own items. Each item holds the
+masked samples Jev saw (or none, with `samples_withheld`, for
+notes, free text, and 9-digit columns), the allowed fields, Jev's proposed field, where the answer
+came from (`jev_replay` for a saved recording in any mode, `jev_live` or `jev_record` for a reply
+the API sent during this run, or `none` when there was no answer), the
+model's own confidence (not measured accuracy), the route and reason, the rows with a value, the
+linked MAP-001 and MAP-002 ids, and the file's format fingerprint. A header that looks like an
+SSN, with or without separators, is masked in the item and in the question sent to Jev. The explanation is built from
+those fields, never from model text, for example: "No synonym or saved mapping matched 'Birth Dt
+(mm/dd/yy)'. Jev (replay) chose clients.dob with confidence 1.00 (the model's own number), so it
+was mapped. 5 masked sample values were shown to Jev. 1,847 rows have a value." The file is
+evidence for a reviewer and carries no authority. See docs/outputs.md.
+
+### Saving a reviewer's mapping decisions
+
+`cd engine && uv run intake mapping apply <decisions.json> --run <run folder> --in <drop folder>`
+saves the decisions file the dashboard downloads into `mapping/<source>.yaml` beside the drop.
+It refuses the whole file, writing nothing, unless the run id, mapping version, every item id,
+header and format fingerprint match the run's `mapping_review.json` and the drop's files, every
+field is one that column was offered (approve keeps the proposed field), and the note is the
+fixed wording. Approve and correct save a `manual` entry with that field; ignore saves a
+`manual` entry with no field, so the column stays out and Jev is not asked again. Each entry
+records `reviewer` (a name as typed, not checked), `decided_at`, `suggested_field` and
+`suggested_origin`. It also refuses two decisions for the same column in two files that
+disagree, and a field that another column of that source already holds (by a saved decision, a
+synonym, or another decision in the file); the dashboard warns about both before download. The
+new file lists every header of the reviewed export in order: the decided ones, entries saved
+earlier for this same format, and an `unmapped` entry for the rest (a run treats it like no
+entry). Entries saved for another format, or for headers no longer in the export, are never
+carried over. The previous file is first copied to `mapping/<source>.yaml.prev`. Each file is
+written in one step, and symlinks are refused. It prints how many were approved, corrected and ignored. If a write fails part way, it lists the files already written; each one's previous version is in its `.yaml.prev`. A reviewer who maps a column to a required field can clear a missing-field blocker (MAP-003) on the next run, as a hand-edited manual mapping always could. The reviewer name is not authenticated. The decisions are a reviewer's
+note, not an authenticated approval, and cannot clear a blocker or lower a severity.
+
+The file also records the source's `format_fingerprint`: the first 16 hex characters of sha256
+over its headers, trimmed, lowercased and joined by newlines in file order. A later run reuses the
+saved decisions only when the file's fingerprint is the same, or the saved file has none (older
+files work as before). A different fingerprint raises MAP-005 (warning), "Export format changed
+since mappings were saved", naming the headers added and removed since the saved header list. Nothing saved for that source
+is reused (not even entries for headers that did not change, since a changed export may change
+meaning): its headers go to the synonym table, then Jev, then the review list again.
 
 **Question 2, value to enum** (`intake/mapping/enums.py`), one per distinct value the word table
 does not know:

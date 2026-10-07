@@ -21,16 +21,19 @@ import polars as pl
 
 from agency_schema.enums import Severity
 from agency_schema.exceptions import ExceptionRecord
+from agency_schema.mapping_review import MappingReviewItem
 from agency_schema.outputs import JevMode, LegStatus, RtsCoverage, RunStatus
 from agency_schema.run_dir import check_run_dir
 from intake.checks import run_cross_record_checks
+from intake.config import RAW_MAPPING_VERSION
 from intake.exceptions.pii import pii_gate
 from intake.exceptions.policy import apply_policy, run_status
 from intake.exceptions.triage import attach_rows, queue_order, triage
 from intake.gates import run_raw_gates
 from intake.ingest import MANIFEST_NAME, IngestResult, ingest
-from intake.mapping.headers import SOURCE_TABLES, _missing_required, map_table
-from intake.mapping.jev_mapping import Asker, map_with_jev
+from intake.mapping.headers import SOURCE_TABLES, _missing_required, format_changes, map_table
+from intake.mapping.jev_mapping import Asker, HeaderDecision, map_with_jev
+from intake.mapping.review import build_review, review_items
 from intake.mapping.store import mapping_dir_for
 from intake.readers import LINEAGE_COLUMN, file_exception
 from intake.report.html import render_report
@@ -91,15 +94,35 @@ def _stop_reason(records: list[ExceptionRecord]) -> str:
 
 
 def map_drop(
-    raw: IngestResult, mapping_dir: Path, now: datetime, asker: Asker
+    raw: IngestResult,
+    mapping_dir: Path,
+    now: datetime,
+    asker: Asker,
+    review: list[MappingReviewItem] | None = None,
 ) -> tuple[list[MappedSource], list[ExceptionRecord]]:
-    """PR 5 synonyms then PR 7 Jev for every raw table, exactly as `fill_drop` asks."""
+    """PR 5 synonyms then PR 7 Jev for every raw table, exactly as `fill_drop` asks.
+
+    When `review` is given, each header the synonyms and saved decisions left open is added
+    to it as a mapping_review.json item.
+    """
     sources, records = [], []
+    asked: dict[str, dict[str, HeaderDecision]] = {}  # Jev's decisions so far, per mapping key
     for table in raw.tables:
-        result, _ = map_with_jev(table, map_table(table, mapping_dir, now), mapping_dir, now, asker)
+        mapped = map_table(table, mapping_dir, now)
+        result, decisions = map_with_jev(table, mapped, mapping_dir, now, asker)
         sources.append(MappedSource(table, result))
         records += result.exceptions
+        if review is not None:
+            earlier = asked.setdefault(result.mapping.source, {})
+            review += review_items(table, result, decisions, earlier)
+            earlier.update({d.header: d for d in decisions})
     return sources, records
+
+
+def mapping_version(sources: list[MappedSource]) -> str:
+    """The run's mapping version: each source's lineage mapping_version, sorted and joined."""
+    versions = sorted({s.result.version for s in sources})
+    return ",".join(versions) if versions else RAW_MAPPING_VERSION
 
 
 def canonical_from_drop(
@@ -255,14 +278,18 @@ def _run_into(
     tie: TieOutResult | None = None
     coverage = RtsCoverage(cells=())
     enrollment = None
+    review: list[MappingReviewItem] = []
     if book_absent:  # #59: no book, so stop before mapping
         records += _missing_required("crm", SOURCE_TABLES["crm"], set())
     if not _blocked(records):
         mapping_dir = tmp / "mapping"
         stored = mapping_dir_for(drop)
+        # MAP-005 for each file whose export format changed since its decisions were saved;
+        # map_headers then reuses none of them, so those headers go back to review.
+        records += format_changes(raw.tables, stored)
         if stored.is_dir():  # decisions a person saved beside drop/ win, as in PR 5
             shutil.copytree(stored, mapping_dir)
-        sources, mapped = map_drop(raw, mapping_dir, started, asker)
+        sources, mapped = map_drop(raw, mapping_dir, started, asker, review)
         records += mapped
         if not _blocked(records):
             canon = canonicalize(sources, asker)
@@ -319,6 +346,9 @@ def _run_into(
         statement_totals=collect_statement_totals(raw, drop, out.name, raw_blocked)
         if book_absent
         else None,
+        mapping_review=build_review(
+            out.name, mapping_version(sources), client.mode, review, records
+        ),
     )
     write_run(outputs, tmp)
     check_run_dir(tmp)

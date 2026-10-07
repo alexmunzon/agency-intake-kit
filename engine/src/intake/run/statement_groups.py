@@ -8,8 +8,9 @@ from pydantic import model_validator
 
 from agency_schema.lineage import Lineage, NonEmpty, StrictModel
 from intake.ingest import IngestResult
+from intake.mapping.fingerprint import format_fingerprint
 from intake.mapping.headers import mapping_key
-from intake.mapping.store import load_mapping, mapping_dir_for
+from intake.mapping.store import load_mapping, mapping_dir_for, reusable
 from intake.mapping.synonyms import Target, load_synonyms, normalize_header
 from intake.readers import RawTable
 from intake.run.statement_totals import StatementTotals
@@ -56,7 +57,11 @@ class StatementGroups(StrictModel):
 
 def _header(table: RawTable, drop: Path, field: str) -> str | None:
     """Honor saved decisions; exact carrier aliases apply only to this evidence artifact."""
-    stored = load_mapping(mapping_dir_for(drop), mapping_key(table.source, table.sheet))
+    headers = [c for c in table.frame.columns if c != "lineage"]
+    stored = reusable(
+        load_mapping(mapping_dir_for(drop), mapping_key(table.source, table.sheet)),
+        format_fingerprint(headers),
+    )
     target = Target("commission_lines", field)
     selected: list[str] = []
     for header in table.frame.columns:

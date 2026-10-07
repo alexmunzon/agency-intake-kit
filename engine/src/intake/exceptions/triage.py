@@ -4,8 +4,9 @@ Each error and warning becomes one request with a minimized state: the rule, the
 value's shape (digits become 9, letters A), and a few neighbor fields from config. Requests
 with the same public hash are sent once per run and the answer is reused, so 40 missing MBIs
 on MA policies cost one call. The answer sets the lane and orders the queue; it never changes
-severity or blocks_load. In off mode, after the spend guard trips, or when a reply does not
-fit the questions (JevBadReply), items stay UNREVIEWED, which is the human queue.
+severity or blocks_load. In off mode, after the spend guard trips, when a reply does not fit
+the questions (JevBadReply), or when the API returns an HTTP error, items stay UNREVIEWED,
+which is the human queue.
 """
 
 import logging
@@ -28,6 +29,7 @@ from intake.config import (
 from jev_client import (
     JevBadReply,
     JevClient,
+    JevHTTPError,
     JevRequest,
     JevResponse,
     NoulAnswer,
@@ -179,6 +181,10 @@ def triage(items: Sequence[TriageItem], client: JevClient) -> list[ExceptionReco
                 log.warning("Jev triage answer not used, a person decides (%s)", error.log_safe())
                 qids = tuple(request.questions)
                 answers[key] = Unresolved(reason="invalid_reply", question_ids=qids)
+            except JevHTTPError as error:  # status code only, never the body
+                log.warning("Jev triage got %s, a person decides", error.what)
+                qids = tuple(request.questions)
+                answers[key] = Unresolved(reason="http_error", question_ids=qids)
         lane, scores = route(answers[key])
         update = {"lane": lane, "jev": scores}
         out.append(ExceptionRecord.model_validate({**item.record.model_dump(), **update}))

@@ -48,7 +48,8 @@
     "calls": 12,
     "input_tokens": 6800,
     "output_tokens": 48,
-    "estimated_cost_usd": "0.000286"
+    "estimated_cost_usd": "0.000286",
+    "invalid_answers": 0
   },
   "budget_tripped": false,
   "thresholds": {

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from agency_schema.exceptions import ExceptionRecord
+from agency_schema.mapping_review import MappingReview
 from agency_schema.outputs import (
     RUN_FILE_MODELS,
     LegResult,
@@ -75,6 +76,13 @@ def check_run_dir(run: Path) -> None:
     for ex_id in (ex_id for cell in gaps for ex_id in cell.exception_ids):
         if ex_id not in records or records[ex_id].rule_id != "RTS-001":
             _fail(f"RTS cell points at {ex_id}, which is not an RTS-001 exception")
+
+    review: MappingReview = files["mapping_review.json"]
+    if (review.run_id, review.jev_mode) != (manifest.run_id, manifest.jev.mode):
+        _fail("mapping_review.json and the manifest disagree on run_id or Jev mode")
+    for ex_id in (ex_id for item in review.items for ex_id in item.exception_ids):
+        if ex_id not in records or records[ex_id].rule_id not in ("MAP-001", "MAP-002"):
+            _fail(f"mapping review points at {ex_id}, which is not a MAP-001 or MAP-002 exception")
 
     if card.status == RunStatus.FAILED and (run / "clean").exists():
         _fail("a FAILED run must not write clean/")

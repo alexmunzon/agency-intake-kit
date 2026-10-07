@@ -1,7 +1,7 @@
 # Rule catalog
 
 Generated from the rule registry by `uv run intake rules --md > ../docs/rules.md`. Do not edit
-by hand. All 47 rules; readers, gates, mapping, tie-out, and clean validation raise theirs
+by hand. All 48 rules; readers, gates, mapping, tie-out, and clean validation raise theirs
 outside the registry.
 
 Severity decides what happens to a row: a blocker stops the run, an error keeps the row out of
@@ -35,6 +35,7 @@ the load file, a warning passes with a flag, and info is only logged.
 | MAP-002 | Warning | MAP | no | Mapping confidence between thresholds, or Jev gave no usable answer |
 | MAP-003 | Blocker | MAP | yes | Required canonical field missing (a drop with no CRM misses them all) |
 | MAP-004 | Error | MAP | no | Canonical row violates its declared load-table schema or depends on an excluded parent |
+| MAP-005 | Warning | MAP | no | Export format changed since mappings were saved; saved decisions not reused |
 | MBI-001 | Error | MBI | no | MBI format invalid |
 | MBI-002 | Warning | MBI | no | MBI present on a non-Medicare policy |
 | MBI-003 | Warning | MBI | no | Medicare policy missing MBI |

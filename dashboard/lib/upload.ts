@@ -5,6 +5,7 @@ import { FILE_NAMES, parseJson, parseRun, type Run, type RunFiles } from "@/lib/
 import { parseTieOut, TIE_OUT_FILES, type TieOut } from "@/lib/tie-out";
 import { parseFinanceReview, type FinanceReview } from "@/lib/finance-review";
 import { parseLinkEvidence, type LinkEvidence } from "@/lib/link-evidence";
+import { MAPPING_REVIEW_FILE, readMappingReview, type MappingReviewState } from "@/lib/mapping-review";
 
 // Reads a run you pick in the browser. Nothing is uploaded: the files are read into this tab's
 // memory and checked with the same parsers the demo run uses. Every problem names its file.
@@ -23,6 +24,8 @@ export interface LoadedRun {
   unresolved?: UnresolvedEvidence[];
   statementTotals?: StatementTotals;
   statementGroups?: StatementGroup[];
+  /** Optional. A malformed file is kept as an error for the Sources page, not a failed load. */
+  mappingReview?: MappingReviewState;
 }
 
 export type UploadResult = { ok: true; loaded: LoadedRun } | { ok: false; errors: string[] };
@@ -45,6 +48,7 @@ const WANTED = new Map<string, string>([
   [STATEMENT_GROUPS_FILE, STATEMENT_GROUPS_FILE],
   [FINANCE_FILE, FINANCE_FILE],
   ["links.jsonl", LINKS_FILE],
+  [MAPPING_REVIEW_FILE, MAPPING_REVIEW_FILE],
 ]);
 
 function checkJson(name: string, text: string): string[] {
@@ -120,6 +124,12 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
     try { texts.set(LINKS_FILE, await linksFile.text()); }
     catch { errors.push(`${LINKS_FILE}: could not read the file. Pick it again.`); }
   }
+  let mappingReviewText: string | undefined;
+  const mappingReviewFile = picked.get(MAPPING_REVIEW_FILE);
+  if (mappingReviewFile) {
+    try { mappingReviewText = await mappingReviewFile.text(); }
+    catch { errors.push(`${MAPPING_REVIEW_FILE}: could not read the file. Pick it again.`); }
+  }
   if (errors.length > 0) return { ok: false, errors };
 
   try {
@@ -152,6 +162,7 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
     const statementGroups = groupsText === undefined ? undefined : parseStatementGroups(groupsText, statementTotals);
     const linksText = texts.get(LINKS_FILE);
     const links = linksText === undefined ? undefined : parseLinkEvidence(linksText, run.manifest.run_id);
+    const mappingReview = readMappingReview(mappingReviewText, run.manifest.run_id);
     const tieFiles = Object.fromEntries(TIE_OUT_FILES.map((stem) => [stem, texts.get(`tie_out/${stem}.json`)!]));
     return {
       ok: true,
@@ -164,6 +175,7 @@ export async function readRunFiles(files: PickedFile[]): Promise<UploadResult> {
         ...(statementTotals !== undefined ? { statementTotals } : {}),
         ...(statementGroups !== undefined ? { statementGroups } : {}),
         ...(links !== undefined ? { links } : {}),
+        ...(mappingReview !== undefined ? { mappingReview } : {}),
       },
     };
   } catch (error) {

@@ -1,5 +1,13 @@
 # Changelog
 
+## Jev mapping review, 2026-10-07
+
+- Every run now writes `mapping_review.json`: one item for each column the synonym table and saved decisions did not settle, with masked samples, Jev's proposal, where the answer came from (replay, live or record), the model's own confidence, rows with a value, linked MAP-001 and MAP-002 ids, the file's format fingerprint, and a plain explanation built from those facts. Two files under one source each get their own items. The manifest counts invalid Jev answers. An HTTP error, timeout or refused connection from Jev leaves the column for a person instead of stopping the run, and a header that looks like an SSN is masked in the file and in the question to Jev.
+- The Sources page shows a review panel for that file: approve the proposal, correct it to another allowed field, ignore the column, or leave it unresolved. "Download decisions" saves a file in the browser and sends nothing anywhere. It warns when two columns would get the same field. The file is a reviewer's note, not an authenticated approval.
+- New `intake mapping apply` saves those decisions into `mapping/<source>.yaml` beside the drop, after checking them against the run's review and the drop. It refuses any mismatch, conflicting decisions, or a field another column already holds, and keeps the previous file as `<source>.yaml.prev`. Later runs reuse saved decisions only while the export's header format is unchanged; a changed format raises new warning MAP-005 naming the added and removed headers and sends the columns back to review.
+- `intake mapping apply` builds and checks every file before writing any, and if a write still fails part way it names the files already written. A shared decisions fixture made by the dashboard is applied by the engine's full-cycle test. Two SSN-like headers that mask alike no longer collide. Docs quoting the demo numbers now match the refreshed demo run.
+- The header mapping benchmark counts invalid answers and HTTP errors on their own instead of crashing. The demo run is regenerated from the current engine in replay mode, adding `mapping_review.json`, the `invalid_answers` counter and `tie_out/links.jsonl`. Its numbers move slightly because main's engine had changed since the last refresh: errors 308 to 311, warnings 423 to 426, TIE-001 131 to 134, TIE-002 68 to 71.
+
 ## Warm consulting visual refresh, 2026-10-07
 
 - Rework every dashboard view with a warm sand canvas, charcoal navigation, crisp white evidence cards and restrained red identity accents. Use accessible dark-red actions with white text in both light and dark modes, with readable dark-mode links.

@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { MAPPING_REVIEW_FILE, readMappingReview, type MappingReviewState } from "@/lib/mapping-review";
 import { FILE_NAMES, parseRun, type Run, type RunFiles } from "@/lib/run-loader";
 import { parseTieOut, TIE_OUT_FILES, type TieOut } from "@/lib/tie-out";
 
@@ -28,4 +29,16 @@ export async function loadTieOut(runDir: string, run?: Run): Promise<TieOut> {
   const files: Record<string, string> = {};
   for (const name of TIE_OUT_FILES) files[name] = await read(runDir, `tie_out/${name}.json`);
   return parseTieOut(files, run);
+}
+
+/** Optional mapping_review.json. Older runs have none (undefined); a malformed file becomes an error to show. */
+export async function loadMappingReview(dir: string, runId: string): Promise<MappingReviewState | undefined> {
+  let source: string;
+  try {
+    source = await readFile(path.join(dir, MAPPING_REVIEW_FILE), "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+    return { ok: false, error: `${MAPPING_REVIEW_FILE}: could not read the file` };
+  }
+  return readMappingReview(source, runId);
 }
