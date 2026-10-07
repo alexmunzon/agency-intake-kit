@@ -7,7 +7,7 @@ Agency intake toolkit for the Agency Data Trust Series. Synthetic data only. See
 ## Commands
 - `npm run verify`            all checks: ruff, mypy, pytest, eslint, tsc, vitest, next build. Must pass before any commit.
 - `npm run demo`              regenerate the committed demo run into dashboard/public/demo-run (uses Jev replay cassettes).
-- `npm run shots`             Playwright screenshots to docs/screenshots at 1440 and 375, light and dark.
+- `npm run shots`             Playwright screenshots to docs/screenshots at 1440 and 375 (the dashboard is light only).
 - `npm run demo-gif`          docs/screenshots/demo.gif (Overview, Exceptions, Tie-out) via Playwright video and ffmpeg; must stay under 3 MB.
 - `cd engine && uv run intake run --in ../fixtures/agency-a/drop --out ../runs/agency-a --jev replay --as-of 2026-10-01T09:00:00Z`   the out folder is the run (its name is the run_id); add --overwrite to redo it. ground_truth.json beside drop/ is auto-detected.
 - `cd engine && uv run synth generate --seed 42 --clients 2000 --out ../fixtures/agency-a`

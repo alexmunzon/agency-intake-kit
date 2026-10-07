@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const PANEL = "consulting-panel rounded-lg border border-border bg-card p-5";
-const EVIDENCE_LINK = "inline-flex min-h-11 items-center py-2 font-medium text-primary underline dark:text-accent-foreground";
+const EVIDENCE_LINK = "inline-flex min-h-11 items-center py-2 font-medium text-primary underline";
 
 export default function PackagePage() {
   return (

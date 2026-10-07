@@ -1,5 +1,11 @@
 # Changelog
 
+## Light-only dashboard, 2026-10-07
+
+- The dashboard now always shows the light palette, whatever the device setting or a choice saved by an earlier visit. Remove the Dark mode toggle, the pre-paint theme script, the dark color tokens and every `dark:` class, and declare `color-scheme: light` so native controls stay light. Light colors are unchanged.
+- Replace the toggle tests with light-only checks (no Dark mode control, no theme script or preference lookup, no dark tokens or classes; a dark-preferring device with a stale saved dark choice still gets the light background). Refresh the README screenshots and demo GIF and drop the dark Overview screenshot. No workflow, data or engine change.
+- The Overview screenshot check now asserts the readiness answer and every tile fit in the first 900px screen, instead of the whole page. The page grew past one screen when evidence sections were added, which blocked the README image refresh. Trim the phone header padding that only made room for the toggle.
+
 ## Shared visual simplification, 2026-10-07
 
 - Use the shared warm offwhite page, white panels, charcoal text, dark-red primary action and neutral dark mode. Flatten card framing and decorative trim; preserve navigation geometry, routes, review gates and all evidence.

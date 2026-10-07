@@ -61,7 +61,7 @@ function LegCard({ result, title, proves }: { result: LegResult; title: string; 
     : [];
   const clean = ran && result.variance_count === 0;
   return (
-    <div role="group" aria-label={title} className={cn(CARD, "p-4", !ran && "border-dashed bg-muted dark:bg-muted")}>
+    <div role="group" aria-label={title} className={cn(CARD, "p-4", !ran && "border-dashed bg-muted")}>
       <h2 className="text-sm font-medium">{title}</h2>
       <p className={cn("text-xs", MUTED)}>{proves}</p>
       <p className="mt-2">

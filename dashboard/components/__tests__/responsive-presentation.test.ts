@@ -27,7 +27,7 @@ describe("Responsive presentation source contracts", () => {
   it("defines phone touch targets and full-width filters at both 375 and 390 widths", () => {
     const phone = blockAt("@media (max-width: 640px)");
     for (const width of [375, 390]) expect(width).toBeLessThanOrEqual(640);
-    expect(phone).toContain(".sidebar-link, .theme-toggle { min-height: 44px; }");
+    expect(phone).toContain(".sidebar-link { min-height: 44px; }");
     expect(phone).toContain(".app-main :is(button, select, summary) { min-height: 44px; }");
     expect(phone).toContain(".filter-bar > label { flex: 1 1 100%; min-width: 0; }");
     expect(phone).toContain(".filter-bar select { width: 100%; max-width: 100%; }");

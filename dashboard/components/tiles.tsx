@@ -18,7 +18,7 @@ export function Tile({ label, value, context, note, tone, muted }: TileProps) {
     <div
       role="group"
       aria-label={label}
-      className={cn(CARD, "metric-tile p-4", muted && "border-dashed bg-muted dark:bg-muted")}
+      className={cn(CARD, "metric-tile p-4", muted && "border-dashed bg-muted")}
     >
       <p className="metric-label flex items-center gap-1.5 text-muted-foreground">
         {tone && !muted && <SeverityIcon tone={tone} />}

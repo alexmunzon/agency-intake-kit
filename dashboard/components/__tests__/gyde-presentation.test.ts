@@ -19,7 +19,8 @@ function theme(selector: string) {
 
 // Contrast is checked from the actual configured values; geometry still needs a browser.
 describe("Shared visual accessibility", () => {
-  for (const selector of [":root {", ".dark {"]) {
+  // Light only: the one palette lives on :root.
+  for (const selector of [":root {"]) {
     it(`${selector} keeps text, status icons, controls and focus readable`, () => {
       const value = theme(selector);
       for (const surface of ["background", "card"]) {

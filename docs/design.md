@@ -6,7 +6,7 @@ The dashboard is for an agency owner who has never seen a data pipeline and for 
 
 | Page | Question on the page | Screenshot |
 |---|---|---|
-| Overview | Can this agency go live? | `screenshots/overview-1440.png`, `overview-375.png`, `overview-dark.png` |
+| Overview | Can this agency go live? | `screenshots/overview-1440.png`, `overview-375.png` |
 | Sources | What did we receive, and did it read cleanly? | `screenshots/sources-1440.png` |
 | Exceptions | What needs fixing, in what order, and how? | `screenshots/exceptions-1440.png` |
 | Tie-out | Does the money agree? | `screenshots/tie-out-1440.png` |
@@ -15,18 +15,18 @@ The dashboard is for an agency owner who has never seen a data pipeline and for 
 
 **Runs.** Pick a run folder's files (or drop the folder) and every page shows that run, with a banner naming it and a button back to the demo run. The files are read in the browser tab only: nothing is uploaded, nothing is stored, and a reload clears them. Each problem names its file, for example "rts_coverage.json: missing". To compare two runs, use `uv run intake diff <run_a> <run_b>` in the engine.
 
-**Dark mode.** The header toggle switches it and remembers the choice in the browser. Without a saved choice the page follows the system setting. A small script in the page head applies it before the first paint, so a dark page never flashes white.
+**Light only.** The dashboard has one palette, light, whatever the device setting or any choice saved by an earlier version. There is no theme toggle, and `color-scheme: light` keeps native controls light too.
 
-**Accessibility checks.** `cd dashboard && npx playwright test e2e/a11y.spec.ts` runs axe (WCAG 2.1 A and AA) on every page in light and dark, plus the open lineage drawer and a loaded run, and fails on any serious or critical finding. It also checks every page at 375 wide for sideways scroll in both schemes. Like the screenshots, it needs the Chromium download, so it is not part of `npm run verify`.
+**Accessibility checks.** `cd dashboard && npx playwright test e2e/a11y.spec.ts` runs axe (WCAG 2.1 A and AA) on every page with the device set to light and to dark (both must show the light palette), plus the open lineage drawer and a loaded run, and fails on any serious or critical finding. It also checks every page at 375 wide for sideways scroll with both device settings. Like the screenshots, it needs the Chromium download, so it is not part of `npm run verify`.
 
 ## Design system
 
 **Tailwind v4 tokens.** Colors are Tailwind's built-in palette, used directly in class names (no custom theme colors):
 
-- Neutrals: slate. Page background slate-50 (light) or slate-950 (dark); cards and the nav are white or slate-900.
-- Text: slate-900 and slate-600 in light, slate-100 and slate-400 in dark.
-- Borders: 1px slate-200 or slate-800. No drop shadows.
-- One accent: indigo (600 in light, 400 in dark) for links, the active nav item, and focus rings.
+- Neutrals: slate. Page background slate-50; cards and the nav are white.
+- Text: slate-900 and slate-600.
+- Borders: 1px slate-200. No drop shadows.
+- One accent: indigo-600 for links, the active nav item, and focus rings.
 - Radius: `rounded-lg` (8px) on cards, `rounded-md` (6px) on chips.
 
 **shadcn.** The project is set up for shadcn (`components.json`, style `base-nova`, built on Base UI, lucide icons), and shadcn's base stylesheet supplies the base layer. It is vendored unchanged at `dashboard/app/vendor/shadcn/tailwind.css` instead of installed as a package, because the package pulled in an unpatched braces advisory; `npx shadcn add` still works on demand. Only the Button primitive is installed so far. The page parts (tiles, banners, severity badges, tables, the lineage drawer) are small local components in `dashboard/components/`, styled with the tokens above.
@@ -40,8 +40,6 @@ The dashboard is for an agency owner who has never seen a data pipeline and for 
 | Warning | amber-500 (icon text amber-600) | circle alert | The row loads with a flag. Worth a look. |
 | Info | sky-600 | circle info | A note only. Nothing to fix. |
 | Pass | emerald-600 | check | The check ran and found nothing. |
-
-In dark mode the icon and text shades move up to the 400 step so they keep enough contrast.
 
 **Type scale.** Inter (via `next/font`) for text, `ui-monospace` for ids, rule codes, and file names.
 

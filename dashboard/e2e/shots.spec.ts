@@ -37,9 +37,12 @@ for (const { name, path, question } of PAGES) {
     await open(page, path, question);
     await expectNoSidewaysScroll(page);
     if (name === "overview") {
-      // The answer and every tile fit on one screen at desktop width.
-      const height = await page.evaluate(() => document.documentElement.scrollHeight);
-      expect(height).toBeLessThanOrEqual(DESKTOP.height);
+      // The answer and every tile fit on one screen at desktop width. The answer sits above
+      // the tiles, so the lowest tile edge bounds both. Evidence tables below may scroll.
+      const tiles = page.locator(".metric-tile");
+      expect(await tiles.count()).toBeGreaterThanOrEqual(5);
+      const bottoms = await tiles.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().bottom));
+      expect(Math.max(...bottoms)).toBeLessThanOrEqual(DESKTOP.height);
     }
     await page.screenshot({ path: `${OUT}/${name}-1440.png`, animations: "disabled" });
   });
@@ -54,10 +57,3 @@ for (const { name, path, question } of PAGES) {
     }
   });
 }
-
-test("overview 1440 dark", async ({ page }) => {
-  await page.emulateMedia({ colorScheme: "dark" });
-  await page.setViewportSize(DESKTOP);
-  await open(page, "/", "Can this agency go live?");
-  await page.screenshot({ path: `${OUT}/overview-dark.png`, animations: "disabled" });
-});

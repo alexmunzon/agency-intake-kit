@@ -12,6 +12,7 @@ const PAGES = [
   { path: "/runs", question: "Load your own run" },
 ] as const;
 const SCHEMES = ["light", "dark"] as const;
+const LIGHT_PAGE = "rgb(246, 245, 242)";
 const PARTIAL = path.resolve(__dirname, "../../fixtures/sample-run-partial");
 const PARTIAL_FILES = [
   "manifest.json", "scorecard.json", "exceptions.jsonl", "rts_coverage.json",
@@ -43,7 +44,9 @@ for (const scheme of SCHEMES) {
       await page.emulateMedia({ colorScheme: scheme });
       await page.setViewportSize({ width: 1440, height: 900 });
       await open(page, url, question);
-      await expect(page.locator("html")).toHaveClass(scheme === "dark" ? /\bdark\b/ : /^(?!.*\bdark\b)/);
+      // Light only: a dark-preferring device still gets the light palette.
+      await expect(page.locator("html")).not.toHaveClass(/\bdark\b/);
+      await expect(page.locator("body")).toHaveCSS("background-color", LIGHT_PAGE);
       expect(await seriousViolations(page)).toEqual([]);
     });
 
@@ -64,14 +67,16 @@ for (const scheme of SCHEMES) {
   });
 }
 
-test("the dark mode toggle wins over the system setting and survives a reload", async ({ page }) => {
-  await page.emulateMedia({ colorScheme: "light" });
+test("the page stays light with a dark system setting and a stale saved dark choice", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript(() => localStorage.setItem("theme", "dark"));
   await open(page, "/", "Can this agency go live?");
-  await page.getByRole("button", { name: "Dark mode" }).click();
-  await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+  await expect(page.locator("html")).not.toHaveClass(/\bdark\b/);
+  await expect(page.locator("body")).toHaveCSS("background-color", LIGHT_PAGE);
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme)).toBe("light");
+  await expect(page.getByRole("button", { name: /dark mode/i })).toHaveCount(0);
   await page.reload();
-  await expect(page.locator("html")).toHaveClass(/\bdark\b/);
-  await expect(page.getByRole("button", { name: "Dark mode" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("body")).toHaveCSS("background-color", LIGHT_PAGE);
 });
 
 test("a loaded run shows on every page with no network calls, and passes axe", async ({ page, baseURL }) => {
