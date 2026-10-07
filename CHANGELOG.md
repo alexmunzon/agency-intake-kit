@@ -1,5 +1,11 @@
 # Changelog
 
+## Warm consulting visual refresh, 2026-10-07
+
+- Rework every dashboard view with a warm sand canvas, charcoal navigation, crisp white evidence cards and restrained red identity accents. Use accessible dark-red actions with white text in both light and dark modes, with readable dark-mode links.
+- Refine page hierarchy, metric spacing, table rhythm, filters and import/detail surfaces while retaining the existing mobile touch targets, bounded evidence scrollers, all copy, trust disclosures and fixed severity meanings. No dependencies, rules, data, behavior or demo scope change.
+- Add palette and severity-separation presentation tests alongside the existing responsive contracts.
+
 ## Remove braces entirely, 2026-10-06
 
 - Give Next's lint plugin a small local fast-glob stand-in built on Node's `fs.globSync` (npm override), so braces GHSA-vfj7-8cjw-p6xm (no patched release) and micromatch are no longer installed as packages (Vite still bundles a dormant copy in its file watcher, which test runs turn off; see SECURITY.md). 15 packages removed, none upgraded; full `npm audit` now reports zero findings. The stand-in matches fast-glob 3.3.1 on recorded ordinary `rootDir` patterns and refuses brace patterns; all lint rules still run. The deployed site is unchanged.
