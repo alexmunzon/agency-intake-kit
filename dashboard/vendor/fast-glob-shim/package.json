@@ -1,0 +1,13 @@
+{
+  "name": "fast-glob",
+  "version": "3.3.1-local.1",
+  "private": true,
+  "description": "Local stand-in for fast-glob, used only by @next/eslint-plugin-next. Built on Node's fs.globSync so braces is not installed. See SECURITY.md.",
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "exports": "./index.js",
+  "engines": {
+    "node": ">=24"
+  }
+}

@@ -1,5 +1,9 @@
 # Changelog
 
+## Remove braces entirely, 2026-10-06
+
+- Give Next's lint plugin a small local fast-glob stand-in built on Node's `fs.globSync` (npm override), so braces GHSA-vfj7-8cjw-p6xm (no patched release) and micromatch are no longer installed. 15 packages removed, none upgraded; full `npm audit` now reports zero findings. The stand-in matches fast-glob 3.3.1 on recorded ordinary `rootDir` patterns and refuses brace patterns; all lint rules still run. The deployed site is unchanged.
+
 ## Weekly braces advisory watch, 2026-10-06
 
 - Add a scheduled read-only workflow that checks braces GHSA-vfj7-8cjw-p6xm every Monday and fails, emailing the owner, when a patched release ships, the advisory is withdrawn or changes, or the check cannot run. Its logic is unit tested and runs first in `npm run verify`. No secrets, no write permissions, no new dependencies.
