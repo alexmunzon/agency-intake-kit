@@ -220,7 +220,7 @@ Last updated: 2026-10-04.
 3. He ships finished things: tests, docs, a deployed dashboard, a benchmark table, a changelog.
 4. He already works the way the Deployment Specialist JD describes: SQL and Python for validation and cleanup, Claude Code daily, BI views for reconciliation.
 
-**Who builds it.** Claude Code on Opus 5.5 does the building, one PR per session, following the five-step loop in section 9. Fable does a final sweep per project. Alex owns the spec, reviews every plan, and approves every merge.
+**Who builds it.** Claude Code on Opus 5.5 does the building, following the five-step loop in section 9 (there is no PR size limit). Fable does a final sweep per project. Alex owns the spec, reviews every plan, and approves every merge.
 
 ---
 
@@ -392,7 +392,7 @@ flowchart LR
 
 **Models.** Opus 5.5 in Claude Code builds. Fable runs the final sweep per project (correctness against SPEC, security and PII, performance, README and visual polish) in a fresh session with no build context.
 
-**The loop, per PR.** Documented in full in each build guide. In short: setup once so rules enforce themselves; spec before code (interview with AskUserQuestion, then SPEC.md with outcome, non-goals, files and tables, at least five concrete examples including what must be blocked (project 3 has six), and the end-to-end check); split into PRs under 400 lines, one PR per session per worktree; plan mode with subagents, edit the plan until it could be explained to a client; build test-first with the failing tests written from SPEC examples, run `npm run verify` and show output, screenshots at 1440 and 375 for UI; review with fresh eyes against SPEC in a new context, check the preview URL, open the PR, merge, delete the worktree, update the changelog; only then the next PR.
+**The loop, per PR.** Documented in full in each build guide. In short: setup once so rules enforce themselves; spec before code (interview with AskUserQuestion, then SPEC.md with outcome, non-goals, files and tables, at least five concrete examples including what must be blocked (project 3 has six), and the end-to-end check); split into PRs (no size limit; related changes may share one PR), one worktree per PR; plan mode with subagents, edit the plan until it could be explained to a client; build test-first with the failing tests written from SPEC examples, run `npm run verify` and show output, screenshots at 1440 and 375 for UI; review with fresh eyes against SPEC in a new context, check the preview URL, open the PR, merge, delete the worktree, update the changelog; only then the next PR.
 
 **Alex's standing build rules (from his own process).** Use subagents for investigation. Keep context under 40 percent; `/clear` and restart with a better prompt after two failed corrections. Never let the model that wrote the code be the only reviewer of that code. Define success with three to five real examples including what should be blocked before any code exists. Plain language in docs; explain a technical term in two sentences the first time.
 

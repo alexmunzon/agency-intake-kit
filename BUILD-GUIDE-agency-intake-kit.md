@@ -10,7 +10,7 @@ Last updated: 2026-10-04.
 
 ## 0. How to use this file
 
-- **One PR per session per worktree.** Never carry two PRs in one context. When a PR merges, the session ends.
+- **One worktree per PR.** No PR size limit; related changes may share one PR (Alex, 2026-10-06).
 - **Prompts are meant to be pasted.** Every block marked `PROMPT` is ready to paste into Claude Code with the bracketed parts filled in. Keep the wording; it encodes the guardrails.
 - **The checks enforce themselves.** After Step 1, `npm run verify` is the one command that must pass, and the Stop hook runs it whenever Claude tries to end a turn with uncommitted changes.
 - **Alex's rules apply throughout.** Subagents for investigation. Context under 40 percent, `/clear` after two failed corrections. Fresh eyes for review, never the model that wrote the code as the only reviewer. Success defined by concrete examples including what must be blocked. Plain language, no em dashes in any doc or UI string.
@@ -301,7 +301,7 @@ Agency intake toolkit for the Agency Data Trust Series. Synthetic data only. See
 - Docs and UI strings: plain language, no em dashes.
 
 ## Workflow
-- One PR per session per worktree. Branch names pr-NN-short-name. Under 400 changed lines.
+- One worktree per PR. Branch names pr-NN-short-name. No PR size limit; related changes may share one PR (Alex, 2026-10-06).
 - Tests first from SPEC examples, then implementation, then `npm run verify`, then show the output.
 - Update CHANGELOG.md in every PR.
 ```
@@ -350,7 +350,7 @@ Write SPEC.md, then stop. No code.
 
 ### 3.4 Splitting into PRs
 
-The PR plan in section 4 is already under 400 lines per PR. Copy it into SPEC.md. If the interview changes scope, edit the table there; SPEC.md wins over this guide from that point on.
+The PR plan in section 4 was sized under an old 400-line cap; there is no size limit now. Copy it into SPEC.md. If the interview changes scope, edit the table there; SPEC.md wins over this guide from that point on.
 
 ---
 
@@ -384,7 +384,7 @@ Rough calendar: PRs 1 to 5 in week one, 6 to 11 in week two, 12 to 15 in week th
 
 ## 5. Steps 3 to 5: the loop for every PR
 
-Run this loop exactly once per PR. Fresh session each time.
+Run this loop once per PR.
 
 ### 5.1 Open the worktree
 
@@ -405,7 +405,7 @@ Press `Shift+Tab` into plan mode, then paste (fill in NN and the PR name from th
 ```
 PROMPT (plan)
 
-Read SPEC.md, PR NN only, plus CLAUDE.md and BUILD-GUIDE-agency-intake-kit.md section 7.NN for this PR's detail. Use subagents to investigate how the code this PR touches works today (one subagent per area; report back only what matters for this PR). Then propose a plan: files to add or change with one line each on what changes; the tests to write first, named, each tied to a SPEC example or a rule id; risks and how the plan avoids them; what stays out of this PR. Keep the diff under 400 lines. Do not write code.
+Read SPEC.md, PR NN only, plus CLAUDE.md and BUILD-GUIDE-agency-intake-kit.md section 7.NN for this PR's detail. Use subagents to investigate how the code this PR touches works today (one subagent per area; report back only what matters for this PR). Then propose a plan: files to add or change with one line each on what changes; the tests to write first, named, each tied to a SPEC example or a rule id; risks and how the plan avoids them; what stays out of this PR. Do not write code.
 ```
 
 Edit the plan with `Ctrl+G` until you could explain it to a client in two minutes. Specific things to check in every plan: the tests are named and come first; thresholds go to `config.py`; nothing logs raw row values; lineage is preserved; the plan does not touch files outside the PR's list; CHANGELOG update is included. If the diff fits in one sentence, skip planning and go to build.
@@ -454,7 +454,7 @@ cd ../agency-intake-kit && git switch main && git pull
 git worktree remove ../aik-pr-NN && git branch -d pr-NN-short-name
 ```
 
-Only then open the next PR's session.
+Only then start the next PR.
 
 ---
 
@@ -837,7 +837,7 @@ Read the final README and the three fixtures' scorecards. Draft, in Alex's voice
 - **Cassette miss in CI.** Someone changed a prompt or a sample value, so the request hash changed. Re-record locally with approval, commit the new cassette, delete the orphaned one.
 - **Vercel preview failing while local build passes.** Usually a Node version or an import of a Node-only module in a client component. Pin Node 20 in `package.json` engines and in the Vercel project settings.
 - **verify takes too long for the Stop hook.** Split the hook per changed path as noted in 2.3; keep full verify in CI.
-- **Scope pressure.** If a PR wants to grow past 400 lines, split it: land the model and tests first, the behavior second.
+- **Scope pressure.** There is no size limit, but a PR that mixes unrelated work is harder to review; keep each PR to related changes.
 
 ---
 

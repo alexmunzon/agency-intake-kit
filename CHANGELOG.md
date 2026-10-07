@@ -26,6 +26,8 @@ One entry per PR.
 
 ## Unreleased
 
+- Docs: remove the 400-line PR cap and the one-PR-per-session rule from CLAUDE.md, SPEC.md, ROADMAP.md and the build guide (Alex, 2026-10-06). Every PR still gets tests first, an independent review, a green hosted check before merge, a live check after deploy, and Alex's approval for each push, PR and merge.
+
 - Connect the three separate recruiting demos with ordered navigation and a shared walkthrough. Preserve the seen-set, replay and pipeline-mismatch caveats when regenerating header-mapping benchmark documentation.
 
 - Fix the Exceptions page scrolling sideways on desktop windows about 1024 to 1150 pixels wide: the page column can now shrink beside the sidebar, so the wide table scrolls in its own box.

@@ -37,6 +37,6 @@ Agency intake toolkit for the Agency Data Trust Series. Synthetic data only. See
 - The repo path contains a space ("Data intake"). Quote every absolute path in shell commands and scripts.
 
 ## Workflow
-- One PR per session per worktree. Branch names pr-NN-short-name. Under 400 changed lines.
+- One worktree per PR. Branch names pr-NN-short-name. No PR size limit; related changes may share one PR (Alex, 2026-10-06).
 - Tests first from SPEC examples, then implementation, then `npm run verify`, then show the output.
 - Update CHANGELOG.md in every PR.
