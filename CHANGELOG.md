@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add a read-only, run-bound review-package summary with artifact hash checks, unavailable evidence states, preserved prior state on invalid replacement, and a synthetic snapshot packaging command. No production approval or automatic cross-demo joins.
+
 ## Warm brown palette restoration, 2026-10-07
 
 - Restore the shared ivory canvas, brown panels and sidebar, burgundy actions and accessible text accents in both themes. Preserve layout, typography, disclosures, review behavior and severity meanings.
