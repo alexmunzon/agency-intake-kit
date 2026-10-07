@@ -8,7 +8,7 @@ import { pathToFileURL } from "node:url";
 export const ADVISORY_ID = "GHSA-vfj7-8cjw-p6xm";
 const KNOWN_RANGE = "<= 3.0.3";
 const NEXT_STEP =
-  "Update braces in all three repos with full checks, then change SECURITY.md from partly removed to patched.";
+  "The braces package is not installed (local fast-glob stand-in); Vite still bundles a copy. Update Vite once it ships the fix, decide whether to return to upstream fast-glob, run full checks, and update SECURITY.md.";
 
 export function assess(advisory) {
   if (advisory?.withdrawn_at) {
