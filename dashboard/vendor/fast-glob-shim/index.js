@@ -28,8 +28,9 @@ function globOne(pattern, onlyDirectories) {
   }
   let found = fs.globSync(pattern).map((p) => p.replace(/\\/g, "/"));
   if (onlyDirectories) found = found.filter(isDirectory);
-  // Like fast-glob, hidden entries are skipped, and "base/**" does not match base itself.
-  found = found.filter((p) => !p.split("/").some((part) => part.startsWith(".") && part !== "." && part !== ".."));
+  // fs.globSync already skips hidden entries for wildcards and allows them when named, like
+  // fast-glob. Unlike fast-glob it can return "." for "**" and the base itself for "base/**".
+  found = found.filter((p) => p !== ".");
   const base = pattern.match(/^(.*?)\/\*\*\/?$/);
   if (base) found = found.filter((p) => p !== base[1].replace(/^\.\//, ""));
   return found;

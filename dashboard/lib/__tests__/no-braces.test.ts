@@ -32,7 +32,7 @@ describe("Next lint rootDir patterns behave as they did with fast-glob", () => {
   let dir = "";
   beforeAll(() => {
     dir = mkdtempSync(path.join(tmpdir(), "rootdirs-"));
-    for (const p of ["app/api", "lib/__tests__", "components/ui", "components/__tests__", ".hidden/x", "src/app"]) {
+    for (const p of ["app/api", "lib/__tests__", "components/ui", "components/__tests__", ".hidden/x", "src/app", ".cfg/a"]) {
       mkdirSync(path.join(dir, p), { recursive: true });
     }
     writeFileSync(path.join(dir, "README.md"), "x");
@@ -60,6 +60,8 @@ describe("Next lint rootDir patterns behave as they did with fast-glob", () => {
     ["README.md", []],
     ["lib/*", ["lib/__tests__"]],
     ["src/*/", ["src/app"]],
+    [".cfg/*/", [".cfg/a"]],
+    ["**/", ["app", "app/api", "components", "components/__tests__", "components/ui", "lib", "lib/__tests__", "src", "src/app"]],
   ])("%s", (pattern, expected) => {
     expect(dirsFor(pattern)).toEqual(expected);
   });
@@ -67,6 +69,10 @@ describe("Next lint rootDir patterns behave as they did with fast-glob", () => {
   it("handles a list of roots and the default", () => {
     expect(dirsFor(["app/", "lib/"])).toEqual(["app/", "lib/"]);
     expect(dirsFor()).toEqual([dir]);
+  });
+
+  it("finds folders under a hidden parent when the path is absolute", () => {
+    expect(dirsFor(path.join(dir, ".cfg/*/"))).toEqual([path.join(dir, ".cfg/a")]);
   });
 
   it("refuses brace and extglob patterns loudly instead of expanding them", () => {
