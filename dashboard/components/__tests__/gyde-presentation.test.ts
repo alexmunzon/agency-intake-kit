@@ -53,6 +53,7 @@ describe("Shared visual accessibility", () => {
       expect(value("sidebar-foreground")).toBe("#F7F3EB");
       expect(value("sidebar-muted-foreground")).toBe("#D3C0AD");
     }
+    expect(css).toContain(".app-sidebar :focus-visible { outline-color: var(--sidebar-ring); }");
     expect(css).toContain(".sidebar-link:hover { background: var(--sidebar-hover); }");
     expect(css).toContain(".theme-toggle:hover { background: var(--sidebar-hover); }");
     expect(css).toContain('background: var(--sidebar-hover); color: var(--sidebar-muted-foreground); border-color: var(--sidebar-border); opacity: 1;');

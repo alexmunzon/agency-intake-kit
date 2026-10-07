@@ -177,6 +177,7 @@ a, button, select, input, summary { -webkit-tap-highlight-color: transparent; }
 }
 .sidebar-link:hover { background: var(--sidebar-hover); }
 .sidebar-link[aria-current="page"] { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); font-weight: 650; border: 1px solid var(--border); }
+.app-sidebar :focus-visible { outline-color: var(--sidebar-ring); }
 .sidebar-link:focus-visible { outline-color: var(--sidebar-ring); }
 .sidebar-series { border-top: 1px solid var(--sidebar-border); padding: 20px; font-size: 12px; }
 .sidebar-series > p:first-child { font-weight: 600; }
