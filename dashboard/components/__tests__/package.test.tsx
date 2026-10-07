@@ -54,6 +54,6 @@ describe("Review package", () => {
       expect(labels).toContain(label);
     }
     expect(gates?.textContent).toContain("separate authorization and implementation");
-    expect(doc.querySelector("button")).toBeNull();
+    expect(doc.querySelector("button")?.textContent).toBe("Clear summary");
   });
 });

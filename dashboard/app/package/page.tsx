@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ReviewPackageSummary } from "@/components/review-package";
 
 export const metadata: Metadata = {
   title: "Synthetic review package | Agency Intake Kit",
@@ -24,10 +25,13 @@ export default function PackagePage() {
         </p>
       </header>
 
+      <ReviewPackageSummary />
+
+      <details className="space-y-4"><summary className="cursor-pointer py-3 font-semibold">Evidence guide and production limits</summary>
       <section aria-labelledby="package-scope" className={PANEL}>
         <div className="panel-heading"><h2 id="package-scope">Keep the evidence in scope</h2></div>
         <p className="mt-3 text-sm text-muted-foreground">
-          This page is a review guide, with no aggregate go-live verdict. Sources, exceptions, and tie-out show the demo or the run loaded
+          The summary above validates only its imported package, with no aggregate go-live verdict. The links below are a separate review guide. Sources, exceptions, and tie-out show the demo or the run loaded
           in this browser. Source readiness imports a separate dated snapshot; it does not automatically correspond to the loaded Intake run.
           The receipt ledger also opens its own export and does not inherit the loaded run.
           Companion dashboards open separate demos and do not inherit that run, agency, or review state.
@@ -120,6 +124,7 @@ export default function PackagePage() {
           <li><strong className="text-foreground">Agency data.</strong> Obtain explicit permission for real data and validate the agency-specific sources and mappings.</li>
         </ul>
       </section>
+      </details>
     </div>
   );
 }
