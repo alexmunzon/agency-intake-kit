@@ -18,7 +18,7 @@ const JEV_SCORES = [
 const JEV_HEADING: Partial<Record<JevMode, string>> = {
   replay: "Jev review (replay of saved answers)",
   live: "Jev review (live call)",
-  record: "Jev review (recorded live call)",
+  record: "Jev review (record mode)",
 };
 
 function Row({ term, value }: { term: string; value: ReactNode }) {

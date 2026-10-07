@@ -20,7 +20,7 @@ describe("LineageDrawer Jev scores", () => {
   it.each([
     ["replay", "Jev review (replay of saved answers)"],
     ["live", "Jev review (live call)"],
-    ["record", "Jev review (recorded live call)"],
+    ["record", "Jev review (record mode)"],
   ] as const)("labels where the Jev scores came from in %s mode", async (mode, heading) => {
     const run = await loadRunDir(path.resolve(import.meta.dirname, "../../public/demo-run"));
     const record = run.exceptions.find((item) => item.jev !== null);
@@ -39,5 +39,20 @@ describe("LineageDrawer Jev scores", () => {
 
     expect(screen.getByRole("heading", { name: "Jev review" })).toBeInTheDocument();
     expect(screen.getByText("Not reviewed by Jev.")).toBeInTheDocument();
+  });
+});
+
+describe("Exceptions page passes the run's Jev mode to the detail panel", () => {
+  it("shows the replay heading when a Jev-scored row is opened on the demo run", async () => {
+    const { ExceptionsPage } = await import("@/components/exceptions-page");
+    const { fireEvent } = await import("@testing-library/react");
+    const run = await loadRunDir(path.resolve(import.meta.dirname, "../../public/demo-run"));
+    expect(run.manifest.jev.mode).toBe("replay");
+    const scored = run.exceptions.find((item) => item.jev !== null)!;
+    render(<ExceptionsPage run={{ ...run, exceptions: [scored] }} />);
+
+    fireEvent.click(within(screen.getByRole("table")).getAllByRole("row")[1]);
+    const drawer = within(screen.getByRole("dialog"));
+    expect(drawer.getByRole("heading", { name: "Jev review (replay of saved answers)" })).toBeInTheDocument();
   });
 });
