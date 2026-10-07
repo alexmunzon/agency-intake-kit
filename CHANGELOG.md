@@ -1,5 +1,10 @@
 # Changelog
 
+## README screenshots refresh, 2026-10-07
+
+- Regenerate the README screenshots, the dark Overview screenshot and the demo GIF from the current design with `npm run shots` and `npm run demo-gif`. No dashboard, engine or data change.
+- The Overview screenshot check now asserts the readiness answer and every tile fit in the first 900px screen, instead of the whole page. The page grew past one screen when evidence sections were added, which blocked the refresh.
+
 ## Shared visual simplification, 2026-10-07
 
 - Use the shared warm offwhite page, white panels, charcoal text, dark-red primary action and neutral dark mode. Flatten card framing and decorative trim; preserve navigation geometry, routes, review gates and all evidence.
