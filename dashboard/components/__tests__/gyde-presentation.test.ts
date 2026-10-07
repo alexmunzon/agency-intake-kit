@@ -23,15 +23,40 @@ describe("Shared visual accessibility", () => {
     it(`${selector} keeps text, status icons, controls and focus readable`, () => {
       const value = theme(selector);
       for (const surface of ["background", "card"]) {
-        for (const ink of ["foreground", "muted-foreground", "status-error", "status-warning", "status-pass"]) {
+        for (const ink of ["foreground", "muted-foreground", "status-error", "status-warning", "status-pass", "brand-accent"]) {
           expect(contrast(value(ink), value(surface))).toBeGreaterThanOrEqual(4.5);
         }
         expect(contrast(value("border"), value(surface))).toBeGreaterThanOrEqual(3);
         expect(contrast(value("ring"), value(surface))).toBeGreaterThanOrEqual(3);
       }
+      for (const ink of ["sidebar-foreground", "sidebar-muted-foreground", "sidebar-ring", "sidebar-border"]) {
+        expect(contrast(value(ink), value("sidebar"))).toBeGreaterThanOrEqual(ink === "sidebar-border" || ink === "sidebar-ring" ? 3 : 4.5);
+      }
+      for (const ink of ["sidebar-foreground", "sidebar-muted-foreground"]) {
+        expect(contrast(value(ink), value("sidebar-hover"))).toBeGreaterThanOrEqual(4.5);
+      }
+      expect(contrast(value("sidebar-border"), value("sidebar-hover"))).toBeGreaterThanOrEqual(3);
+      expect(contrast(value("sidebar-accent-foreground"), value("sidebar-accent"))).toBeGreaterThanOrEqual(4.5);
       expect(contrast(value("primary-foreground"), value("brand-strong"))).toBeGreaterThanOrEqual(4.5);
     });
   }
+  it("uses the shared brown palette and stable sidebar in both modes", () => {
+    const light = theme(":root {");
+    const dark = theme(".dark {");
+    expect(light("background")).toBe("#F7F3EB");
+    expect(light("card")).toBe("#FFFDF8");
+    expect(dark("background")).toBe("#30251F");
+    expect(dark("card")).toBe("#403128");
+    for (const value of [light, dark]) {
+      expect(value("brand-strong")).toBe("#8F3D3D");
+      expect(value("sidebar")).toBe("#30251F");
+      expect(value("sidebar-foreground")).toBe("#F7F3EB");
+      expect(value("sidebar-muted-foreground")).toBe("#D3C0AD");
+    }
+    expect(css).toContain(".sidebar-link:hover { background: var(--sidebar-hover); }");
+    expect(css).toContain(".theme-toggle:hover { background: var(--sidebar-hover); }");
+    expect(css).toContain('background: var(--sidebar-hover); color: var(--sidebar-muted-foreground); border-color: var(--sidebar-border); opacity: 1;');
+  });
   it("separates focus from the selected action and avoids opacity for disabled controls", () => {
     expect(css).toContain(":focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }");
     expect(css).toContain("opacity: 1; background: var(--card); color: var(--muted-foreground); border-color: var(--border)");

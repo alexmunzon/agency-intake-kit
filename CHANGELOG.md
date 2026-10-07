@@ -1,5 +1,10 @@
 # Changelog
 
+## Warm brown palette restoration, 2026-10-07
+
+- Restore the shared ivory canvas, brown panels and sidebar, burgundy actions and accessible text accents in both themes. Preserve layout, typography, disclosures, review behavior and severity meanings.
+- Check sidebar text, hover, selected navigation and focus contrast alongside existing palette checks. Reconcile the saved design documentation with current tokens, type, layout and screenshot assertions.
+
 ## README screenshots refresh, 2026-10-07
 
 - Regenerate the README screenshots, the dark Overview screenshot and the demo GIF from the current design with `npm run shots` and `npm run demo-gif`. No dashboard, engine or data change.
