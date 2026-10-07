@@ -1,4 +1,7 @@
 import { test } from 'node:test';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { buildReviewPackage } from './review-package.mjs';
 
@@ -10,4 +13,9 @@ test('packages exact committed synthetic Intake bytes without combining demos', 
 test('refuses path escape and absent explicit agency', async () => {
  await assert.rejects(buildReviewPackage('dashboard/public/demo-run', 'example', ['../demo-finance.json']), /Unsafe/);
  await assert.rejects(buildReviewPackage('dashboard/public/demo-run', ''), /Explicit/);
+});
+
+// Keep descriptor-boundary regressions in the existing verify:scripts gate.
+test('safe snapshot reader refuses symlinks, FIFOs, oversized files and parent redirection', async () => {
+ await promisify(execFile)('python3', [fileURLToPath(new URL('./review-package-read.test.py', import.meta.url))]);
 });

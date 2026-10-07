@@ -2,6 +2,8 @@
 
 `/package` accepts one read-only, explicitly synthetic `review-package-1` JSON snapshot. It does not automatically combine the separately bundled Intake, Bob, readiness, ledger or Plan demos. Refresh clears the view. Same-agency and same-Intake-run imports must retain all existing artifact pins unchanged; explicitly Clear before replacing a snapshot. Failed replacement preserves the prior valid snapshot; Clear invalidates an in-flight import.
 
+The packaging helper requires Node 24 and Python 3 with descriptor-relative file support (macOS and Linux). It reads regular files through pinned directory descriptors, refuses symlinks and special files, and bounds total artifact bytes to 12 MB. Unsupported safe-read platforms fail closed.
+
 Create a basic snapshot from a completed synthetic Intake directory:
 
 ```sh
