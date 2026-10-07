@@ -167,3 +167,6 @@ export function parseFinanceReview(value: unknown): FinanceReview {
   // Rebuild from JSON so callers cannot retain aliases to an unvalidated object.
   return JSON.parse(JSON.stringify(review)) as FinanceReview;
 }
+
+// Shared exact decimal parser for ledger conservation checks.
+export { cents as financeCents };

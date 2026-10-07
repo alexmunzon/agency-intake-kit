@@ -16,13 +16,19 @@ from agency_schema.outputs import JevMode, RunStatus
 from agency_schema.typescript import render_typescript
 from intake import __version__
 from intake.config import JEV_CHARS_PER_TOKEN
+from intake.finance_cli import app as finance_local_app
+from intake.integration_cli import app as integration_app
 from intake.mapping.jev_mapping import MAPPING_CASSETTES
+from intake.source_readiness_cli import app as readiness_app
 from jev_client import JevClient
 
 # engine/src/intake/cli.py -> repo root
 DASHBOARD_TYPES = Path(__file__).resolve().parents[3] / "dashboard" / "lib" / "types.ts"
 
 app = typer.Typer(help="Agency intake pipeline. Synthetic data only.", no_args_is_help=True)
+app.add_typer(integration_app, name="integration")
+app.add_typer(readiness_app, name="readiness")
+app.add_typer(finance_local_app, name="finance-local")
 
 
 @app.callback()

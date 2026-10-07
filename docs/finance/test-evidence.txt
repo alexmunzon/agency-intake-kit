@@ -1,0 +1,228 @@
+# Finance validation evidence (2026-10-07)
+
+Status: focused checks pass; final combined full gate is pending Session 7. Historical failed attempts are retained verbatim below. These are synthetic software checks, not financial accuracy or deployment evidence.
+
+## Focused sample/provenance check
+
+Command: PYTHONPATH=engine/src engine/.venv/bin/python scripts/finance/sample.py (twice), compare SHA-256 manifests for fixtures/finance-durable/* and dashboard/public/demo-ledger.json, then run pytest test_finance_provenance.py -q and Ruff check/format --check on the sample script and provenance test.
+
+Result: both generations produced identical file hashes (empty diff); 1 passed in 0.78s; Ruff: All checks passed, 2 files already formatted.
+
+## Focused engine run (earlier)
+
+An engine worker additionally reported 22 finance adapter/store/CLI tests passed in 10.06s and Ruff checks on six files passed after its latest changes. Its exact log was not supplied here, so this is a reported result, separate from the verbatim older run below.
+
+
+........................................................................ [ 94%]
+....                                                                     [100%]
+76 passed in 2.86s
+
+## Focused dashboard run (earlier)
+
+
+ RUN  v5.0.3 /Users/alexmunzon/Data intake/aik-finance-durable/dashboard
+
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  09:06:15
+   Duration  17.73s (environment 70%, setup 15%, transform 6%, import 5%, tests 4%)
+
+Environment  jsdom was created 2 times · 10.62s total, 70% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+## Initial full engine wrapper attempt (historical, not a pass)
+
+
+> verify:engine
+> cd engine && uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
+
+error: Failed to initialize cache at `/Users/alexmunzon/.cache/uv`
+  cause: failed to open file `/Users/alexmunzon/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+## Initial full dashboard attempt (historical, not a pass)
+
+This ran before a proper worktree-local npm ci; its no-braces failures resolved to a borrowed agency-intake-kit node_modules path. The same attempt had three UI timeouts. npm ci subsequently installed 449 locked packages, but the final combined full gate has not run yet.
+
+
+> verify:dashboard
+> cd dashboard && npm run lint && npm run typecheck && npm run test && npm run build
+
+
+> dashboard@0.1.0 lint
+> eslint
+
+
+> dashboard@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+> dashboard@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /Users/alexmunzon/Data intake/aik-finance-durable/dashboard
+
+ ❯ components/__tests__/finance-review-panel.test.tsx (6 tests | 2 failed) 14461ms
+   ❯ FinanceReviewPanel (6)
+     × pages to the final source row while keeping full statement totals unchanged 5467ms
+     × resets the source page when the statement revision changes 5736ms
+ ❯ lib/__tests__/no-braces.test.ts (19 tests | 2 failed) 182ms
+   ❯ braces is gone from the install (2)
+     × gives Next's lint plugin the local stand-in instead of fast-glob 65ms
+   ❯ Next lint rootDir patterns behave as they did with fast-glob (17)
+     × refuses brace and extglob patterns loudly instead of expanding them 6ms
+ ❯ components/__tests__/demo-run.test.tsx (2 tests | 1 failed) 10915ms
+   ❯ the committed demo run (2)
+     × renders every page from the real files 8920ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/__tests__/no-braces.test.ts > braces is gone from the install > gives Next's lint plugin the local stand-in instead of fast-glob
+AssertionError: expected '/Users/alexmunzon/Data intake/agency-…' to be '/Users/alexmunzon/Data intake/aik-fin…' // Object.is equality
+
+Expected: "/Users/alexmunzon/Data intake/aik-finance-durable/dashboard/vendor/fast-glob-shim/index.js"
+Received: "/Users/alexmunzon/Data intake/agency-intake-kit/dashboard/node_modules/fast-glob/out/index.js"
+
+ ❯ lib/__tests__/no-braces.test.ts:26:22
+     24|   it("gives Next's lint plugin the local stand-in instead of fast-glob…
+     25|     const resolved = realpathSync(require.resolve("fast-glob", { paths…
+     26|     expect(resolved).toBe(realpathSync(path.join(root, "vendor/fast-gl…
+       |                      ^
+     27|   });
+     28| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  lib/__tests__/no-braces.test.ts > Next lint rootDir patterns behave as they did with fast-glob > refuses brace and extglob patterns loudly instead of expanding them
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ lib/__tests__/no-braces.test.ts:79:41
+     77|
+     78|   it("refuses brace and extglob patterns loudly instead of expanding t…
+     79|     expect(() => dirsFor("{app,lib}/")).toThrow(/not supported/);
+       |                                         ^
+     80|     expect(() => dirsFor("{a,{b,{c}}}/")).toThrow(/not supported/);
+     81|     expect(() => dirsFor("@(app|lib)/")).toThrow(/not supported/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  components/__tests__/demo-run.test.tsx > the committed demo run > renders every page from the real files
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ components/__tests__/demo-run.test.tsx:27:3
+     25|   });
+     26|
+     27|   it("renders every page from the real files", async () => {
+       |   ^
+     28|     const run = await loadRunDir(DEMO);
+     29|     const tieOut = await loadTieOut(DEMO, run);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  components/__tests__/finance-review-panel.test.tsx > FinanceReviewPanel > pages to the final source row while keeping full statement totals unchanged
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ components/__tests__/finance-review-panel.test.tsx:131:3
+    129|   });
+    130|
+    131|   it("pages to the final source row while keeping full statement total…
+       |   ^
+    132|     const review = makePaginatedReview();
+    133|     render(<FinanceReviewPanel statements={[review]} />);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  components/__tests__/finance-review-panel.test.tsx > FinanceReviewPanel > resets the source page when the statement revision changes
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ components/__tests__/finance-review-panel.test.tsx:153:3
+    151|   });
+    152|
+    153|   it("resets the source page when the statement revision changes", () …
+       |   ^
+    154|     const review = makePaginatedReview();
+    155|     const { rerender } = render(<FinanceReviewPanel statements={[revie…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  3 failed | 39 passed (42)
+      Tests  5 failed | 351 passed (356)
+   Start at  09:00:52
+   Duration  47.63s (environment 43%, tests 30%, setup 13%, import 8%, transform 6%)
+
+Environment  jsdom was created 42 times · 132.18s total, 43% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+## Outstanding
+
+Session 7 owns the final combined full gate. The local /ledger route returned HTTP 200; browser desktop, 375px, and console checks remain unverified after a numeric in-app browser timeout. No merge or deployment is claimed.
+
+## Final focused Sol engine regression run
+
+...............................................................          [100%]
+63 passed in 13.82s
+
+## Final focused Sol engine static checks
+
+All checks passed!
+7 files already formatted
+Success: no issues found in 3 source files
+
+## Final focused Sol dashboard run
+
+
+> dashboard@0.1.0 test
+> vitest run --run lib/__tests__/finance-ledger.test.ts components/__tests__/ledger-page.test.tsx
+
+
+ RUN  v5.0.3 /Users/alexmunzon/Data intake/aik-finance-durable/dashboard
+
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  09:15:00
+   Duration  18.65s (environment 70%, setup 16%, transform 7%, tests 4%, import 2%)
+
+
+Focused dashboard ESLint passed per the UI worker report; no separate exact log was supplied. The final combined repository gate remains pending Session 7.
+
+## Independent-review follow-up: CLI publication and page landmarks
+
+Session 7 identified the nested main landmark and a partial-file window in CLI import/export. Sol workers changed the page wrapper and added same-directory staged, synced, exclusive publication with failure and race tests. If post-publication directory syncing fails, a complete output may already exist. The combined full gate remains pending Session 7.
+
+### Focused dashboard follow-up
+
+
+> dashboard@0.1.0 test
+> vitest run --run lib/__tests__/finance-ledger.test.ts components/__tests__/ledger-page.test.tsx
+
+
+ RUN  v5.0.3 /Users/alexmunzon/Data intake/aik-finance-durable/dashboard
+
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  09:18:25
+   Duration  1.33s (environment 63%, setup 16%, transform 8%, tests 7%, import 6%)
+
+
+### Focused engine follow-up
+
+..................................................................       [100%]
+66 passed in 1.71s
+
+Engine static checks (Ruff, formatting, mypy) and focused dashboard ESLint passed per Sol worker reports; these follow-up reports did not include separate exact logs.

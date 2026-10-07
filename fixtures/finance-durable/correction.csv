@@ -1,0 +1,4 @@
+Value,Label,Kind
+110.00,Renewal,Payment
+-25.00,Renewal,Chargeback
+0.03,Unknown incentive,Payment

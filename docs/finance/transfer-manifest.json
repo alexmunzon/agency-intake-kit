@@ -1,0 +1,137 @@
+{
+  "artifact_type": "finance_transfer_manifest",
+  "base_commit": "275be53afdc6aecd33ac65defd9c980835127b49",
+  "files": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "ca9b1332f42545673d1b11fe75ea3c964d84ef960f7adf0d44002e3f77a7c0c7",
+      "size_bytes": 73214
+    },
+    {
+      "path": "dashboard/app/ledger/page.tsx",
+      "sha256": "f480fc64adc043d5c5a9b4f28e9987461b07f047c0cae786a2572148db493c8e",
+      "size_bytes": 4928
+    },
+    {
+      "path": "dashboard/components/__tests__/ledger-page.test.tsx",
+      "sha256": "a4759c48e746e67d2d4552eac3ea66c19fa73388c31d8b0ec32d8279e9f8aa40",
+      "size_bytes": 2170
+    },
+    {
+      "path": "dashboard/lib/__tests__/finance-ledger.test.ts",
+      "sha256": "50a7ad9506ae3d224ebb486afb9705864bea589c079639d4d74b7dca11be8954",
+      "size_bytes": 4778
+    },
+    {
+      "path": "dashboard/lib/finance-ledger.ts",
+      "sha256": "2aaf6a8e66b7fe3b2ff6dbaabeee2c9fa74fa23c302f0863a0302b1ca242ac66",
+      "size_bytes": 10316
+    },
+    {
+      "path": "dashboard/lib/finance-review.ts",
+      "sha256": "4ad9672577ac8435f7e29b3ab117097d916be8e08b64ac5fd92c001d5621e547",
+      "size_bytes": 11019
+    },
+    {
+      "path": "dashboard/public/demo-ledger.json",
+      "sha256": "01a73fd49a98bb9122be128f5051b645796e760278d609624644ec5ec0d6bc9b",
+      "size_bytes": 11663
+    },
+    {
+      "path": "docs/finance/HANDOFF.md",
+      "sha256": "5b59c63c0f6891b66b3911a373ca8858abbbf9056007957e84a967c689ebdea8",
+      "size_bytes": 3711
+    },
+    {
+      "path": "docs/finance/README.md",
+      "sha256": "eb7a30744e73cbad0782cf32f1f929ba7c656f305574084c331db82252cb03d3",
+      "size_bytes": 5953
+    },
+    {
+      "path": "docs/finance/test-evidence.txt",
+      "sha256": "2ee0198c54721eb6238d684be3feab3123410fe95bdbef4c434a09d834e5433c",
+      "size_bytes": 10070
+    },
+    {
+      "path": "engine/src/intake/finance_adapter.py",
+      "sha256": "f2b637b38158c5d8ef02e6e0b1b9c2993c0aed43b36f3a77464614bc148438a4",
+      "size_bytes": 5607
+    },
+    {
+      "path": "engine/src/intake/finance_cli.py",
+      "sha256": "012ec07cf9594dde33b6209dc735319068f7d03f98819225c40b7ea7110653af",
+      "size_bytes": 3017
+    },
+    {
+      "path": "engine/src/intake/finance_store.py",
+      "sha256": "6d68ea878644b3d8dafdf679f384dc8ac48692d273d14897a675f1aa3ab5d840",
+      "size_bytes": 5461
+    },
+    {
+      "path": "engine/tests/unit/test_finance_adapter.py",
+      "sha256": "deaaec1a4232ca0c177b7d11b37d9e07aec78d121c4c6fc28a73b1d4c26f08c6",
+      "size_bytes": 4287
+    },
+    {
+      "path": "engine/tests/unit/test_finance_cli.py",
+      "sha256": "5501080318468bd1750f78362d310a42c1bacf9f86e9c8e7461a8b64f33af16c",
+      "size_bytes": 4104
+    },
+    {
+      "path": "engine/tests/unit/test_finance_provenance.py",
+      "sha256": "a1133316fea29260896fe9c7e061510403ee4c14b3628ba434344e58bf969625",
+      "size_bytes": 3375
+    },
+    {
+      "path": "engine/tests/unit/test_finance_store.py",
+      "sha256": "0a4c766bdc1d080849a45fbfaf4704d597663434cbadc1f5b6c8e07735ce5545",
+      "size_bytes": 7006
+    },
+    {
+      "path": "fixtures/finance-durable/adapter-xlsx.json",
+      "sha256": "3ac7d9bf584becd9ab54d6483df0d4305d2b5c9b58aff948120f7c783c3ba335",
+      "size_bytes": 598
+    },
+    {
+      "path": "fixtures/finance-durable/adapter.json",
+      "sha256": "bce31d5e374012f89b91b73caa6d10cf40526dfc4a9563471749f2c31da5fd48",
+      "size_bytes": 597
+    },
+    {
+      "path": "fixtures/finance-durable/batch.json",
+      "sha256": "30283c69960e1dc17d5cca6f9254245c0c7ceeaff83b335f864d1d7bbd8725e6",
+      "size_bytes": 6674
+    },
+    {
+      "path": "fixtures/finance-durable/correction.csv",
+      "sha256": "0f4d399c507c3e6715f6a66c981802f1e293e878c278fc5871498976b325b3ec",
+      "size_bytes": 97
+    },
+    {
+      "path": "fixtures/finance-durable/ledger.json",
+      "sha256": "01a73fd49a98bb9122be128f5051b645796e760278d609624644ec5ec0d6bc9b",
+      "size_bytes": 11663
+    },
+    {
+      "path": "fixtures/finance-durable/provenance.json",
+      "sha256": "8d52a417008ec45961950c9e138f14be48afd0970a0153a769c6b62f324d0845",
+      "size_bytes": 5935
+    },
+    {
+      "path": "fixtures/finance-durable/statement.csv",
+      "sha256": "a4ec7a0a263045225e71209e7e6cd281568350ee10fd8408ff951426fc9c322b",
+      "size_bytes": 97
+    },
+    {
+      "path": "fixtures/finance-durable/statement.xlsx",
+      "sha256": "0788590b0e9ed48339beae99efe5ae090fbfe9cc7f2aca5a775dbb5d994cd65d",
+      "size_bytes": 4937
+    },
+    {
+      "path": "scripts/finance/sample.py",
+      "sha256": "90eec5e98895e4902ed582eab1b48558807d4178550463290c4f038422e0da7d",
+      "size_bytes": 5916
+    }
+  ],
+  "schema_version": "1.0.0"
+}

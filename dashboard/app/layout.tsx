@@ -8,14 +8,17 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Agency Intake Kit",
   description:
-    "Can this agency go live? Validation, tie-out, and readiness checks for a newly acquired insurance agency's book of business. Synthetic data only.",
+    "Review source coverage, exceptions, financial tie-out, and independent release evidence. Synthetic data only; production access and human approval require separate evidence.",
 };
 
 const PAGES: { label: string; href: string }[] = [
   { label: "Overview", href: "/" },
+  { label: "Review package", href: "/package" },
   { label: "Sources", href: "/sources" },
+  { label: "Source readiness", href: "/readiness" },
   { label: "Exceptions", href: "/exceptions" },
   { label: "Tie-out", href: "/tie-out" },
+  { label: "Receipt ledger", href: "/ledger" },
   { label: "Agents", href: "/agents" },
   { label: "Runs", href: "/runs" },
 ];
@@ -60,6 +63,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </nav>
           <main id="main-content" tabIndex={-1} className="app-main min-w-0">
             <LoadedRunBanner />
+            <aside aria-label="Review scope" className="mb-6 rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+              Synthetic review only. Source completeness, exclusions, identity uncertainty, and financial totals require separate evidence. Browser review labels are not authenticated approval.
+            </aside>
             {children}
           </main>
         </LoadedRunProvider>

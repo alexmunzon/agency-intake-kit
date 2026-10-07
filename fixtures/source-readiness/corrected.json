@@ -1,0 +1,70 @@
+{
+  "artifact_type": "source_readiness",
+  "schema_version": "1.0.0",
+  "data_kind": "synthetic",
+  "agency_id": "agency-synthetic",
+  "intake_run_id": null,
+  "run_id": "synthetic-readiness-1",
+  "as_of": "2026-10-07T12:00:00Z",
+  "expected_inventory": [
+    {
+      "agency_id": "agency-synthetic",
+      "carrier": "Harborline",
+      "file_type": "statement",
+      "period": "2026-09",
+      "minimum_source_date": "2026-09-30",
+      "owner": "Synthetic operations",
+      "next_action": "Review source evidence"
+    }
+  ],
+  "versions": [
+    {
+      "version_id": "v1",
+      "agency_id": "agency-synthetic",
+      "carrier": "Harborline",
+      "file_type": "statement",
+      "period": "2026-09",
+      "source_date": "2026-09-30",
+      "file_name": "statement.csv",
+      "file_sha256": "fb161edfe28ce8cf01c889cb2f26e6c371560413c998c69c486edbc6548e78f1",
+      "supersedes_version_id": null
+    },
+    {
+      "version_id": "v2",
+      "agency_id": "agency-synthetic",
+      "carrier": "Harborline",
+      "file_type": "statement",
+      "period": "2026-09",
+      "source_date": "2026-09-30",
+      "file_name": "statement.csv",
+      "file_sha256": "cd7f54407e55485b2f34bbb3a388285460c804e078afd9a0e422593a79251c28",
+      "supersedes_version_id": "v1"
+    }
+  ],
+  "receipts": [
+    {
+      "receipt_id": "r1",
+      "version_id": "v1",
+      "received_at": "2026-10-01T12:00:00Z",
+      "owner": "Synthetic operations",
+      "next_action": "Review source evidence"
+    },
+    {
+      "receipt_id": "r-v2",
+      "version_id": "v2",
+      "received_at": "2026-10-02T12:00:00Z",
+      "owner": "Synthetic operations",
+      "next_action": "Review source evidence"
+    }
+  ],
+  "evidence": [
+    {
+      "sha256": "fb161edfe28ce8cf01c889cb2f26e6c371560413c998c69c486edbc6548e78f1",
+      "content": "synthetic statement\namount\n10.00\n"
+    },
+    {
+      "sha256": "cd7f54407e55485b2f34bbb3a388285460c804e078afd9a0e422593a79251c28",
+      "content": "synthetic correction\n20.00\n"
+    }
+  ]
+}
