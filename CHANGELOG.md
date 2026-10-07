@@ -1,5 +1,9 @@
 # Changelog
 
+## Weekly braces advisory watch, 2026-10-06
+
+- Add a scheduled read-only workflow that checks braces GHSA-vfj7-8cjw-p6xm every Monday and fails, emailing the owner, when a patched release ships, the advisory is withdrawn or changes, or the check cannot run. Its logic is unit tested and runs first in `npm run verify`. No secrets, no write permissions, no new dependencies.
+
 ## Remove shadcn package, 2026-10-06
 
 - Vendor shadcn@4.21.1 `dist/tailwind.css` unchanged (hash-pinned by a test, MIT license alongside) and uninstall the shadcn package. This removes four of the five install paths to braces GHSA-vfj7-8cjw-p6xm (no patched release) and 232 packages; no package version changed. The lint-only `eslint-config-next` path remains and is documented in SECURITY.md. The compiled stylesheet is identical, so the site looks and behaves the same.

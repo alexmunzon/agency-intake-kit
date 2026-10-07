@@ -1,0 +1,29 @@
+name: braces advisory watch
+
+# Weekly check of braces GHSA-vfj7-8cjw-p6xm. The job fails, and GitHub emails the owner, when a
+# patched release ships, the advisory is withdrawn or changes, or the check cannot run.
+on:
+  schedule:
+    - cron: "17 15 * * 1" # Mondays 15:17 UTC (08:17 Pacific in summer)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+
+      - name: Check advisory
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/braces-advisory.mjs
