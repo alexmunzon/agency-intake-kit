@@ -1,0 +1,95 @@
+{
+  "run_id": "intake-synthetic-v1",
+  "started_at": "2026-10-01T00:00:00Z",
+  "finished_at": "2026-10-01T00:00:00Z",
+  "as_of": "2026-10-01T00:00:00Z",
+  "engine_version": "0.0.0",
+  "status": "PASSED_WITH_WARNINGS",
+  "status_reason": "No blockers. 0 errors keep their rows out of the load files and 6 warnings pass with a flag.",
+  "inputs": [
+    {
+      "source": "crm",
+      "file_name": "crm_export.csv",
+      "sha256": "70f5f898b7e1a4c6b68eabf862a236cc107d1de0183568548bca8924da7af3c3",
+      "rows_expected": 10,
+      "rows_received": 10
+    },
+    {
+      "source": "enrollment",
+      "file_name": "enrollment_export.csv",
+      "sha256": "4ac869d42e05e68ded54434ba3f3034498646a7185b9d6a236e198889b9b710a",
+      "rows_expected": 8,
+      "rows_received": 8
+    },
+    {
+      "source": "statement_northwind_health",
+      "file_name": "commissions_northwind_health.xlsx",
+      "sha256": "dacd2bc78db859ad13e23709d61d2e26c2e27ea502168cbde2c5f81cdc3bc7e7",
+      "rows_expected": 0,
+      "rows_received": 0
+    },
+    {
+      "source": "statement_bluepeak",
+      "file_name": "commissions_bluepeak.xlsx",
+      "sha256": "bbe1b88a275179c8b10627c6889c3a560ee929de47b161c405a753cf02e3c1cf",
+      "rows_expected": 9,
+      "rows_received": 9
+    },
+    {
+      "source": "statement_harborline",
+      "file_name": "commissions_harborline.xlsx",
+      "sha256": "3450328931083e28f35d7ca146cc9d5e90db134594a7ad0b0e1538b51607f6ff",
+      "rows_expected": 3,
+      "rows_received": 3
+    },
+    {
+      "source": "statement_cardinal_mutual",
+      "file_name": "commissions_cardinal_mutual.xlsx",
+      "sha256": "43a53c0248005bc69af201feebc2e7d43702c0fa465a98b420c32f32d67dd865",
+      "rows_expected": 0,
+      "rows_received": 0
+    },
+    {
+      "source": "statement_summit_health_plans",
+      "file_name": "commissions_summit_health_plans.xlsx",
+      "sha256": "f727aec03afa8e01f4043d7cef2f745fbd407938052d48897014206a0ae448d8",
+      "rows_expected": 6,
+      "rows_received": 6
+    },
+    {
+      "source": "statement_meridian_care",
+      "file_name": "commissions_meridian_care.xlsx",
+      "sha256": "23d932043e2ba6d992a234070cd9172afa35c141b41662f2175d451798897c29",
+      "rows_expected": 9,
+      "rows_received": 9
+    },
+    {
+      "source": "roster",
+      "file_name": "agent_roster.xlsx",
+      "sha256": "b7ee9ec7f4abebd482eb7eea9578f0429fdf8a4cbf4310fa36e2ed972f3e1984",
+      "rows_expected": 53,
+      "rows_received": 53
+    }
+  ],
+  "jev": {
+    "mode": "off",
+    "calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "estimated_cost_usd": "0.000000",
+    "invalid_answers": 0
+  },
+  "budget_tripped": false,
+  "thresholds": {
+    "jev_budget_usd": 0.5,
+    "map_auto_confidence": 0.85,
+    "map_review_confidence": 0.6,
+    "enum_auto_confidence": 0.85,
+    "pii_redact_probability": 0.5,
+    "tie_line_tolerance_pct": 0.01,
+    "tie_line_tolerance_usd": 1.0,
+    "tie_total_tolerance_pct": 0.005,
+    "triage_business_event_max": 0.2,
+    "triage_entry_error_min": 0.8
+  }
+}

@@ -1,5 +1,21 @@
 # Changelog
 
+## Offline integration CLI and local command registration, 2026-10-07
+
+- Add `intake integration export` for actual saved clean records and unresolved evidence, with explicit agency and expected run IDs and synthetic labeling. Publish canonical packets atomically to new files, preserving any existing successful output.
+- Register the source readiness commands as `intake readiness` and durable local receipt commands as `intake finance-local`. Add concrete cross-repository command examples and focused registration, deterministic retry, malformed-input, and publication-failure tests.
+- Hash pins establish byte consistency rather than authentication. Review evidence remains visible; automatic identities and plan flags do not imply human approval or suitability.
+
+## Durable local finance ledger sample, 2026-10-07
+
+- Add synthetic CSV/XLSX statement inputs, receipt batch, neutral ledger export, and a finance provenance sidecar with exact-byte pins. The sidecar links every row of the original, duplicate, and corrected revisions to its source data row and ledger position. Repeated generation yields identical artifacts.
+- Document the local workflow, contract boundary, review limits, integration handoff, and focused validation. The shared CLI registration and `/ledger` navigation are reserved for Session 7; no merge or deployment is claimed here.
+
+## Source readiness (unreleased)
+
+- Add explicit expected-file coverage, immutable correction evidence, duplicate delivery retention, scoped readiness commands and a dedicated local-only page.
+- Add reusable onboarding archives with Session 1-compatible artifact pins and synthetic edge-case fixtures. Malformed imports preserve the prior valid snapshot. Shared CLI/navigation registration belongs to Session 7.
+
 ## Jev review label on exception details, 2026-10-07
 
 - The exception detail panel said "Jev AI review" without saying the scores were replayed from saved answers. It now names the run's Jev mode (for the demo: "Jev review (replay of saved answers)") and says the scores are the model's own numbers, not measured accuracy, matching the mapping review panel. Wording only; no scores, rules or data change.
@@ -464,3 +480,11 @@ One entry per PR.
 - Clean rows are a committed number (#80). `scorecard.json` `detection` gains `clean_rows` (rows that hold no planted mistake, the false alarm denominator) and `false_positive_rows`, both from the scorer that already printed them. The model checks that the false positive rate is one divided by the other. The demo run now records 11,234 clean rows and 0 false alarm rows, and the README and release notes cite that file instead of the `npm run demo` printout. `rows_clean` (rows written to `clean/`) is a different count and is unchanged. Types regenerated; the two sample runs with detection gained plausible values (7,000 clean rows, 7 false alarm rows, rate 0.001).
 - report.html shows the status in words (#78): "Passed", "Passed with warnings", or "Failed", the same labels as the dashboard. The code stays in a `data-status` attribute.
 - Run time is honest under a frozen clock (#77). With `--as-of`, both times are pinned, so the Overview and report.html say "Run time: not measured (frozen clock)" instead of "0 seconds". A real clock still shows the measured duration.
+
+## Unreleased: integration contract v1
+
+- Add an offline adapter for actual clean clients/policies, versioned schema, exact file hashes,
+  full row provenance, and visible unsupported/review evidence. No CLI or dashboard changes.
+- Include an eight-client synthetic pipeline fixture and deterministic/stale-input tests.
+- Reject malformed CSV quoting and rows with missing or surplus cells, retaining pinned
+  artifact row references for review; verify original provenance and private notes exclusion.

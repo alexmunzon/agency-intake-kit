@@ -1,0 +1,21 @@
+{
+  "source_sha256": "a4ec7a0a263045225e71209e7e6cd281568350ee10fd8408ff951426fc9c322b",
+  "adapter_version": "synthetic-layout-v1",
+  "agency_id": "synthetic-agency",
+  "carrier": "Synthetic Carrier",
+  "period": "2026-09",
+  "statement_id": "synthetic-september",
+  "revision_id": "r1",
+  "run_id": "synthetic-finance-run",
+  "format": "csv",
+  "amount_column": "Value",
+  "category_column": "Label",
+  "transaction_column": "Kind",
+  "row_id_column": null,
+  "header_row": 1,
+  "last_data_row": null,
+  "sheet": null,
+  "delimiter": ",",
+  "encoding": "utf-8-sig",
+  "control_total": "75.03"
+}

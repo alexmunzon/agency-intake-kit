@@ -14,7 +14,10 @@ describe("RootLayout", () => {
     expect(doc.querySelector('a[href="#main-content"]')?.textContent).toBe("Skip to content");
     expect(doc.querySelector("main")?.id).toBe("main-content");
     expect(doc.querySelector("main")?.getAttribute("tabindex")).toBe("-1");
-    expect(doc.querySelectorAll('nav[aria-label="Main"] ul a')).toHaveLength(6);
+    expect(doc.querySelectorAll('nav[aria-label="Main"] ul a')).toHaveLength(9);
+    expect(doc.querySelector('a[href="/package"]')?.textContent).toBe("Review package");
+    expect(doc.querySelector('a[href="/readiness"]')?.textContent).toBe("Source readiness");
+    expect(doc.querySelector('a[href="/ledger"]')?.textContent).toBe("Receipt ledger");
   });
 
   it("lets the page column shrink beside the sidebar so wide tables scroll in their own box", () => {
