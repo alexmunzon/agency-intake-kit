@@ -4,7 +4,7 @@ import { useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent, type React
 
 import { SeverityBadge } from "@/components/severity-badge";
 import { percent, toneOf } from "@/lib/exceptions";
-import type { ExceptionRecord } from "@/lib/types";
+import type { ExceptionRecord, JevMode } from "@/lib/types";
 
 // One exception in full: what it is, where it came from, and how to fix it. Closes on Escape.
 // It acts as a modal: the page behind it is inert, Tab stays inside, and focus returns on close.
@@ -14,6 +14,12 @@ const JEV_SCORES = [
   { key: "impact_score", label: "Impact score on the load (0 to 2)", max: 2, format: (score: number) => `${score.toFixed(2)} / 2` },
   { key: "pii_probability", label: "Chance this is private data", max: 1, format: percent },
 ] as const;
+// Say where the scores came from, the same way the mapping review panel does.
+const JEV_HEADING: Partial<Record<JevMode, string>> = {
+  replay: "Jev review (replay of saved answers)",
+  live: "Jev review (live call)",
+  record: "Jev review (record mode)",
+};
 
 function Row({ term, value }: { term: string; value: ReactNode }) {
   return (
@@ -24,7 +30,7 @@ function Row({ term, value }: { term: string; value: ReactNode }) {
   );
 }
 
-export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; onClose: () => void }) {
+export function LineageDrawer({ record, jevMode, onClose }: { record: ExceptionRecord; jevMode?: JevMode; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -97,9 +103,11 @@ export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; on
         <Row term="Blocks the load" value={record.blocks_load ? "Yes" : "No"} />
       </dl>
       {!lineage && <p className="mt-1 text-xs text-muted-foreground">This is about the whole file, not one row.</p>}
-      <h3 className="mt-4 font-medium">Jev AI review</h3>
+      <h3 className="mt-4 font-medium">{(jevMode && JEV_HEADING[jevMode]) ?? "Jev review"}</h3>
       {jev ? (
-        <dl>
+        <>
+          <p className="text-xs text-muted-foreground">Scores are the model&apos;s own numbers, not measured accuracy.</p>
+          <dl>
           {JEV_SCORES.filter(({ key }) => jev[key] !== null).map(({ key, label, max, format }) => (
             <Row
               key={key}
@@ -114,7 +122,8 @@ export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; on
               }
             />
           ))}
-        </dl>
+          </dl>
+        </>
       ) : (
         <p className="text-muted-foreground">Not reviewed by Jev.</p>
       )}
