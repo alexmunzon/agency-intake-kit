@@ -3,11 +3,11 @@
   "status": "PASSED_WITH_WARNINGS",
   "rows_in": 14879,
   "rows_mapped": 13032,
-  "rows_clean": 12836,
+  "rows_clean": 12833,
   "exceptions_by_severity": {
     "blocker": 0,
-    "error": 308,
-    "warning": 423,
+    "error": 311,
+    "warning": 426,
     "info": 13
   },
   "exceptions_by_rule": {
@@ -33,8 +33,8 @@
     "RTS-001": 27,
     "RTS-002": 8,
     "STA-001": 52,
-    "TIE-001": 131,
-    "TIE-002": 68,
+    "TIE-001": 134,
+    "TIE-002": 71,
     "TIE-003": 66,
     "TIE-004": 40,
     "TIE-005": 48
@@ -44,27 +44,27 @@
       "leg": "BOOK_VS_STATEMENT",
       "status": "RAN",
       "not_run_reason": null,
-      "matched": 6400,
-      "unmatched": 131,
+      "matched": 6397,
+      "unmatched": 134,
       "weak_matched": 0,
-      "variance_count": 131,
-      "variance_dollars": "3518.15"
+      "variance_count": 134,
+      "variance_dollars": "3530.75"
     },
     {
       "leg": "STATEMENT_VS_BOOK",
       "status": "RAN",
       "not_run_reason": null,
-      "matched": 6520,
-      "unmatched": 68,
+      "matched": 6517,
+      "unmatched": 71,
       "weak_matched": 0,
-      "variance_count": 68,
-      "variance_dollars": "1567.40"
+      "variance_count": 71,
+      "variance_dollars": "1580.00"
     },
     {
       "leg": "CRM_VS_STATEMENT",
       "status": "RAN",
       "not_run_reason": null,
-      "matched": 2177,
+      "matched": 2176,
       "unmatched": 40,
       "weak_matched": 0,
       "variance_count": 40,
