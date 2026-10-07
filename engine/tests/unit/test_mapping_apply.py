@@ -340,3 +340,62 @@ def test_a_masked_header_cannot_be_decided_or_matched_by_its_raw_value(tmp_path:
         assert result.exit_code == 2, result.output
         assert "6789" not in result.output
     assert not (tmp_path / "agency" / "mapping").exists()
+
+
+def _two_source_world(world: dict[str, Path]) -> None:
+    """The same export dropped again under a second source, enrollment."""
+    (world["drop"] / "enroll.csv").write_text((world["drop"] / "crm.csv").read_text())
+    files = [
+        {"source": "crm", "file_name": "crm.csv", "sheet": None, "rows": 2},
+        {"source": "enrollment", "file_name": "enroll.csv", "sheet": None, "rows": 2},
+    ]
+    (world["drop"] / "manifest.json").write_text(json.dumps({"files": files}))
+    item = {**_item("Cust Ref", "clients.email"), "source": "enrollment",
+            "file_name": "enroll.csv",
+            "item_id": _item_id("enrollment", "Cust Ref", "enroll.csv")}  # fmt: skip
+    path = world["run"] / "mapping_review.json"
+    review = json.loads(path.read_text())
+    review["items"].append(item)
+    path.write_text(json.dumps(review))
+
+
+def test_a_write_that_fails_part_way_names_what_was_written(
+    world: dict[str, Path], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from intake.mapping import apply as apply_module
+
+    _two_source_world(world)
+    real = apply_module.save_mapping
+    calls: list[str] = []
+
+    def flaky(mapping_dir: Path, mapping: SourceMapping) -> Path:
+        calls.append(mapping.source)
+        if len(calls) == 2:
+            raise OSError("disk full")
+        return real(mapping_dir, mapping)
+
+    monkeypatch.setattr(apply_module, "save_mapping", flaky)
+    first = _decision("Cust Ref", "approve", "clients.email")
+    second = {**first, "source": "enrollment",
+              "item_id": _item_id("enrollment", "Cust Ref", "enroll.csv")}  # fmt: skip
+    result = _apply(world, _decisions(first, second))
+    assert result.exit_code == 2, result.output
+    assert "Nothing was written" not in result.output
+    written = mapping_path(world["mapping"], calls[0])
+    assert written.exists() and str(written) in result.output
+    assert ".yaml.prev" in result.output
+    assert not mapping_path(world["mapping"], calls[1]).exists()
+
+
+def test_a_problem_found_before_writing_writes_nothing(
+    world: dict[str, Path], tmp_path: Path
+) -> None:
+    _two_source_world(world)
+    world["mapping"].mkdir(parents=True)
+    (world["mapping"] / "enrollment.yaml").symlink_to(tmp_path / "elsewhere.yaml")
+    first = _decision("Cust Ref", "approve", "clients.email")
+    second = {**first, "source": "enrollment",
+              "item_id": _item_id("enrollment", "Cust Ref", "enroll.csv")}  # fmt: skip
+    result = _apply(world, _decisions(first, second))
+    assert result.exit_code == 2 and "Nothing was written" in result.output
+    assert not mapping_path(world["mapping"], "crm").exists()

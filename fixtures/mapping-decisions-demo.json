@@ -1,0 +1,25 @@
+{
+  "run_id": "demo",
+  "mapping_version": "crm-ea3cbc54470b,enrollment-485b9ca96d87,roster_agents-4c14808f2905,roster_rts-ed923df2a750,statement_bluepeak-cb118103e001,statement_cardinal_mutual-010cb81a6105,statement_harborline-cc93f6dde2ae,statement_meridian_care-da280ba76147,statement_northwind_health-5549f996375c,statement_summit_health_plans-6d99814c1b04",
+  "reviewer": "Test Reviewer",
+  "decided_at": "2026-10-02T10:00:00.000Z",
+  "note": "a reviewer's note, not an authenticated approval",
+  "decisions": [
+    {
+      "item_id": "mr-440d96e686c1",
+      "source": "enrollment",
+      "header": "Birth Dt (mm/dd/yy)",
+      "format_fingerprint": "2de5effafdca4c2e",
+      "action": "approve",
+      "field": "clients.dob"
+    },
+    {
+      "item_id": "mr-ccf851b02ef5",
+      "source": "statement_northwind_health",
+      "header": "Paid",
+      "format_fingerprint": "e1cd92240dc1ea8c",
+      "action": "ignore",
+      "field": null
+    }
+  ]
+}

@@ -10,6 +10,8 @@ agency-intake-kit takes the files a newly acquired insurance agency hands over (
 
 Measured on the committed demo run of the synthetic agency (seed 42), in `dashboard/public/demo-run/scorecard.json`:
 
+These numbers describe the v1.0.0 demo run. The live demo run has since been regenerated from the current engine, so some counts differ; see the README for current numbers.
+
 - **All 717 planted mistakes found across 22 scored mistake types**, recall 1.00 for every type. Recall is the share of planted mistakes found.
 - **0 false alarms on 11,234 clean rows** (`detection.clean_rows` in `dashboard/public/demo-run/scorecard.json`). A false alarm is a problem raised on a row with no planted mistake.
 - Status passed with warnings: 14,879 rows read, 12,836 clean, 0 blockers, 308 errors, 423 warnings, 13 info.

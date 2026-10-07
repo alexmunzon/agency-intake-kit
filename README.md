@@ -32,7 +32,7 @@ Canonical locks are `engine/uv.lock` and `dashboard/package-lock.json`. The publ
 ## Two-minute tour
 
 1. Open the [live demo](https://agency-intake-kit.vercel.app), which starts on the Overview page.
-2. Read the answer at the top: "Yes, with fixes to review," with 0 blockers, 308 errors, and 423 warnings.
+2. Read the answer at the top: "Yes, with fixes to review," with 0 blockers, 311 errors, and 426 warnings.
 3. Open Exceptions to see every problem sorted by severity, with its rule and source file.
 4. Click any row to open the drawer, which shows the suggested fix and the exact file, sheet, and row the problem came from.
 5. Open Tie-out and find the $61.05 that Harborline paid in August for a member who is on no policy in the book.
@@ -60,7 +60,7 @@ I am Alex Munzon, a UCLA business economics student. I built this as a working a
 
 ## Results (synthetic)
 
-From the committed demo run of the synthetic agency (`dashboard/public/demo-run/scorecard.json`, made by `npm run demo`). Status: **passed with warnings**. 14,879 rows read, 12,836 clean and ready to load. 0 blockers, 308 errors (rows held out of the load files), 423 warnings (rows load with a flag), 13 info notes.
+From the committed demo run of the synthetic agency (`dashboard/public/demo-run/scorecard.json`, made by `npm run demo`). Status: **passed with warnings**. 14,879 rows read, 12,833 clean and ready to load. 0 blockers, 311 errors (rows held out of the load files), 426 warnings (rows load with a flag), 13 info notes.
 
 Recall is the share of planted mistakes the kit found. A false alarm is a problem raised on a row with no planted mistake. The end-to-end test fails, and so does every check, if recall drops below 0.95 for any type or false alarms rise above 0.5 percent (`engine/tests/e2e/test_agency_a.py`).
 
@@ -89,7 +89,7 @@ Recall is the share of planted mistakes the kit found. A false alarm is a proble
 | Policy id reused with different details | DUP-003 | 8 | 8 |
 | Ready-to-sell status had expired | RTS-002 | 8 | 8 |
 
-The tie-out found $5,085.55 in dollar differences across 239 items, plus 114 commissions off the rate table or statement totals ($7,018.44), so the Tie-out page lists 353 differences to review. The generator also plants identity mistakes (name typos, nicknames, swapped birth dates) for the next project, bob-resolve. This kit reports them but does not score them, by design.
+The tie-out found $5,110.75 in dollar differences across 245 items, plus 114 commissions off the rate table or statement totals ($7,018.44), so the Tie-out page lists 359 differences to review. The generator also plants identity mistakes (name typos, nicknames, swapped birth dates) for the next project, bob-resolve. This kit reports them but does not score them, by design.
 
 ## The five dashboard questions
 

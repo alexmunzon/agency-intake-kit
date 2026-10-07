@@ -251,14 +251,25 @@ def mapping_apply(
     """Save a reviewer's mapping decisions into mapping/<source>.yaml beside the drop.
 
     Refused, with nothing written, unless every decision matches the run's mapping_review.json
-    and the drop's files. The file is a reviewer's note, not an authenticated approval.
+    and the drop's files. If a write still fails part way, it lists the files already written.
+    The file is a reviewer's note, not an authenticated approval.
     """
     from intake.mapping.apply import ApplyRefused, apply_decisions
 
     try:
         summary = apply_decisions(decisions, run_dir, drop)
     except ApplyRefused as refused:
-        typer.echo(f"Refused: {refused}. Nothing was written.", err=True)
+        if not refused.written:
+            typer.echo(f"Refused: {refused}. Nothing was written.", err=True)
+            raise typer.Exit(2) from None
+        typer.echo(f"Stopped: {refused}. These files were already written:", err=True)
+        for path in refused.written:
+            typer.echo(f"wrote {path}", err=True)
+        typer.echo(
+            "Each one's previous version, if it had one, is in the matching .yaml.prev file. "
+            "The other files were not changed.",
+            err=True,
+        )
         raise typer.Exit(2) from None
     typer.echo(
         f"Applied: {summary.approved} approved, {summary.corrected} corrected, "

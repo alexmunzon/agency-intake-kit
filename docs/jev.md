@@ -268,7 +268,7 @@ new file lists every header of the reviewed export in order: the decided ones, e
 earlier for this same format, and an `unmapped` entry for the rest (a run treats it like no
 entry). Entries saved for another format, or for headers no longer in the export, are never
 carried over. The previous file is first copied to `mapping/<source>.yaml.prev`. Each file is
-written in one step, and symlinks are refused. It prints how many were approved, corrected and ignored. The decisions are a reviewer's
+written in one step, and symlinks are refused. It prints how many were approved, corrected and ignored. If a write fails part way, it lists the files already written; each one's previous version is in its `.yaml.prev`. A reviewer who maps a column to a required field can clear a missing-field blocker (MAP-003) on the next run, as a hand-edited manual mapping always could. The reviewer name is not authenticated. The decisions are a reviewer's
 note, not an authenticated approval, and cannot clear a blocker or lower a severity.
 
 The file also records the source's `format_fingerprint`: the first 16 hex characters of sha256

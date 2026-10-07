@@ -211,3 +211,20 @@ def test_origin_follows_how_each_answer_was_obtained(enrollment: RawTable, tmp_p
     [again] = [i for i in items_for(enrollment, tmp_path / "b", record_client(cassettes, True))
                if i.header == BIRTH]  # fmt: skip
     assert again.origin == "jev_replay"  # record mode, but read from the saved cassette
+
+
+def test_two_ssn_like_headers_that_mask_alike_get_distinct_items(tmp_path: Path) -> None:
+    raw = table(
+        [
+            ["Client ID", "Member 123-45-6789", "Member 987-65-4321"],
+            ["C1", "x1", "y1"],
+            ["C2", "x2", "y2"],
+        ]
+    )
+    items = [i for i in items_for(raw, tmp_path, Asker(None)) if i.header != "Client ID"]
+    assert [i.header for i in items] == ["Me**** ***-**-****"] * 2
+    assert len({i.item_id for i in items}) == 2
+    review = build_review("r1", "crm-abc", JevMode.OFF, items, [])  # validates: ids are unique
+    assert MappingReview.model_validate_json(review.model_dump_json()) == review
+    dumped = review.model_dump_json()
+    assert "6789" not in dumped and "4321" not in dumped

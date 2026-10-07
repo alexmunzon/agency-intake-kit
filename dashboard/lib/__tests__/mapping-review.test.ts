@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -105,5 +105,30 @@ describe("buildDecisions", () => {
 
   it("names the download after the run", () => {
     expect(decisionsFileName("demo")).toBe("mapping-decisions-demo.json");
+  });
+});
+
+// fixtures/mapping-decisions-demo.json is what the dashboard downloads for the committed demo run.
+// The engine's full-cycle test (engine/tests/e2e/test_mapping_apply_cycle.py) applies this exact file,
+// so the two sides cannot drift. Regenerate with WRITE_DECISIONS_FIXTURE=1 after the demo run changes.
+describe("shared decisions fixture", () => {
+  const FIXTURE = path.resolve(import.meta.dirname, "../../../fixtures/mapping-decisions-demo.json");
+  const demo = readFileSync(path.resolve(import.meta.dirname, "../../public/demo-run/mapping_review.json"), "utf8");
+
+  it("is exactly what buildDecisions writes for the demo run", () => {
+    const review = parseMappingReview(demo, "demo");
+    const byHeader = (header: string, source: string) =>
+      review.items.find((item) => item.header === header && item.source === source)!.item_id;
+    const choices = {
+      [byHeader("Birth Dt (mm/dd/yy)", "enrollment")]: { action: "approve" as const },
+      [byHeader("Paid", "statement_northwind_health")]: { action: "ignore" as const },
+    };
+    const file = buildDecisions(review, choices, "Test Reviewer", new Date(Date.UTC(2026, 9, 2, 10)).toISOString());
+    const text = `${JSON.stringify(file, null, 2)}\n`;
+    if (process.env.WRITE_DECISIONS_FIXTURE === "1") writeFileSync(FIXTURE, text);
+    expect(readFileSync(FIXTURE, "utf8")).toBe(text);
+    expect(file.decided_at).toBe("2026-10-02T10:00:00.000Z");
+    expect(Object.keys(file)).toEqual(["run_id", "mapping_version", "reviewer", "decided_at", "note", "decisions"]);
+    expect(Object.keys(file.decisions[0])).toEqual(["item_id", "source", "header", "format_fingerprint", "action", "field"]);
   });
 });

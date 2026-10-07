@@ -27,6 +27,9 @@ AS_OF = datetime.fromisoformat("2026-10-01T09:00:00+00:00")
 HEADER = "Birth Dt (mm/dd/yy)"
 ENROLLMENT = "enrollment_export.csv"
 ADDED = "Extra Ref"
+PAID = ("statement_northwind_health", "Paid")  # ignored in the shared fixture
+PAID_FILE = "commissions_northwind_health.xlsx [Statement]"
+DECISIONS_FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "mapping-decisions-demo.json"
 
 
 def run_drop(drop: Path, out: Path) -> Path:
@@ -56,7 +59,7 @@ def test_run_decide_apply_rerun_then_a_changed_export(tmp_path: Path) -> None:
     drop = tmp_path / "agency" / "drop"
     shutil.copytree(FIXTURES / "agency-a" / "drop", drop)
 
-    first = run_drop(drop, tmp_path / "first")
+    first = run_drop(drop, tmp_path / "demo")  # run id "demo", as in the shared fixture
     [item] = [i for i in _review(first).items if i.header == HEADER]
     assert (item.source, item.proposed_field, item.origin) == (
         "enrollment",
@@ -65,31 +68,29 @@ def test_run_decide_apply_rerun_then_a_changed_export(tmp_path: Path) -> None:
     )
     assert "MAP-005" not in _rule_ids(first)
 
-    review = _review(first)
-    decisions = {
-        "run_id": review.run_id,
-        "mapping_version": review.mapping_version,
-        "reviewer": "Test Reviewer",
-        "decided_at": "2026-10-02T10:00:00+00:00",
-        "note": DECISIONS_NOTE,
-        "decisions": [
-            {
-                "item_id": item.item_id,
-                "source": item.source,
-                "header": item.header,
-                "format_fingerprint": item.format_fingerprint,
-                "action": "approve",
-                "field": item.proposed_field,
-            }
-        ],
-    }
-    decisions_file = tmp_path / "decisions.json"
-    decisions_file.write_text(json.dumps(decisions), encoding="utf-8")
+    # The exact file the dashboard's buildDecisions downloads (pinned by its vitest), applied as is.
+    text = DECISIONS_FIXTURE.read_text(encoding="utf-8")
+    shared = json.loads(text)
+    assert shared["decided_at"].endswith("Z") and shared["note"] == DECISIONS_NOTE
+    assert list(shared) == [
+        "run_id", "mapping_version", "reviewer", "decided_at", "note", "decisions",
+    ]  # fmt: skip
+    assert (shared["run_id"], shared["mapping_version"]) == (
+        _review(first).run_id,
+        _review(first).mapping_version,
+    )
     applied = CliRunner().invoke(
-        app, ["mapping", "apply", str(decisions_file), "--run", str(first), "--in", str(drop)]
+        app, ["mapping", "apply", str(DECISIONS_FIXTURE), "--run", str(first), "--in", str(drop)]
     )
     assert applied.exit_code == 0, applied.output
-    assert "1 approved, 0 corrected, 0 ignored" in applied.output
+    assert "1 approved, 0 corrected, 1 ignored" in applied.output
+    ignored = yaml.safe_load((drop.parent / "mapping" / f"{PAID[0]}.yaml").read_text())
+    [paid] = [e for e in ignored["entries"] if e["header"] == PAID[1]]
+    assert (paid["method"], paid["field"], paid["decided_at"]) == (
+        "manual",
+        None,
+        "2026-10-02T10:00:00+00:00",
+    )
 
     saved_path = drop.parent / "mapping" / "enrollment.yaml"
     saved = yaml.safe_load(saved_path.read_text(encoding="utf-8"))
@@ -105,7 +106,8 @@ def test_run_decide_apply_rerun_then_a_changed_export(tmp_path: Path) -> None:
     assert _items(second, "enrollment", HEADER) == []  # the saved decision settled it
     before = {(i.source, i.file_name, i.header) for i in _review(first).items}
     after = {(i.source, i.file_name, i.header) for i in _review(second).items}
-    assert after == before - {("enrollment", ENROLLMENT, HEADER)}  # nothing else changed
+    settled = {("enrollment", ENROLLMENT, HEADER), (PAID[0], PAID_FILE, PAID[1])}
+    assert after == before - settled  # nothing else changed
     assert _rule_ids(second).count("MAP-002") <= _rule_ids(first).count("MAP-002")
     assert "MAP-005" not in _rule_ids(second)
     assert saved_path.read_bytes() == saved_bytes  # a run never rewrites the saved decisions

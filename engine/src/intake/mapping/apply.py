@@ -34,6 +34,7 @@ from intake.mapping.review import REVIEW_FILE, file_label, item_id
 from intake.mapping.store import (
     MappingEntry,
     SourceMapping,
+    dump_mapping,
     load_mapping,
     mapping_dir_for,
     mapping_path,
@@ -46,7 +47,15 @@ PREVIOUS_SUFFIX = ".prev"  # mapping/<source>.yaml.prev keeps the file apply rep
 
 
 class ApplyRefused(Exception):  # noqa: N818  (a refusal, not a crash)
-    """The decisions file does not fit this run or drop. The message never repeats its input."""
+    """The decisions file does not fit this run or drop. The message never repeats its input.
+
+    `written` lists files already saved when a write failed part way; it is empty for every
+    refusal found while checking, because every check runs before the first write.
+    """
+
+    def __init__(self, message: str, written: tuple[Path, ...] = ()) -> None:
+        super().__init__(message)
+        self.written = written
 
 
 @dataclass(frozen=True)
@@ -226,15 +235,18 @@ def _merged(plan: Planned, kept: dict[str, MappingEntry], at: str) -> SourceMapp
     )
 
 
-def _keep_previous(mapping_dir: Path, key: str) -> None:
-    """Copy mapping/<key>.yaml to mapping/<key>.yaml.prev before it is replaced."""
+def _previous_path(mapping_dir: Path, key: str) -> Path | None:
+    """Where mapping/<key>.yaml is copied before it is replaced; None when there is no file yet.
+
+    Checks the paths only, so it is safe to call for every source before anything is written.
+    """
     path = mapping_path(mapping_dir, key)
     if not path.exists():
-        return
+        return None
     previous = path.with_name(path.name + PREVIOUS_SUFFIX)
     if previous.is_symlink():
         raise ValueError("refusing to write through a symlink")
-    shutil.copyfile(path, previous)
+    return previous
 
 
 def apply_decisions(decisions_path: Path, run_dir: Path, drop: Path) -> ApplySummary:
@@ -277,12 +289,22 @@ def apply_decisions(decisions_path: Path, run_dir: Path, drop: Path) -> ApplySum
         kept = {key: _kept(olds[key], plan) for key, plan in plans.items()}
         for key, plan in plans.items():
             _check_targets(plan, kept[key])
-        written = []
-        for key, plan in plans.items():
-            _keep_previous(mapping_dir, key)
-            written.append(save_mapping(mapping_dir, _merged(plan, kept[key], at.isoformat())))
+        # Build every new file and check every path first, so a refusal writes nothing.
+        merged = {key: _merged(plan, kept[key], at.isoformat()) for key, plan in plans.items()}
+        for mapping in merged.values():
+            dump_mapping(mapping)
+        previous = {key: _previous_path(mapping_dir, key) for key in merged}
     except (OSError, ValueError) as error:
         message = "symlink" if "symlink" in str(error) else "unreadable or invalid"
         raise ApplyRefused(f"the saved mapping folder is {message}") from None
+    written: list[Path] = []
+    try:
+        for key, mapping in merged.items():
+            prev = previous[key]
+            if prev is not None:
+                shutil.copyfile(mapping_path(mapping_dir, key), prev)
+            written.append(save_mapping(mapping_dir, mapping))
+    except (OSError, ValueError):
+        raise ApplyRefused("a saved mapping file could not be written", tuple(written)) from None
     actions = Counter(d.action for d in decisions.decisions)
     return ApplySummary(actions["approve"], actions["correct"], actions["ignore"], tuple(written))

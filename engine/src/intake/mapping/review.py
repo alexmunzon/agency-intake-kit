@@ -6,6 +6,7 @@ never from model text. The file carries no authority: it cannot map, approve or 
 """
 
 import hashlib
+from collections import Counter
 from collections.abc import Mapping, Sequence
 
 from agency_schema.enums import JevMode
@@ -36,9 +37,15 @@ NO_ANSWER = {
 SENT = frozenset({"invalid_reply", "http_error"})  # the request went out, the answer was not used
 
 
-def item_id(source: str, file_name: str, header: str) -> str:
-    """Interface section 1 (amended 2026-10-07): two files under one source never collide."""
+def item_id(source: str, file_name: str, header: str, position: int | None = None) -> str:
+    """Interface section 1 (amended 2026-10-07): two files under one source never collide.
+
+    `position` (the column's place in the file) is added only when two SSN-like headers in one
+    file mask to the same text, so their items stay apart. Every other id follows section 1.
+    """
     text = f"{source}\0{file_name}\0{header}"
+    if position is not None:
+        text += f"\0{position}"
     return "mr-" + hashlib.sha256(text.encode()).hexdigest()[:12]
 
 
@@ -127,9 +134,10 @@ def review_items(
     fingerprint = format_fingerprint(headers)
     file_name = file_label(table)
     allowed = tuple(criteria_for(tables_for(key)))
+    shown_count = Counter(_shown(h) for h in headers)
     asked = {**(earlier or {}), **{d.header: d for d in decisions}}
     items = []
-    for header in headers:
+    for position, header in enumerate(headers):
         final = result.mapping.entry(header)
         left_open = final is not None and final.method == "unmapped"
         decision = asked.get(header)
@@ -156,7 +164,9 @@ def review_items(
         shown = _shown(header)
         items.append(
             MappingReviewItem(
-                item_id=item_id(key, file_name, shown),
+                item_id=item_id(
+                    key, file_name, shown, position if shown_count[shown] > 1 else None
+                ),
                 source=key,
                 file_name=file_name,
                 header=shown,
