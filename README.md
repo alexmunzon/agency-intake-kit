@@ -113,7 +113,7 @@ Screenshots are made from the demo run by `npm run shots`; more are in [docs/scr
 
 ## Run it in five commands
 
-You need [uv](https://docs.astral.sh/uv/) and Node 24 (for example, installed with [nvm](https://github.com/nvm-sh/nvm)). The engine uses Python 3.12. No API key or environment file is needed for the committed replay demo. Install development dependencies too: Tailwind, TypeScript and the build-time `shadcn/tailwind.css` import require them.
+You need [uv](https://docs.astral.sh/uv/) and Node 24 (for example, installed with [nvm](https://github.com/nvm-sh/nvm)). The engine uses Python 3.12. No API key or environment file is needed for the committed replay demo. Install development dependencies too: Tailwind and TypeScript require them.
 
 ```bash
 git clone https://github.com/alexmunzon/agency-intake-kit.git && cd agency-intake-kit

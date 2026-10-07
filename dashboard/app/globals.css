@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import "./vendor/shadcn/tailwind.css";
 
 /* Dark mode is a class on <html>. The layout's inline script sets it before paint from the saved
    choice, or from the system setting when there is none. The header toggle flips it. */
