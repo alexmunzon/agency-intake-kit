@@ -1,5 +1,9 @@
 # Changelog
 
+## Jev review label on exception details, 2026-10-07
+
+- The exception detail panel said "Jev AI review" without saying the scores were replayed from saved answers. It now names the run's Jev mode (for the demo: "Jev review (replay of saved answers)") and says the scores are the model's own numbers, not measured accuracy, matching the mapping review panel. Wording only; no scores, rules or data change.
+
 ## Jev mapping review, 2026-10-07
 
 - Every run now writes `mapping_review.json`: one item for each column the synonym table and saved decisions did not settle, with masked samples, Jev's proposal, where the answer came from (replay, live or record), the model's own confidence, rows with a value, linked MAP-001 and MAP-002 ids, the file's format fingerprint, and a plain explanation built from those facts. Two files under one source each get their own items. The manifest counts invalid Jev answers. An HTTP error, timeout or refused connection from Jev leaves the column for a person instead of stopping the run, and a header that looks like an SSN is masked in the file and in the question to Jev.

@@ -16,4 +16,28 @@ describe("LineageDrawer Jev scores", () => {
     expect(within(row).getByText("1.43 / 2")).toBeInTheDocument();
     expect(row.querySelector('[data-score="impact_score"]')?.getAttribute("style")).toContain("width: 71.5%");
   });
+
+  it.each([
+    ["replay", "Jev review (replay of saved answers)"],
+    ["live", "Jev review (live call)"],
+    ["record", "Jev review (recorded live call)"],
+  ] as const)("labels where the Jev scores came from in %s mode", async (mode, heading) => {
+    const run = await loadRunDir(path.resolve(import.meta.dirname, "../../public/demo-run"));
+    const record = run.exceptions.find((item) => item.jev !== null);
+    expect(record).toBeDefined();
+    render(<LineageDrawer record={record!} jevMode={mode} onClose={() => {}} />);
+
+    expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
+    expect(screen.queryByText("Jev AI review")).not.toBeInTheDocument();
+    expect(screen.getByText("Scores are the model's own numbers, not measured accuracy.")).toBeInTheDocument();
+  });
+
+  it("falls back to a plain heading when the run mode is unknown or off", async () => {
+    const run = await loadRunDir(path.resolve(import.meta.dirname, "../../public/demo-run"));
+    const record = run.exceptions.find((item) => item.jev === null)!;
+    render(<LineageDrawer record={record} onClose={() => {}} />);
+
+    expect(screen.getByRole("heading", { name: "Jev review" })).toBeInTheDocument();
+    expect(screen.getByText("Not reviewed by Jev.")).toBeInTheDocument();
+  });
 });

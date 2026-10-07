@@ -10,7 +10,7 @@ import {
   NO_FILTERS, SEVERITY_ORDER, choices, filterExceptions, orderExceptions, toneOf, type ExceptionFilters,
 } from "@/lib/exceptions";
 import { plural } from "@/lib/overview";
-import type { ExceptionRecord, Severity } from "@/lib/types";
+import type { ExceptionRecord, JevMode, Severity } from "@/lib/types";
 
 const helper = createColumnHelper<typeof features, ExceptionRecord>();
 const COLUMNS = helper.columns([
@@ -36,7 +36,7 @@ function Filter({ label, value, options, onChange }: { label: string; value: str
   );
 }
 
-export function ExceptionsView({ records }: { records: ExceptionRecord[] }) {
+export function ExceptionsView({ records, jevMode }: { records: ExceptionRecord[]; jevMode?: JevMode }) {
   const ordered = useMemo(() => orderExceptions(records), [records]);
   const [filters, setFilters] = useState<ExceptionFilters>(NO_FILTERS);
   const [open, setOpen] = useState<ExceptionRecord | null>(null);
@@ -75,7 +75,7 @@ export function ExceptionsView({ records }: { records: ExceptionRecord[] }) {
         />
       )}
       <p className="text-xs text-muted-foreground sm:hidden">Scroll the table sideways to see every column.</p>
-      {open && <LineageDrawer record={open} onClose={close} />}
+      {open && <LineageDrawer record={open} jevMode={jevMode} onClose={close} />}
     </div>
   );
 }
