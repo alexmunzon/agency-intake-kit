@@ -12,7 +12,7 @@ Use Node 24, Python 3.12 and uv. From the repository root:
 JEV_MODE=replay npm run verify
 ```
 
-The root package is scripts-only; install dependencies in the two subprojects, not at the root. Both lockfiles are committed. Dashboard builds require development dependencies, including the shadcn CSS source. Do not use `npm ci --omit=dev` for a build environment.
+The root package is scripts-only; install dependencies in the two subprojects, not at the root. Both lockfiles are committed. Dashboard builds require development dependencies, including Tailwind. Do not use `npm ci --omit=dev` for a build environment.
 
 `verify` runs engine Ruff lint and formatting, mypy and pytest, then dashboard ESLint, type checking, Vitest and a Next.js production build. Smaller loops are `npm run verify:engine` and `npm run verify:dashboard`; a focused pass does not replace full verification. The committed demo is sufficient for `cd dashboard && npm run dev`.
 

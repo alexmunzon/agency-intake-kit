@@ -1,5 +1,9 @@
 # Changelog
 
+## Remove shadcn package, 2026-10-06
+
+- Vendor shadcn@4.21.1 `dist/tailwind.css` unchanged (hash-pinned by a test, MIT license alongside) and uninstall the shadcn package. This removes four of the five install paths to braces GHSA-vfj7-8cjw-p6xm (no patched release) and 232 packages; no package version changed. The lint-only `eslint-config-next` path remains and is documented in SECURITY.md. The compiled stylesheet is identical, so the site looks and behaves the same.
+
 ## Repository hygiene, 2026-10-06
 
 - Add a README front door, architecture map, locked replay quickstart, documentation index and contributor guide without changing the frozen recruiting-demo feature scope.
