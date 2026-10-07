@@ -1,5 +1,23 @@
 # Changelog
 
+## Remove shadcn package, 2026-10-06
+
+- Vendor shadcn@4.21.1 `dist/tailwind.css` unchanged (hash-pinned by a test, MIT license alongside) and uninstall the shadcn package. This removes four of the five install paths to braces GHSA-vfj7-8cjw-p6xm (no patched release) and 232 packages; no package version changed. The lint-only `eslint-config-next` path remains and is documented in SECURITY.md. The compiled stylesheet is identical, so the site looks and behaves the same.
+
+## Repository hygiene, 2026-10-06
+
+- Add a README front door, architecture map, locked replay quickstart, documentation index and contributor guide without changing the frozen recruiting-demo feature scope.
+- Document synthetic-only threat boundaries, private reporting, credential hygiene, audit limits and the unpatched braces tooling advisory GHSA-vfj7-8cjw-p6xm. No security certification is claimed.
+- Pin the three existing CI actions to verified commit SHAs, disable checkout credential persistence, retain read-only permissions and add a 20-minute timeout plus superseded pull-request cancellation.
+- Ignore `.env.*` with an explicit `.env.example` allowance. Move shadcn to development dependencies after identifying its unchanged build-time CSS import; regenerate the npm lock without upgrading existing package versions. Builds still require development dependencies.
+
+## Executive interface facelift, 2026-10-06
+
+- Apply one restrained navy and teal consulting presentation across Overview, Sources, Exceptions, Tie-out, Agents and Runs, including loaded-run views, evidence panels, filters and lineage details. Use the system font stack without a remote font fetch or new dependency.
+- Put the existing readiness decision first, followed by a compact five-cell desktop load-quality strip and a separate financial and operational check grid. Keep every count, semantic label, variance qualification, synthetic-data notice and not-checked state unchanged.
+- Present evidence in readable, bounded tables with keyboard-focusable scroll regions and consistent headers. Retain import, filter, pagination and drawer behavior; add a keyboard skip link and presentation-contract tests. Engines, rules, fixtures and data contracts are unchanged.
+- Phone styles cover 375px and 390px with 44px navigation/control targets, full-width filters, wrapped references and contained table scrolling. Responsive source and keyboard accessibility contracts are tested; new phone screenshots and browser accessibility checks are not claimed by this change.
+
 ## Audit safety repairs, 2026-10-05
 
 Validate clean rows against the declared table schemas before publishing status, emit traceable MAP-004 errors, and exclude invalid rows and affected dependents. Exactly three blockers remain. Correct RTS interval coverage, household references, unknown status handling, carrier joins, raw surplus gates and hashes, safe mapping paths, SSN header checks, and budget accounting. Validate dashboard counts and lineage and recover from local file read failures. Cache synthetic row references.
@@ -9,6 +27,8 @@ One entry per PR.
 ## Unreleased
 
 - Docs: remove the 400-line PR cap and the one-PR-per-session rule from CLAUDE.md, SPEC.md, ROADMAP.md and the build guide (Alex, 2026-10-06). Every PR still gets tests first, an independent review, a green hosted check before merge, a live check after deploy, and Alex's approval for each push, PR and merge.
+
+- Connect the three separate recruiting demos with ordered navigation and a shared walkthrough. Preserve the seen-set, replay and pipeline-mismatch caveats when regenerating header-mapping benchmark documentation.
 
 - Fix the Exceptions page scrolling sideways on desktop windows about 1024 to 1150 pixels wide: the page column can now shrink beside the sidebar, so the wide table scrolls in its own box.
 

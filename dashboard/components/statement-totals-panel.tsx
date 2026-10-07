@@ -10,10 +10,10 @@ const REASONS = { valid: "Valid amount", amount_blank: "Amount blank",
 
 function Row({ line }: { line: StatementLine }) {
   const lin = line.lineage;
-  return <li className="space-y-2 rounded-lg border border-slate-200 p-3 text-sm break-all dark:border-slate-800">
+  return <li className="space-y-2 rounded-lg border border-border p-3 text-sm break-all">
     <p className="font-medium">{REASONS[line.reason]}: {line.amount === null ? "Not included" : formatMoney(line.amount)}</p>
     <p>{line.source}: {lin.source_file}{lin.sheet ? `, ${lin.sheet}` : ""}, row {lin.row_number}</p>
-    <details><summary className="cursor-pointer text-indigo-700 underline dark:text-indigo-300">Full source provenance</summary>
+    <details><summary className="cursor-pointer text-primary underline underline-offset-4">Full source provenance</summary>
       <dl className="mt-2 space-y-1 text-xs">
         <div><dt className="font-medium">Run</dt><dd>{lin.run_id}</dd></div>
         <div><dt className="font-medium">Mapping version</dt><dd>{lin.mapping_version}</dd></div>
@@ -30,7 +30,7 @@ export function StatementTotalsPanel({ totals }: { totals?: StatementTotals }) {
   const lines = totals?.lines ?? [];
   const pages = Math.max(1, Math.ceil(lines.length / PAGE_SIZE));
   const currentPage = Math.min(page, pages - 1);
-  return <section aria-label="Statement totals" className="space-y-3">
+  return <section aria-label="Statement totals" className="evidence-section space-y-3">
     <h2 className="text-lg font-semibold">Statement totals</h2>
     <p className="text-sm">Received statement row evidence. It does not deduplicate receipts or establish that the book agrees. Run status and tie-out checks remain separate.</p>
     {totals === undefined ? <p className="text-sm">No statement_totals.json artifact is attached to this run. Statement evidence is unavailable.</p>

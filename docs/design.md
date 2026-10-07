@@ -29,7 +29,7 @@ The dashboard is for an agency owner who has never seen a data pipeline and for 
 - One accent: indigo (600 in light, 400 in dark) for links, the active nav item, and focus rings.
 - Radius: `rounded-lg` (8px) on cards, `rounded-md` (6px) on chips.
 
-**shadcn.** The project is set up for shadcn (`components.json`, style `base-nova`, built on Base UI, lucide icons), and `shadcn/tailwind.css` supplies the base layer. Only the Button primitive is installed so far. The page parts (tiles, banners, severity badges, tables, the lineage drawer) are small local components in `dashboard/components/`, styled with the tokens above.
+**shadcn.** The project is set up for shadcn (`components.json`, style `base-nova`, built on Base UI, lucide icons), and shadcn's base stylesheet supplies the base layer. It is vendored unchanged at `dashboard/app/vendor/shadcn/tailwind.css` instead of installed as a package, because the package pulled in an unpatched braces advisory; `npx shadcn add` still works on demand. Only the Button primitive is installed so far. The page parts (tiles, banners, severity badges, tables, the lineage drawer) are small local components in `dashboard/components/`, styled with the tokens above.
 
 **Severity colors.** The meaning of each color is fixed, and color is never the only signal: every severity also has an icon and a word (`components/severity-badge.tsx`).
 

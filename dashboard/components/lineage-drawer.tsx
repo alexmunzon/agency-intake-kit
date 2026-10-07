@@ -18,7 +18,7 @@ const JEV_SCORES = [
 function Row({ term, value }: { term: string; value: ReactNode }) {
   return (
     <div className="grid grid-cols-[9rem_1fr] gap-2 py-1">
-      <dt className="text-slate-600 dark:text-slate-400">{term}</dt>
+      <dt className="text-muted-foreground">{term}</dt>
       <dd className="break-all">{value ?? "None"}</dd>
     </div>
   );
@@ -73,13 +73,13 @@ export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; on
       role="dialog"
       aria-modal="true"
       aria-labelledby="drawer-title"
-      className="fixed inset-0 z-30 overflow-y-auto border-l border-slate-200 bg-white p-5 text-sm sm:left-auto sm:w-[480px] dark:border-slate-800 dark:bg-slate-900"
+      className="lineage-drawer fixed inset-0 z-30 overflow-y-auto border-l border-border bg-card text-sm sm:left-auto sm:w-[480px]"
     >
       <div className="flex items-start justify-between gap-2">
         <h2 id="drawer-title" className="text-base font-semibold">
           <span className="font-mono">{record.rule_id}</span> on <span className="font-mono">{record.id}</span>
         </h2>
-        <button ref={closeButton} onClick={onClose} className="rounded-md border border-slate-200 px-2 py-1 text-xs focus-visible:outline-2 focus-visible:outline-indigo-600 dark:border-slate-800">
+        <button ref={closeButton} onClick={onClose} className="rounded-md border border-border px-2 py-1 text-xs focus-visible:outline-2 focus-visible:outline-primary">
           Close
         </button>
       </div>
@@ -96,7 +96,7 @@ export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; on
         <Row term="Value (masked)" value={mono(value)} />
         <Row term="Blocks the load" value={record.blocks_load ? "Yes" : "No"} />
       </dl>
-      {!lineage && <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">This is about the whole file, not one row.</p>}
+      {!lineage && <p className="mt-1 text-xs text-muted-foreground">This is about the whole file, not one row.</p>}
       <h3 className="mt-4 font-medium">Jev AI review</h3>
       {jev ? (
         <dl>
@@ -106,8 +106,8 @@ export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; on
               term={label}
               value={
                 <span className="flex items-center gap-2 tabular-nums">
-                  <span aria-hidden className="h-2 w-24 rounded bg-slate-100 dark:bg-slate-800">
-                    <span className="block h-2 rounded bg-indigo-600 dark:bg-indigo-400" style={{ width: `${((jev[key] as number) / max) * 100}%` }} />
+                  <span aria-hidden className="h-2 w-24 rounded bg-muted">
+                    <span data-score={key} className="block h-2 rounded bg-primary" style={{ width: `${((jev[key] as number) / max) * 100}%` }} />
                   </span>
                   {format(jev[key] as number)}
                 </span>
@@ -116,7 +116,7 @@ export function LineageDrawer({ record, onClose }: { record: ExceptionRecord; on
           ))}
         </dl>
       ) : (
-        <p className="text-slate-600 dark:text-slate-400">Not reviewed by Jev.</p>
+        <p className="text-muted-foreground">Not reviewed by Jev.</p>
       )}
     </aside>
   );

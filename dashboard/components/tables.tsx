@@ -18,18 +18,18 @@ interface DataTableProps<T extends RowData> {
   onRowClick: (row: T) => void;
 }
 
-const STICKY = "sticky left-0 z-10 bg-white dark:bg-slate-900";
+const STICKY = "sticky left-0 z-10 bg-card";
 
 export function DataTable<T extends RowData>({ label, columns, data, rowLabel, onRowClick }: DataTableProps<T>) {
   const table = useTable({ features, columns, data });
   return (
-    <div className={cn(CARD, "max-h-[70vh] overflow-auto")}>
-      <table aria-label={label} className="w-full min-w-[720px] text-left text-xs tabular-nums">
-        <thead className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-950">
+    <div role="region" aria-label={`${label} table`} tabIndex={0} className={cn(CARD, "evidence-table-wrap max-h-[70vh] overflow-auto")}>
+      <table aria-label={label} className="evidence-table w-full min-w-[720px] text-left tabular-nums">
+        <thead className="sticky top-0 z-20 bg-muted">
           {table.getHeaderGroups().map((group) => (
             <tr key={group.id}>
               {group.headers.map((header, index) => (
-                <th key={header.id} scope="col" className={cn("px-3 py-2 font-medium", index === 0 && "sticky left-0 z-10 bg-slate-50 dark:bg-slate-950")}>
+                <th key={header.id} scope="col" className={cn("px-3 py-2 font-medium", index === 0 && "sticky left-0 z-10 bg-muted")}>
                   <table.FlexRender header={header} />
                 </th>
               ))}
@@ -49,7 +49,7 @@ export function DataTable<T extends RowData>({ label, columns, data, rowLabel, o
                   onRowClick(row.original);
                 }
               }}
-              className="h-9 cursor-pointer border-t border-slate-200 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-indigo-600 dark:border-slate-800 dark:hover:bg-slate-800"
+              className="cursor-pointer focus-visible:outline-2 focus-visible:outline-primary"
             >
               {row.getAllCells().map((cell, index) => (
                 <td key={cell.id} className={cn("px-3 py-1.5 align-top", index === 0 && STICKY)}>

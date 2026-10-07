@@ -8,8 +8,8 @@ import { CARD } from "@/components/tiles";
 import { readRunFiles, type PickedFile } from "@/lib/upload";
 import { cn } from "@/lib/utils";
 
-const MUTED = "text-slate-600 dark:text-slate-400";
-const INPUT = "block w-full max-w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-white dark:file:bg-indigo-500 dark:file:text-slate-950";
+const MUTED = "text-muted-foreground";
+const INPUT = "block w-full max-w-full text-sm text-muted-foreground";
 
 /** Every file inside a dropped folder (and its tie_out folder). Only run files are read later. */
 async function entryFiles(entry: FileSystemEntry): Promise<File[]> {
@@ -59,11 +59,14 @@ export function LoadRun({ demoRunId }: { demoRunId: string }) {
   }
 
   return (
-    <div className="space-y-4">
-      <header>
-        <p className={cn("text-sm", MUTED)}>Synthetic data only.</p>
-        <h1 className="text-2xl font-semibold tracking-tight">Load your own run</h1>
-        <p className="mt-1 text-sm">
+    <div className="page-stack">
+      <header className="page-header">
+        <div className="page-provenance">
+          <p className="eyebrow">Run evidence workspace</p>
+          <span className="synthetic-label">Synthetic data only.</span>
+        </div>
+        <h1>Load your own run</h1>
+        <p className="page-description">
           Pick the files from a run folder the engine wrote. They are read in this browser tab only. Nothing is uploaded, and reloading or closing the tab clears them.
         </p>
       </header>
@@ -72,7 +75,7 @@ export function LoadRun({ demoRunId }: { demoRunId: string }) {
         {loaded ? (
           <>
             Loaded <span className="font-mono text-xs break-all">{loaded.label}</span>. Every page now shows it.{" "}
-            <Link href="/" className="text-indigo-700 underline dark:text-indigo-300">Open the Overview</Link>
+            <Link href="/" className="text-primary underline underline-offset-4">Open the Overview</Link>
           </>
         ) : (
           <>
@@ -87,7 +90,7 @@ export function LoadRun({ demoRunId }: { demoRunId: string }) {
         aria-label="Drop run files here"
         onDragOver={(event) => event.preventDefault()}
         onDrop={onDrop}
-        className={cn(CARD, "space-y-4 border-2 border-dashed p-4")}
+        className={cn(CARD, "import-drop-zone space-y-4 border-2 border-dashed")}
       >
         <p className="text-sm font-medium">Drop the run folder or its files here, or pick them below.</p>
         <p className={cn("text-xs", MUTED)}>

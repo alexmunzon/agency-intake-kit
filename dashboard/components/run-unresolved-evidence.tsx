@@ -16,7 +16,7 @@ export function RunUnresolvedEvidence() {
   if (previous !== records) { setPrevious(records); setPage(0); }
   const count = records?.length ?? 0;
   const pages = Math.max(1, Math.ceil(count / PAGE_SIZE));
-  return <section aria-label="Unresolved evidence" className="mt-8 space-y-3 text-sm">
+  return <section aria-label="Unresolved evidence" className="evidence-section mt-8 space-y-3 text-sm">
     <h2 className="text-lg font-semibold">Unresolved evidence</h2>
     <p>Recorded source and row references for absent CRM or missing, blank or unreadable date of birth (DOB). These are not load-ready customer records or resolved identities.</p>
     <p>Run status, exceptions and comparison status remain authoritative. This artifact does not establish completeness.</p>
@@ -37,13 +37,13 @@ export function RunUnresolvedEvidence() {
 }
 function EvidenceCase({ record }: { record: UnresolvedEvidence }) {
   const lin = record.lineage;
-  return <li className="space-y-2 rounded-lg border border-slate-200 p-3 break-all dark:border-slate-800">
+  return <li className="space-y-2 rounded-lg border border-border p-3 break-all">
     <p className="font-medium">{REASONS[record.reason]}</p>
     <p>Source: {record.source}</p>
     {lin ? <p>{lin.source_file}{lin.sheet === null ? "" : `, ${lin.sheet}`}, row {lin.row_number}</p>
       : <p>Source summary; no row reference recorded.</p>}
     {record.reason === "crm_absent" && lin && <p>Received source row awaiting CRM context; no customer or policy match is implied.</p>}
-    <details><summary className="cursor-pointer text-indigo-700 underline dark:text-indigo-300">Source provenance</summary>
+    <details><summary className="cursor-pointer text-primary underline underline-offset-4">Source provenance</summary>
       <dl className="mt-2 space-y-1 text-xs">
         <div><dt className="font-medium">Run</dt><dd>{record.run_id}</dd></div>
         {lin && <><div><dt className="font-medium">Mapping version</dt><dd>{lin.mapping_version}</dd></div>

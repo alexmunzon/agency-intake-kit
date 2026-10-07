@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "facelift-v1-consulting": false,
+      "repo-hygiene-v1": false
+    }
+  }
+}

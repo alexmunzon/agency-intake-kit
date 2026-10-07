@@ -22,11 +22,11 @@ const COLUMNS = helper.columns([
   helper.accessor("suggested_fix", { header: "How to fix it", cell: (info) => info.getValue() ?? "Nothing to fix" }),
 ]) as Columns<ExceptionRecord>;
 
-const SELECT = "rounded-md border border-slate-200 bg-white px-2 py-1 text-sm dark:border-slate-800 dark:bg-slate-900";
+const SELECT = "rounded-md border border-input bg-card px-2 py-1 text-sm text-foreground";
 
 function Filter({ label, value, options, onChange }: { label: string; value: string; options: [string, string][]; onChange: (value: string) => void }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-slate-600 dark:text-slate-400">
+    <label className="flex flex-col gap-1.5 text-xs font-medium text-muted-foreground">
       {label}
       <select className={SELECT} value={value} onChange={(event) => onChange(event.target.value)}>
         <option value="">All</option>
@@ -52,14 +52,14 @@ export function ExceptionsView({ records }: { records: ExceptionRecord[] }) {
           <SeverityBadge key={severity} tone={toneOf(severity)} label={`${count.toLocaleString("en-US")} ${TONES[toneOf(severity)].label}`} />
         ))}
       </p>
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="filter-bar flex flex-wrap items-end gap-3">
         <Filter label="Severity" value={filters.severity} onChange={set("severity")}
           options={SEVERITY_ORDER.map((s: Severity) => [s, TONES[toneOf(s)].label])} />
         <Filter label="Rule" value={filters.rule} onChange={set("rule")}
           options={choices(records, "rule_id").map((rule) => [rule, rule])} />
         <Filter label="Source" value={filters.source} onChange={set("source")}
           options={choices(records, "source").map((source) => [source, source])} />
-        <p className="text-sm text-slate-600 tabular-nums dark:text-slate-400" role="status">
+        <p className="text-sm text-muted-foreground tabular-nums" role="status">
           Showing {shown.length.toLocaleString("en-US")} of {plural(records.length, "exception")}
         </p>
       </div>
@@ -74,7 +74,7 @@ export function ExceptionsView({ records }: { records: ExceptionRecord[] }) {
           onRowClick={setOpen}
         />
       )}
-      <p className="text-xs text-slate-600 sm:hidden dark:text-slate-400">Scroll the table sideways to see every column.</p>
+      <p className="text-xs text-muted-foreground sm:hidden">Scroll the table sideways to see every column.</p>
       {open && <LineageDrawer record={open} onClose={close} />}
     </div>
   );
