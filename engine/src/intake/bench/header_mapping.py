@@ -29,7 +29,15 @@ from intake.config import (
 )
 from intake.mapping.headers import SOURCE_TABLES
 from intake.mapping.synonyms import COMPOSITE_FIELDS, load_synonyms
-from jev_client import CassetteMiss, ChoiceAnswer, ChoiceQuestion, JevClient, JevRequest
+from jev_client import (
+    CassetteMiss,
+    ChoiceAnswer,
+    ChoiceQuestion,
+    JevBadReply,
+    JevClient,
+    JevHTTPError,
+    JevRequest,
+)
 from jev_client.cassettes import cassette_path
 from jev_client.types import JevResponse
 
@@ -40,6 +48,9 @@ README_PATH = REPO_ROOT / "README.md"
 START, END = "<!-- benchmark:start -->", "<!-- benchmark:end -->"
 NONE: Final = "none"  # the column holds no canonical field (or the approach left it unmapped)
 NOT_RECORDED: Final = "not recorded"  # replay had no recording for this header
+INVALID_ANSWER: Final = "invalid answer"  # Jev replied, but the reply did not fit the question
+HTTP_ERROR: Final = "http error"  # the API returned an error or never replied
+NO_ANSWER: Final = (NOT_RECORDED, INVALID_ANSWER, HTTP_ERROR)  # not scored, counted apart
 JEV_INSTRUCTIONS = (
     "A column header from an insurance agency's source export is given with the kind of "
     "export. Which canonical field does the column hold? Choose none if it holds none of them."
@@ -80,12 +91,14 @@ def load_labels(path: Path = LABELS_PATH) -> tuple[LabeledHeader, ...]:
 @dataclass(frozen=True)
 class Metrics:
     total: int
-    scored: int  # total minus not recorded
+    scored: int  # total minus not recorded, invalid answers, and HTTP errors
     correct: int
     wrong: int  # mapped to the wrong field, or mapped a column that holds none
     missed: int  # left unmapped although the column holds a field
     not_recorded: int
     mapped: int
+    invalid: int = 0  # replies that did not fit the question; never used
+    http_error: int = 0  # API errors and requests that got no reply
 
     @property
     def accuracy(self) -> float | None:
@@ -98,16 +111,19 @@ class Metrics:
 
 def score(items: Sequence[LabeledHeader], guesses: Sequence[str]) -> Metrics:
     counts = {"correct": 0, "wrong": 0, "missed": 0, "not_recorded": 0, "mapped": 0}
+    counts |= {"invalid": 0, "http_error": 0}
+    status = {NOT_RECORDED: "not_recorded", INVALID_ANSWER: "invalid", HTTP_ERROR: "http_error"}
     for item, guess in zip(items, guesses, strict=True):
-        if guess == NOT_RECORDED:
-            counts["not_recorded"] += 1
+        if guess in status:
+            counts[status[guess]] += 1
             continue
         counts["mapped"] += guess != NONE
         if guess == item.expected:
             counts["correct"] += 1
         else:
             counts["missed" if guess == NONE else "wrong"] += 1
-    return Metrics(total=len(items), scored=len(items) - counts["not_recorded"], **counts)
+    unscored = counts["not_recorded"] + counts["invalid"] + counts["http_error"]
+    return Metrics(total=len(items), scored=len(items) - unscored, **counts)
 
 
 @dataclass(frozen=True)
@@ -153,8 +169,14 @@ def run_jev(items: Sequence[LabeledHeader], client: JevClient, cassette_dir: Pat
         start = time.perf_counter()
         try:
             reply = client.ask(request)
+        # No usable answer: not scored, counted under its own status, and the reply text
+        # never reaches the output.
         except CassetteMiss:
             return NOT_RECORDED
+        except JevBadReply:
+            return INVALID_ANSWER
+        except JevHTTPError:
+            return HTTP_ERROR
         if client.mode == JevMode.LIVE or (client.mode == JevMode.RECORD and not recorded):
             latencies.append(time.perf_counter() - start)
         if not isinstance(reply, JevResponse):
@@ -316,10 +338,13 @@ def table_rows(result: BenchResult) -> list[str]:
         m = score(result.items, arm.guesses)
         accuracy = f"{_pct(m.accuracy)} ({m.correct} of {m.scored})"
         coverage, cost = _pct(m.coverage), _per_thousand(arm, m.total)
-        if arm.calls == 0 and m.not_recorded:
+        if arm.calls == 0 and (m.not_recorded or m.http_error):
             # Only synonym answers were scored, so a percentage here would credit the model.
             accuracy, coverage, cost = "not measured: no recordings yet", "n/a", "n/a"
-        cells = [arm.name, accuracy, coverage, str(m.wrong), str(m.not_recorded), str(arm.calls)]
+        missing = str(m.not_recorded)
+        if m.invalid or m.http_error:
+            missing += f" (plus {m.invalid} invalid answers, {m.http_error} HTTP errors)"
+        cells = [arm.name, accuracy, coverage, str(m.wrong), missing, str(arm.calls)]
         rows.append("| " + " | ".join([*cells, cost]) + " |")
     return rows
 
@@ -444,7 +469,7 @@ def render_doc(result: BenchResult) -> str:
 
 
 def _cell(guess: str, expected: str) -> str:
-    if guess in (NOT_RECORDED, "skipped") or guess == expected:
+    if guess in (*NO_ANSWER, "skipped") or guess == expected:
         return "right" if guess == expected else guess
     return f"**{guess}**"
 

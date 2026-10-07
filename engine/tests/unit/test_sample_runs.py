@@ -55,6 +55,7 @@ def test_samples_are_written_exactly_as_the_models_write(sample: str, name: str)
         ("scorecard.json", lambda d: {**d, "exceptions_by_rule": {"DOB-002": 13}}),
         ("tie_out/variances.json", lambda d: {"variances": d["variances"][1:]}),
         ("tie_out/totals_by_carrier.json", lambda d: {**d, "group_by": "agent"}),
+        ("mapping_review.json", lambda d: {**d, "run_id": "another-run"}),
     ],
 )
 def test_check_run_dir_catches_files_that_disagree(tmp_path: Path, name: str, edit: Any) -> None:
@@ -125,3 +126,33 @@ def test_partial_sample_has_two_legs_ran_and_one_not_run() -> None:
     ran = [leg for stem, leg in legs.items() if stem != "crm_vs_statement"]
     assert all(leg.status == LegStatus.RAN for leg in ran)
     assert "TIE-004" not in {r.rule_id for r in exceptions(sample)}
+
+
+def test_check_run_dir_catches_a_review_that_points_at_a_wrong_exception(tmp_path: Path) -> None:
+    run = tmp_path / "run"
+    shutil.copytree(FIXTURES / "sample-run", run)
+    review = json.loads((run / "mapping_review.json").read_text())
+    check_run_dir(run)
+    other = exceptions("sample-run")[0]
+    assert other.rule_id not in ("MAP-001", "MAP-002")
+    item = {
+        "item_id": "mr-000000000000",
+        "source": "crm",
+        "file_name": "crm_export.csv",
+        "header": "Birth Dt",
+        "format_fingerprint": "0" * 16,
+        "samples": [],
+        "samples_withheld": False,
+        "allowed_fields": ["clients.dob", "none"],
+        "proposed_field": None,
+        "origin": "none",
+        "confidence": None,
+        "route": "person",
+        "reason": "mode_off",
+        "rows_with_value": 1,
+        "exception_ids": [other.id],
+        "explanation": "No synonym or saved mapping matched 'Birth Dt'.",
+    }
+    (run / "mapping_review.json").write_text(json.dumps({**review, "items": [item]}))
+    with pytest.raises(ValueError, match="not a MAP-001 or MAP-002"):
+        check_run_dir(run)

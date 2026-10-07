@@ -76,7 +76,8 @@
     "calls": 164,
     "input_tokens": 70509,
     "output_tokens": 6235,
-    "estimated_cost_usd": "0.002961"
+    "estimated_cost_usd": "0.002961",
+    "invalid_answers": 0
   },
   "budget_tripped": false,
   "thresholds": {

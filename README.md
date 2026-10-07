@@ -123,7 +123,7 @@ JEV_MODE=replay npm run verify                  # lint, types, tests and product
 (cd dashboard && npm run dev)                   # dashboard at http://localhost:3000
 ```
 
-The dashboard starts with its committed synthetic run. Optionally, `JEV_MODE=replay npm run demo` regenerates that run, replacing `runs/demo` and the committed dashboard demo copy; review the resulting diff. It also writes `runs/demo/report.html` and `runs/demo/clean/`. For a different synthetic drop folder, use `cd engine && uv run intake run --in <drop folder> --out <new run folder> --jev replay`. Never use real client or patient data. Live and record modes require explicit approval and can incur charges.
+The dashboard starts with its committed synthetic run. Optionally, `JEV_MODE=replay npm run demo` regenerates that run, replacing `runs/demo` and the committed dashboard demo copy; review the resulting diff. It also writes `runs/demo/report.html` and `runs/demo/clean/`. For a different synthetic drop folder, use `cd engine && uv run intake run --in <drop folder> --out <new run folder> --jev replay`. Never use real client or patient data. Live and record modes require explicit approval and can incur charges. To save a reviewer's mapping decisions from the dashboard for the next run: `cd engine && uv run intake mapping apply <decisions.json> --run <run folder> --in <drop folder>` (details in [docs/jev.md](docs/jev.md#saving-a-reviewers-mapping-decisions)).
 
 ## How Jev is used, and what it costs
 

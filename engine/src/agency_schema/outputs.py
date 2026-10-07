@@ -11,8 +11,10 @@ from typing import Annotated, Literal, Self
 
 from pydantic import AwareDatetime, Field, StrictBool, StrictInt, model_validator
 
+from agency_schema.enums import JevMode as JevMode  # re-exported: most code imports it here
 from agency_schema.exceptions import Probability
 from agency_schema.lineage import NonEmpty, OptionalText, RowNumber, Sha256, StrictModel
+from agency_schema.mapping_review import MappingReview
 from agency_schema.models import Money
 
 Count = Annotated[StrictInt, Field(ge=0)]
@@ -50,13 +52,6 @@ class RtsCellState(StrEnum):
     USED_WITHOUT_RTS = "USED_WITHOUT_RTS"  # an RTS-001 gap
 
 
-class JevMode(StrEnum):
-    REPLAY = "replay"
-    OFF = "off"
-    LIVE = "live"
-    RECORD = "record"
-
-
 class InputFile(StrictModel):
     source: NonEmpty  # crm, enrollment, statement_<carrier>, roster
     file_name: NonEmpty
@@ -71,10 +66,13 @@ class JevUsage(StrictModel):
     input_tokens: Count
     output_tokens: Count
     estimated_cost_usd: UsdCost
+    invalid_answers: Count  # replies that did not fit the question; never used, a person decides
 
     @model_validator(mode="after")
     def _off_means_no_calls(self) -> Self:
-        if self.mode == JevMode.OFF and (self.calls or self.input_tokens or self.output_tokens):
+        if self.mode == JevMode.OFF and (
+            self.calls or self.input_tokens or self.output_tokens or self.invalid_answers
+        ):
             raise ValueError("Jev mode off makes no calls")
         return self
 
@@ -339,4 +337,5 @@ RUN_FILE_MODELS: dict[str, type[StrictModel]] = {
     "tie_out/variances.json": VarianceReport,
     "tie_out/totals_by_carrier.json": Totals,
     "tie_out/totals_by_agent.json": Totals,
+    "mapping_review.json": MappingReview,
 }

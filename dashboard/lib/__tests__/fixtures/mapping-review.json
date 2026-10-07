@@ -1,0 +1,88 @@
+{
+  "run_id": "demo",
+  "mapping_version": "crm@3;enrollment@2;statement_bluepeak@1",
+  "jev_mode": "replay",
+  "items": [
+    {
+      "item_id": "mr-7d3467053406",
+      "source": "crm",
+      "file_name": "crm_export.csv",
+      "header": "Agent Remarks",
+      "format_fingerprint": "9f8e7d6c5b4a3921",
+      "samples": [],
+      "samples_withheld": true,
+      "allowed_fields": [
+        "clients.notes",
+        "policies.status",
+        "none"
+      ],
+      "proposed_field": null,
+      "origin": "none",
+      "confidence": null,
+      "route": "person",
+      "reason": "notes",
+      "rows_with_value": 412,
+      "exception_ids": [
+        "MAP-001:crm:Agent Remarks"
+      ],
+      "explanation": "This column looks like free text, so its values were not sent to Jev. A person must decide where it goes."
+    },
+    {
+      "item_id": "mr-3312038e37a5",
+      "source": "crm",
+      "file_name": "crm_export.csv",
+      "header": "Prem Amt",
+      "format_fingerprint": "9f8e7d6c5b4a3921",
+      "samples": [
+        "1**.**",
+        "2**.**",
+        "9*.**"
+      ],
+      "samples_withheld": false,
+      "allowed_fields": [
+        "policies.premium",
+        "policies.plan_id",
+        "clients.zip",
+        "none"
+      ],
+      "proposed_field": "policies.premium",
+      "origin": "jev_replay",
+      "confidence": 0.72,
+      "route": "suggest",
+      "reason": null,
+      "rows_with_value": 2600,
+      "exception_ids": [
+        "MAP-002:crm:Prem Amt"
+      ],
+      "explanation": "Jev (replay) suggested policies.premium at 0.72, below the 0.85 needed to map it automatically."
+    },
+    {
+      "item_id": "mr-ebdade8b39c3",
+      "source": "statement_bluepeak",
+      "file_name": "commissions_bluepeak.xlsx",
+      "header": "Comm Pd",
+      "format_fingerprint": "0123456789abcdef",
+      "samples": [
+        "4*.**",
+        "-1*.**"
+      ],
+      "samples_withheld": false,
+      "allowed_fields": [
+        "commission_lines.amount_paid",
+        "commission_lines.policy_id",
+        "none"
+      ],
+      "proposed_field": "commission_lines.amount_paid",
+      "origin": "jev_replay",
+      "confidence": 0.41,
+      "route": "unmapped",
+      "reason": null,
+      "rows_with_value": 318,
+      "exception_ids": [
+        "MAP-001:statement_bluepeak:Comm Pd",
+        "MAP-002:statement_bluepeak:Comm Pd"
+      ],
+      "explanation": "Jev (replay) suggested commission_lines.amount_paid at 0.41, too low to suggest. Left unmapped."
+    }
+  ]
+}

@@ -2,21 +2,27 @@
 
 A decision stored in mapping/<key>.yaml wins; otherwise the synonym table decides. The
 result is written back, so the next run starts from it and an unchanged file stays unchanged.
+A stored file with a format fingerprint is reused only for a file with the same headers;
+otherwise nothing in it is reused and MAP-005 (`format_changes`) names what changed.
 """
 
 import hashlib
+import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
 from agency_schema.enums import Severity
 from agency_schema.exceptions import SSN_PATTERN, ExceptionRecord, minimize_value
-from intake.config import CARRIED_FIELDS, REQUIRED_FIELDS
+from intake.config import CARRIED_FIELDS, NINE_DIGIT_PATTERN, REQUIRED_FIELDS
+from intake.mapping.fingerprint import format_fingerprint
 from intake.mapping.store import (
     MappingEntry,
     SourceMapping,
     dump_mapping,
     load_mapping,
+    reusable,
     save_mapping,
 )
 from intake.mapping.synonyms import COMPOSITE_FIELDS, Target, is_canonical, load_synonyms
@@ -52,8 +58,10 @@ def _kind(key: str) -> str:
 
 
 def _shown(header: str) -> str:
-    """A header as a message may show it: masked when it looks like an SSN."""
-    return (minimize_value(header) or "") if SSN_PATTERN.search(header) else header
+    """A header as outputs and Jev may see it: masked when it looks like an SSN, with or
+    without separators (123-45-6789 or 123456789)."""
+    risky = SSN_PATTERN.search(header) or re.search(NINE_DIGIT_PATTERN, header)
+    return (minimize_value(header) or "") if risky else header
 
 
 def _target(entry: MappingEntry) -> Target | None:
@@ -127,7 +135,7 @@ def map_headers(
     """Map one source's headers, save the mapping, and return it with its exceptions."""
     key = mapping_key(source, sheet)
     tables = SOURCE_TABLES.get(_kind(key), tuple(REQUIRED_FIELDS))
-    stored = load_mapping(mapping_dir, key)
+    stored = reusable(load_mapping(mapping_dir, key), format_fingerprint(headers))
     entries: list[MappingEntry] = []
     records: list[ExceptionRecord] = []
     taken: set[Target] = set()
@@ -149,14 +157,60 @@ def map_headers(
             near = list(load_synonyms().match(header, tables).candidates)
             records.append(_map_001(source, key, header, near))
         entries.append(entry)
-    if stored is not None:
+    if stored is not None and stored.format_fingerprint is None:
+        # An older file with no fingerprint keeps its other entries, as before. A file with a
+        # fingerprint lists exactly one format's headers, so nothing stale is carried forward.
         entries += [e for e in stored.entries if e.header not in headers]
-    mapping = SourceMapping(source=key, entries=tuple(entries))
+    fingerprint = stored.format_fingerprint if stored else None
+    mapping = SourceMapping(source=key, format_fingerprint=fingerprint, entries=tuple(entries))
     save_mapping(mapping_dir, mapping)
     if _kind(key) in SOURCE_TABLES and _kind(key) not in NOT_LOADED:
         records += _missing_required(source, tables, taken)
     version = hashlib.sha256(dump_mapping(mapping).encode()).hexdigest()[:12]
     return MappingResult(mapping, records, f"{key}-{version}")
+
+
+MAX_LISTED = 10  # headers named in one MAP-005 message; the rest are counted
+
+
+def _listed(headers: list[str]) -> str:
+    if not headers:
+        return "none"
+    shown = ", ".join(f'"{_shown(h)}"' for h in headers[:MAX_LISTED])
+    more = len(headers) - MAX_LISTED
+    return shown + (f", and {more} more" if more > 0 else "")
+
+
+def format_changes(tables: Sequence[RawTable], stored_dir: Path) -> list[ExceptionRecord]:
+    """MAP-005 for each file whose headers differ from the format its saved decisions are for.
+
+    Reads the saved mapping/ folder beside drop/ and writes nothing. Call it before mapping;
+    map_headers already refuses to reuse those decisions, so the changed headers fall back to
+    the synonym table and then Jev, and land in mapping_review.json.
+    """
+    if not stored_dir.is_dir():
+        return []
+    records = []
+    for table in tables:
+        key = mapping_key(table.source, table.sheet)
+        headers = [c for c in table.frame.columns if c != LINEAGE_COLUMN]
+        stored = load_mapping(stored_dir, key)
+        if stored is None or reusable(stored, format_fingerprint(headers)) is not None:
+            continue
+        added = [h for h in headers if stored.entry(h) is None]
+        removed = [e.header for e in stored.entries if e.header not in headers]
+        records.append(
+            file_exception(
+                "MAP-005",
+                Severity.WARNING,
+                table.source,
+                f"Export format changed since mappings were saved for {key}, so saved "
+                f"decisions were not reused. Added: {_listed(added)}. "
+                f"Removed: {_listed(removed)}.",
+                f"Review the mapping again and apply the decisions to mapping/{key}.yaml",
+            )
+        )
+    return records
 
 
 def map_table(table: RawTable, mapping_dir: Path, now: datetime) -> MappingResult:

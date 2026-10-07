@@ -124,7 +124,8 @@ class Unresolved(StrictModel):
 
     # not_recorded: a run in replay found no cassette and sent the question to a person (PR 12)
     # invalid_reply: the reply did not fit the question (JevBadReply); the answer is not used
-    reason: Literal["mode_off", "budget_tripped", "not_recorded", "invalid_reply"]
+    # http_error: live or record mode got an HTTP error from the API (JevHTTPError)
+    reason: Literal["mode_off", "budget_tripped", "not_recorded", "invalid_reply", "http_error"]
     question_ids: tuple[NonEmpty, ...]
 
 

@@ -112,6 +112,7 @@ export interface JevUsage {
   input_tokens: number;
   output_tokens: number;
   estimated_cost_usd: string;
+  invalid_answers: number;
 }
 
 export type Lane = "SUGGESTED_FIX" | "REVIEW" | "BUSINESS_EVENT" | "UNREVIEWED";
@@ -164,6 +165,50 @@ export interface Manifest {
   jev: JevUsage;
   budget_tripped: boolean;
   thresholds: Record<string, number>;
+}
+
+export interface MappingDecision {
+  item_id: string;
+  source: string;
+  header: string;
+  format_fingerprint: string;
+  action: "approve" | "correct" | "ignore";
+  field: string | null;
+}
+
+export interface MappingDecisions {
+  run_id: string;
+  mapping_version: string;
+  reviewer: string;
+  decided_at: string;
+  note: "a reviewer's note, not an authenticated approval";
+  decisions: MappingDecision[];
+}
+
+export interface MappingReview {
+  run_id: string;
+  mapping_version: string;
+  jev_mode: JevMode;
+  items: MappingReviewItem[];
+}
+
+export interface MappingReviewItem {
+  item_id: string;
+  source: string;
+  file_name: string;
+  header: string;
+  format_fingerprint: string;
+  samples: string[];
+  samples_withheld: boolean;
+  allowed_fields: string[];
+  proposed_field: string | null;
+  origin: "jev_replay" | "jev_live" | "jev_record" | "none";
+  confidence: number | null;
+  route: "auto" | "suggest" | "unmapped" | "person";
+  reason: string | null;
+  rows_with_value: number;
+  exception_ids: string[];
+  explanation: string;
 }
 
 export interface Policy {

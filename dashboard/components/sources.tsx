@@ -1,9 +1,11 @@
 import Link from "next/link";
 
+import { MappingReviewPanel } from "@/components/mapping-review-panel";
 import { SeverityBadge, TONES } from "@/components/severity-badge";
 import { PageHeader } from "@/components/tie-out";
 import { CARD } from "@/components/tiles";
 import { toneOf } from "@/lib/exceptions";
+import type { MappingReviewState } from "@/lib/mapping-review";
 import type { Run } from "@/lib/run-loader";
 import { summarizeSources, type SourceSummary } from "@/lib/sources";
 import { cn } from "@/lib/utils";
@@ -58,7 +60,7 @@ function SourceCard({ summary }: { summary: SourceSummary }) {
   );
 }
 
-export function Sources({ run }: { run: Run }) {
+export function Sources({ run, mappingReview }: { run: Run; mappingReview?: MappingReviewState }) {
   const summaries = summarizeSources(run);
   const clean = summaries.filter((summary) => summary.tone === "pass").length;
   // On a stopped run nothing was mapped, so count files read and say mapping was not checked.
@@ -70,6 +72,7 @@ export function Sources({ run }: { run: Run }) {
     <div className="page-stack">
       <PageHeader run={run} question="What did we receive, and did it read cleanly?">{header}</PageHeader>
       {summaries.map((summary) => <SourceCard key={summary.file.source} summary={summary} />)}
+      <MappingReviewPanel key={run.manifest.run_id} state={mappingReview} />
     </div>
   );
 }

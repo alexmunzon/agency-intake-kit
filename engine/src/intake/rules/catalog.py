@@ -25,6 +25,7 @@ ENTRIES = (
         E,
         "Canonical row violates its declared load-table schema or depends on an excluded parent",
     ),
+    ("MAP-005", W, "Export format changed since mappings were saved; saved decisions not reused"),
     ("SSN-001", B, "A column looks like SSNs; runs on raw frames before any model call"),
     ("CMP-001", B, "Rows received differ from rows expected; runs on raw frames"),
     ("CMP-002", W, "A source is missing entirely"),

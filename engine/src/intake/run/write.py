@@ -1,4 +1,5 @@
-"""Write a run directory: manifest, scorecard, exceptions, tie-out, RTS coverage, clean/.
+"""Write a run directory: manifest, scorecard, exceptions, tie-out, RTS coverage, mapping
+review, clean/.
 
 Every JSON file goes through its model, so the dashboard and check_run_dir read exactly what
 the models allow. With a frozen clock two runs of the same drop write byte-identical files.
@@ -15,6 +16,7 @@ import polars as pl
 from agency_schema.enums import Severity
 from agency_schema.exceptions import ExceptionRecord
 from agency_schema.lineage import StrictModel
+from agency_schema.mapping_review import MappingReview
 from agency_schema.outputs import (
     DetectionSummary,
     InputFile,
@@ -28,7 +30,9 @@ from agency_schema.outputs import (
     SeverityCounts,
 )
 from intake import __version__, config
+from intake.config import RAW_MAPPING_VERSION
 from intake.ingest import IngestResult
+from intake.mapping.review import REVIEW_FILE
 from intake.readers import RawTable
 from intake.run.clean import clean_row_count, clean_tables, write_clean
 from intake.run.statement_groups import collect_statement_groups
@@ -68,6 +72,7 @@ class RunOutputs:
     detection: DetectionSummary | None
     unresolved: tuple[UnresolvedEvidence, ...] = ()
     statement_totals: StatementTotals | None = None
+    mapping_review: MappingReview | None = None  # None: no mapping ran, so an empty review
 
 
 def sha256_file(path: Path) -> str:
@@ -127,6 +132,7 @@ def manifest(o: RunOutputs) -> Manifest:
             input_tokens=u.input_tokens,
             output_tokens=u.output_tokens,
             estimated_cost_usd=u.estimated_cost_usd,
+            invalid_answers=u.invalid_answers,
         ),
         budget_tripped=u.budget_tripped,
         thresholds=THRESHOLDS,
@@ -184,6 +190,10 @@ def write_run(o: RunOutputs, run_dir: Path) -> None:
     _json(scorecard(o, rows_clean), run_dir / "scorecard.json")
     _json(o.coverage, run_dir / "rts_coverage.json")
     write_tieout(o.tie, run_dir)
+    review = o.mapping_review or MappingReview(
+        run_id=o.run_id, mapping_version=RAW_MAPPING_VERSION, jev_mode=o.usage.mode, items=()
+    )
+    _json(review, run_dir / REVIEW_FILE)
     lines = "".join(r.model_dump_json() + "\n" for r in o.records)
     (run_dir / "exceptions.jsonl").write_text(lines, encoding="utf-8")
     (run_dir / "unresolved_evidence.jsonl").write_text(

@@ -14,7 +14,7 @@ import time
 from collections.abc import Callable
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 from pydantic import SecretStr, ValidationError
@@ -42,11 +42,16 @@ class SpendNotApproved(RuntimeError):
 
 
 class JevHTTPError(RuntimeError):
-    """The API refused the request. The text holds a short, redacted excerpt of the body."""
+    """The API refused the request, or never replied (a timeout or a refused connection).
 
-    def __init__(self, status_code: int, excerpt: str) -> None:
+    The text holds a short, redacted excerpt of the body. status_code is None when no HTTP
+    reply arrived; `what` names the problem without the body, for logs.
+    """
+
+    def __init__(self, status_code: int | None, excerpt: str) -> None:
         self.status_code = status_code
-        super().__init__(f"Jev returned HTTP {status_code}: {excerpt}")
+        self.what = f"HTTP {status_code}" if status_code is not None else f"no reply ({excerpt})"
+        super().__init__(f"Jev returned {self.what}: {excerpt}")
 
 
 class JevBadReply(ValueError):
@@ -125,6 +130,9 @@ class JevClient:
         self._calls = 0
         self._input_tokens = 0
         self._output_tokens = 0
+        self._invalid = 0
+        # How the last answer was obtained: "cassette" (a saved reply) or "api" (paid for now).
+        self.last_source: Literal["cassette", "api"] | None = None
         self._tripped = spends and budget_usd == 0
 
     @classmethod
@@ -144,11 +152,19 @@ class JevClient:
             input_tokens=self._input_tokens,
             output_tokens=self._output_tokens,
             estimated_cost_usd=estimate_cost_usd(self._input_tokens),
+            invalid_answers=self._invalid,
             budget_usd=self._budget,
             budget_tripped=self._tripped,
         )
 
     def ask(self, request: JevRequest, *, pii_cleared: bool = False) -> JevResponse | Unresolved:
+        try:
+            return self._ask(request, pii_cleared=pii_cleared)
+        except JevBadReply:
+            self._invalid += 1  # counted for the manifest; the caller sends it to a person
+            raise
+
+    def _ask(self, request: JevRequest, *, pii_cleared: bool) -> JevResponse | Unresolved:
         if not pii_cleared and has_notes(request.state):
             raise ValueError("A notes field cannot go to Jev before it passes the PII gate")
         qids = tuple(request.questions)
@@ -160,10 +176,12 @@ class JevClient:
         # live always calls the API. Only replay and record read cassettes.
         raw = None if self.mode == JevMode.LIVE else load_cassette(self._cassette_dir, body)
         saved_at: Path | None = None
+        self.last_source = "cassette" if raw is not None else None
         if raw is None:
             if self.mode == JevMode.REPLAY:
                 raise CassetteMiss(request_hash(body), self._cassette_dir)
             raw = self._post(body)
+            self.last_source = "api"
             if self.mode == JevMode.RECORD:
                 # Saved before validation: the reply was paid for, so a retry must not pay again.
                 saved_at = save_cassette(self._cassette_dir, body, raw)
@@ -214,7 +232,12 @@ class JevClient:
         headers = {"Authorization": f"Bearer {self._key.get_secret_value()}"}
         with httpx.Client(transport=self._transport, timeout=JEV_TIMEOUT_S) as http:
             for attempt in range(1, JEV_MAX_TRIES + 1):
-                reply = http.post(JEV_API_URL, json=body, headers=headers)
+                try:
+                    reply = http.post(JEV_API_URL, json=body, headers=headers)
+                except httpx.TransportError as error:  # a timeout or refused connection
+                    # Not retried: a timed-out request may still be billed. The error class
+                    # name only; its text could repeat the request.
+                    raise JevHTTPError(None, type(error).__name__) from None
                 if reply.status_code == 200:
                     try:
                         data = reply.json()

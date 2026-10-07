@@ -11,8 +11,9 @@ from pydantic import StrictInt, model_validator
 
 from agency_schema.lineage import Lineage, NonEmpty, StrictModel
 from intake.ingest import IngestResult
+from intake.mapping.fingerprint import format_fingerprint
 from intake.mapping.headers import mapping_key
-from intake.mapping.store import load_mapping, mapping_dir_for
+from intake.mapping.store import load_mapping, mapping_dir_for, reusable
 from intake.mapping.synonyms import Target, load_synonyms
 from intake.normalize import MONEY_LIMIT, NotMoney, parse_money
 from intake.readers import RawTable
@@ -111,7 +112,11 @@ def _money_text(value: Decimal) -> str:
 
 def _amount_header(table: RawTable, drop: Path) -> str | None:
     """Read prior decisions, including manual ignore, without writing mapping files."""
-    stored = load_mapping(mapping_dir_for(drop), mapping_key(table.source, table.sheet))
+    headers = [c for c in table.frame.columns if c != "lineage"]
+    stored = reusable(
+        load_mapping(mapping_dir_for(drop), mapping_key(table.source, table.sheet)),
+        format_fingerprint(headers),
+    )
     target = Target("commission_lines", "amount")
     selected: list[str] = []
     for header in table.frame.columns:

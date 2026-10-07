@@ -1,5 +1,12 @@
 # Changelog
 
+## Jev mapping review, 2026-10-07
+
+- Every run now writes `mapping_review.json`: one item for each column the synonym table and saved decisions did not settle, with masked samples, Jev's proposal, where the answer came from (replay, live or record), the model's own confidence, rows with a value, linked MAP-001 and MAP-002 ids, the file's format fingerprint, and a plain explanation built from those facts. Two files under one source each get their own items. The manifest counts invalid Jev answers. An HTTP error, timeout or refused connection from Jev leaves the column for a person instead of stopping the run, and a header that looks like an SSN is masked in the file and in the question to Jev.
+- The Sources page shows a review panel for that file: approve the proposal, correct it to another allowed field, ignore the column, or leave it unresolved. "Download decisions" saves a file in the browser and sends nothing anywhere. It warns when two columns would get the same field. The file is a reviewer's note, not an authenticated approval.
+- New `intake mapping apply` saves those decisions into `mapping/<source>.yaml` beside the drop, after checking them against the run's review and the drop. It refuses any mismatch, conflicting decisions, or a field another column already holds, and keeps the previous file as `<source>.yaml.prev`. Later runs reuse saved decisions only while the export's header format is unchanged; a changed format raises new warning MAP-005 naming the added and removed headers and sends the columns back to review.
+- The header mapping benchmark counts invalid answers and HTTP errors on their own instead of crashing. The demo run is regenerated in replay mode; only `mapping_review.json` and the new `invalid_answers` counter change.
+
 ## Remove braces entirely, 2026-10-06
 
 - Give Next's lint plugin a small local fast-glob stand-in built on Node's `fs.globSync` (npm override), so braces GHSA-vfj7-8cjw-p6xm (no patched release) and micromatch are no longer installed as packages (Vite still bundles a dormant copy in its file watcher, which test runs turn off; see SECURITY.md). 15 packages removed, none upgraded; full `npm audit` now reports zero findings. The stand-in matches fast-glob 3.3.1 on recorded ordinary `rootDir` patterns and refuses brace patterns; all lint rules still run. The deployed site is unchanged.

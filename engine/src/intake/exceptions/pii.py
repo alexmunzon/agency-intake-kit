@@ -28,6 +28,7 @@ from intake.config import PII_HEALTH_WORDS, PII_REDACT, PII_REDACTED_TEXT, PII_R
 from jev_client import (
     JevBadReply,
     JevClient,
+    JevHTTPError,
     JevRequest,
     JevResponse,
     NoulAnswer,
@@ -243,6 +244,9 @@ def pii_gate(items: Sequence[FreeText], client: JevClient) -> list[GateResult]:
                 answer = client.ask(request)
             except JevBadReply as error:  # an answer that does not fit is no answer: fail closed
                 log.warning("Jev PII answer not used, text redacted (%s)", error.log_safe())
+                answer = None
+            except JevHTTPError as error:  # no answer is no clearance: fail closed
+                log.warning("Jev PII check got %s, text redacted", error.what)
                 answer = None
             pii = answer.answers["pii"] if isinstance(answer, JevResponse) else None
             asked[key] = pii.noul if isinstance(pii, NoulAnswer) else None

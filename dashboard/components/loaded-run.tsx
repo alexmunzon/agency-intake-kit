@@ -58,7 +58,7 @@ export function RunSwitch({ page, children }: { page: PageName; children: ReactN
     case "overview":
       return <Overview run={run} tieOut={tieOut} />;
     case "sources":
-      return <Sources run={run} />;
+      return <Sources run={run} mappingReview={loaded.mappingReview} />;
     case "exceptions":
       return <ExceptionsPage key={run.manifest.run_id} run={run} />;
     case "tie-out":
