@@ -24,4 +24,6 @@ jobs:
           node-version: 24
 
       - name: Check advisory
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/braces-advisory.mjs

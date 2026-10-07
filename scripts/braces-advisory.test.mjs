@@ -49,3 +49,15 @@ test("a response without the npm braces entry fails instead of passing", () => {
     assert.equal(assess(advisory).ok, false);
   }
 });
+
+test("a fix listed in a second braces entry still fails", () => {
+  const advisory = current();
+  advisory.vulnerabilities.push({
+    package: { ecosystem: "npm", name: "braces" },
+    vulnerable_version_range: ">= 4.0.0, <= 4.0.1",
+    first_patched_version: "4.0.2",
+  });
+  const result = assess(advisory);
+  assert.equal(result.ok, false);
+  assert.match(result.message, /4\.0\.2/);
+});
