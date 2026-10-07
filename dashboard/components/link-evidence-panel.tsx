@@ -56,7 +56,7 @@ export function LinkEvidencePanel({ links }: { links?: LinkEvidence[] }) {
         <>
           <dl className="grid grid-cols-2 gap-2 text-sm tabular-nums sm:grid-cols-4" aria-label="Link state counts">
             {STATES.map((state) => (
-              <div key={state} className="rounded-lg border border-border p-3">
+              <div key={state} className="p-3">
                 <dt className="capitalize">{state}</dt>
                 <dd className="text-lg font-semibold">{links.filter((link) => link.state === state).length.toLocaleString("en-US")}</dd>
               </div>
@@ -101,9 +101,9 @@ export function LinkEvidencePanel({ links }: { links?: LinkEvidence[] }) {
           </div>
           {lastPage > 0 && (
             <nav aria-label="Policy link evidence pages" className="flex items-center gap-3 text-sm">
-              <button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)} className="rounded border px-3 py-1 disabled:opacity-50">Previous</button>
+              <button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)} className="rounded border px-3 py-1 disabled:bg-card disabled:text-muted-foreground">Previous</button>
               <span role="status">Page {currentPage + 1} of {lastPage + 1}; showing {shown.length} of {count} records</span>
-              <button type="button" disabled={currentPage === lastPage} onClick={() => setPage(currentPage + 1)} className="rounded border px-3 py-1 disabled:opacity-50">Next</button>
+              <button type="button" disabled={currentPage === lastPage} onClick={() => setPage(currentPage + 1)} className="rounded border px-3 py-1 disabled:bg-card disabled:text-muted-foreground">Next</button>
             </nav>
           )}
         </>

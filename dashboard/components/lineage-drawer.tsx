@@ -85,7 +85,7 @@ export function LineageDrawer({ record, jevMode, onClose }: { record: ExceptionR
         <h2 id="drawer-title" className="text-base font-semibold">
           <span className="font-mono">{record.rule_id}</span> on <span className="font-mono">{record.id}</span>
         </h2>
-        <button ref={closeButton} onClick={onClose} className="rounded-md border border-border px-2 py-1 text-xs focus-visible:outline-2 focus-visible:outline-primary">
+        <button ref={closeButton} onClick={onClose} className="rounded-md border border-border px-2 py-1 text-xs focus-visible:outline-2 focus-visible:outline-ring">
           Close
         </button>
       </div>
@@ -115,7 +115,7 @@ export function LineageDrawer({ record, jevMode, onClose }: { record: ExceptionR
               value={
                 <span className="flex items-center gap-2 tabular-nums">
                   <span aria-hidden className="h-2 w-24 rounded bg-muted">
-                    <span data-score={key} className="block h-2 rounded bg-primary" style={{ width: `${((jev[key] as number) / max) * 100}%` }} />
+                    <span data-score={key} className="block h-2 rounded bg-muted-foreground" style={{ width: `${((jev[key] as number) / max) * 100}%` }} />
                   </span>
                   {format(jev[key] as number)}
                 </span>

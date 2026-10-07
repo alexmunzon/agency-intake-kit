@@ -10,7 +10,7 @@ const REASONS = { valid: "Valid amount", amount_blank: "Amount blank",
 
 function Row({ line }: { line: StatementLine }) {
   const lin = line.lineage;
-  return <li className="space-y-2 rounded-lg border border-border p-3 text-sm break-all">
+  return <li className="space-y-2 border-b border-border p-3 last:border-0 text-sm break-all">
     <p className="font-medium">{REASONS[line.reason]}: {line.amount === null ? "Not included" : formatMoney(line.amount)}</p>
     <p>{line.source}: {lin.source_file}{lin.sheet ? `, ${lin.sheet}` : ""}, row {lin.row_number}</p>
     <details><summary className="cursor-pointer text-primary underline underline-offset-4">Full source provenance</summary>
@@ -44,9 +44,9 @@ export function StatementTotalsPanel({ totals }: { totals?: StatementTotals }) {
         <ul className="space-y-3">{lines.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE).map(line =>
           <Row key={JSON.stringify([line.lineage.source_file, line.lineage.sheet, line.lineage.row_number])} line={line} />)}</ul>
         {pages > 1 && <nav aria-label="Statement row pages" className="flex flex-wrap items-center gap-3 text-sm">
-          <button type="button" aria-label="Previous statement page" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)} className="rounded border px-3 py-1 disabled:opacity-50">Previous</button>
+          <button type="button" aria-label="Previous statement page" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)} className="rounded border px-3 py-1 disabled:bg-card disabled:text-muted-foreground">Previous</button>
           <span role="status">Page {currentPage + 1} of {pages}</span>
-          <button type="button" aria-label="Next statement page" disabled={currentPage === pages - 1} onClick={() => setPage(currentPage + 1)} className="rounded border px-3 py-1 disabled:opacity-50">Next</button>
+          <button type="button" aria-label="Next statement page" disabled={currentPage === pages - 1} onClick={() => setPage(currentPage + 1)} className="rounded border px-3 py-1 disabled:bg-card disabled:text-muted-foreground">Next</button>
         </nav>}
       </>}
   </section>;

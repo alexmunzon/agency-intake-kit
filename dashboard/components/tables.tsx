@@ -25,11 +25,11 @@ export function DataTable<T extends RowData>({ label, columns, data, rowLabel, o
   return (
     <div role="region" aria-label={`${label} table`} tabIndex={0} className={cn(CARD, "evidence-table-wrap max-h-[70vh] overflow-auto")}>
       <table aria-label={label} className="evidence-table w-full min-w-[720px] text-left tabular-nums">
-        <thead className="sticky top-0 z-20 bg-muted">
+        <thead className="sticky top-0 z-20 bg-card">
           {table.getHeaderGroups().map((group) => (
             <tr key={group.id}>
               {group.headers.map((header, index) => (
-                <th key={header.id} scope="col" className={cn("px-3 py-2 font-medium", index === 0 && "sticky left-0 z-10 bg-muted")}>
+                <th key={header.id} scope="col" className={cn("px-3 py-2 font-medium", index === 0 && "sticky left-0 z-10 bg-card")}>
                   <table.FlexRender header={header} />
                 </th>
               ))}

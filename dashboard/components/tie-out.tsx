@@ -6,7 +6,7 @@ import { StatementTotalsPanel } from "@/components/statement-totals-panel";
 import type { LinkEvidence } from "@/lib/link-evidence";
 import type { StatementTotals } from "@/lib/statement-totals";
 
-import { SeverityBadge, SeverityIcon, TONES, type Tone } from "@/components/severity-badge";
+import { SeverityBadge, SeverityIcon, type Tone } from "@/components/severity-badge";
 import { CARD } from "@/components/tiles";
 import { formatMoney } from "@/lib/money";
 import { plural, tieOutSummary } from "@/lib/overview";
@@ -38,7 +38,6 @@ export function PageHeader({ run, question, children }: { run: Run; question: st
 export function Answer({ tone, text, detail }: { tone: Tone; text: string; detail?: string | null }) {
   return (
     <section aria-label="Answer" data-tone={tone} className={cn(CARD, "decision-panel relative overflow-hidden p-4 pl-6")}>
-      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", TONES[tone].band)} />
       <p className="decision-title flex items-start gap-2 font-semibold">
         <SeverityIcon tone={tone} className="mt-0.5 size-5" />
         {text}

@@ -120,7 +120,7 @@ export function LoadRun({ demoRunId }: { demoRunId: string }) {
       </div>
 
       {errors.length > 0 && (
-        <div role="alert" className={cn(CARD, "border-rose-300 p-4 text-sm dark:border-rose-800")}>
+        <div role="alert" className={cn(CARD, "p-4 text-sm")}>
           <p className="font-medium">These files could not be loaded. The pages still show the run from before.</p>
           <ul className="mt-2 list-disc space-y-1 pl-5 break-words">
             {errors.map((error) => <li key={error}>{error}</li>)}

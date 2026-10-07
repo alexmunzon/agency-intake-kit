@@ -47,6 +47,25 @@ describe("LinkEvidencePanel", () => {
     expect(evidence.getByText("a".repeat(64))).toBeInTheDocument();
   });
 
+  it("keeps unresolved state and source citation visible with evidence closed or open", () => {
+    render(<LinkEvidencePanel links={[link(4, "12.34", "P-CANDIDATE")]} />);
+    const row = within(screen.getByRole("table", { name: "Statement lines and candidate policies" })).getByRole("row", { name: /synthetic\.xlsx/ });
+    const evidence = within(row);
+    const details = evidence.getByText("Source and candidates", { selector: "summary" }).closest("details")!;
+    expect(details).not.toHaveAttribute("open");
+    expect(evidence.getByText("P-CANDIDATE")).not.toBeVisible();
+    for (const open of [true, false]) {
+      details.open = open;
+      fireEvent(details, new Event("toggle"));
+      expect(evidence.getByText("synthetic.xlsx, Statement, row 4")).toBeVisible();
+      expect(evidence.getByText("provisional")).toBeVisible();
+      expect(evidence.getByText("Name and date of birth only")).toBeVisible();
+      expect(evidence.getByText("None confirmed")).toBeVisible();
+      if (open) expect(evidence.getByText("P-CANDIDATE")).toBeVisible();
+      else expect(evidence.getByText("P-CANDIDATE")).not.toBeVisible();
+    }
+  });
+
   it("keeps signed negative amounts and does not render a null amount as zero", () => {
     render(<LinkEvidencePanel links={[link(1, "-2.50"), link(2, null)]} />);
     expect(screen.getByText("-$2.50")).toBeInTheDocument();
