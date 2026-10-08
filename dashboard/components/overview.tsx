@@ -101,7 +101,7 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
       <PageHeader run={run} question="What needs review before handoff?">For implementation and data operations: check incoming agency files, resolve exceptions, and hand the evidence to finance and operations.</PageHeader>
       <StatusBanner run={run} />
       <section aria-label="Load quality" className="metric-strip">
-        {SEVERITY_TILES.map(({ key, tone, label, context }) => {
+        {SEVERITY_TILES.filter(({ key }) => key !== "info").map(({ key, tone, label, context }) => {
           // A blocker stops the run before row checks. Raw-stage checks (like a missing file) still ran,
           // so a count found before the stop is shown with that context. Zero there means not checked.
           const count = scorecard.exceptions_by_severity[key];
@@ -120,6 +120,11 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
           context={failed ? "No load files written" : `of ${scorecard.rows_in.toLocaleString("en-US")} rows read`}
         />
       </section>
+      <div role="group" aria-label="Info" className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5"><SeverityIcon tone="info" />Informational notes</span>
+        <span className="font-medium tabular-nums">{failed && scorecard.exceptions_by_severity.info === 0 ? "Not checked" : scorecard.exceptions_by_severity.info.toLocaleString("en-US")}</span>
+        <span>{failed ? (scorecard.exceptions_by_severity.info === 0 ? "The run stopped before row checks" : STOPPED) : "Notes only, nothing to fix"}</span>
+      </div>
       <section aria-label="Financial and operational checks" className="space-y-3">
         <h2 className="section-eyebrow">Financial and operational checks</h2>
         <div className="overview-check-grid grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">

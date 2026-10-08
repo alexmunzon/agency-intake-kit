@@ -54,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <p>Agency Data Trust Series</p>
               <p>Separate demos, shared trust principles.</p>
               <ol>
-                <li><span aria-current="page">1. Intake Kit</span></li>
+                <li><span aria-current="page">1. Agency Intake Kit</span></li>
                 <li><a href="https://bob-resolve-nine.vercel.app" className="underline">2. Bob Resolve</a></li>
                 <li><a href="https://plan-diff.vercel.app" className="underline">3. Plan Diff</a></li>
               </ol>
@@ -64,7 +64,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main-content" tabIndex={-1} className="app-main min-w-0">
             <LoadedRunBanner />
             <aside aria-label="Review scope" className="trust-note mb-6 text-sm text-muted-foreground">
-              Synthetic review only. Source completeness, exclusions, identity uncertainty, and financial totals require separate evidence. Browser review labels are not authenticated approval.
+              Synthetic demo · human review required
             </aside>
             {children}
           </main>

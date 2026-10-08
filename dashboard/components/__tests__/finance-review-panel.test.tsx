@@ -95,7 +95,10 @@ function makePaginatedReview() {
 describe("FinanceReviewPanel", () => {
   it("keeps mapping approval separate from an uncertain statement control total", () => {
     renderPanel();
-    expect(screen.getByText("Approved by Synthetic Reviewer at 2026-10-05T12:00:00Z")).toBeInTheDocument();
+    expect(screen.getByText(/Declared by Synthetic Reviewer at/)).toHaveTextContent("Oct 5, 2026, 12:00:00 PM UTC");
+    expect(screen.getByText("Oct 5, 2026, 12:00:00 PM UTC")).toHaveAttribute("datetime", "2026-10-05T12:00:00Z");
+    expect(screen.getByText("2026-10-05T12:00:00Z").closest("details")).not.toHaveAttribute("open");
+    expect(screen.getByText("Mapping approval is supplied provenance, not authenticated authorization.")).toBeInTheDocument();
     expect(screen.getByText("Totals differ")).toBeInTheDocument();
     expect(screen.getByText("This check does not approve the package.")).toBeInTheDocument();
     expect(within(screen.getByRole("group", { name: "Statement total" })).getByText("-0.01")).toBeInTheDocument();

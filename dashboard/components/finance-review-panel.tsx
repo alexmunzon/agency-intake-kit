@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { EvidenceTime } from "@/components/evidence-time";
 import { Button } from "@/components/ui/button";
 import { CARD, Tile } from "@/components/tiles";
 import { TABLE, TABLE_WRAP } from "@/components/tie-out";
@@ -19,8 +20,7 @@ export function FinanceReviewPanel({ statements }: { statements: readonly Financ
       <header>
         <h2 className="text-[22px] font-semibold tracking-tight">Review statement revenue</h2>
         <p className={MUTED}>
-          Neutral finance review. Amounts retain their signs and server precision.
-          Mapping approval records supplied provenance, not an authenticated authorization. Statement control checks are separate. Customer and policy attribution remain unresolved.
+          Amounts retain their signs and server precision. Customer and policy attribution remain unresolved.
         </p>
       </header>
       {statements.length === 0 && <p className={`${CARD} p-4`}>No finance statements supplied.</p>}
@@ -49,11 +49,10 @@ function StatementReview({ statement }: { statement: FinanceReview }) {
               context="This check does not approve the package." />
           </div>
           <dl className={`grid min-w-0 grid-cols-1 gap-3 text-sm sm:grid-cols-2 [&>div]:min-w-0 ${WORDS}`}>
-            <div><dt className={MUTED}>Mapping approval</dt><dd>{statement.mapping_approved ? `Approved by ${statement.approved_by} at ${statement.approved_at}` : "Awaiting a person's approval"}</dd></div>
+            <div><dt className={MUTED}>Mapping approval</dt><dd>{statement.mapping_approved ? <>Declared by {statement.approved_by}{statement.approved_at && <> at <EvidenceTime value={statement.approved_at} /></>}</> : "Awaiting a person's approval"}</dd></div>
             <div><dt className={MUTED}>Mapping</dt><dd>{statement.mapping_id} · Version {statement.mapping_version}</dd></div>
-            <div><dt className={MUTED}>Mapping hash</dt><dd className="font-mono text-xs">{statement.mapping_sha256}</dd></div>
-            <div><dt className={MUTED}>Statement content hash</dt><dd className="font-mono text-xs">{statement.content_sha256}</dd></div>
           </dl>
+          <p className={MUTED}>Mapping approval is supplied provenance, not authenticated authorization.</p>
           <div role="region" aria-label={`Category totals for ${statement.statement_id}`} tabIndex={0} className={`min-w-0 ${TABLE_WRAP}`}>
             <table className={TABLE}>
               <caption className="p-3 text-left text-sm font-medium">Category totals for this statement revision</caption>
@@ -97,6 +96,14 @@ function StatementReview({ statement }: { statement: FinanceReview }) {
               ))}</tbody>
             </table>
           </div>
+          <details className={MUTED}>
+            <summary className="cursor-pointer font-medium">Statement hashes and exact approval evidence</summary>
+            <dl className={`mt-3 space-y-3 ${WORDS}`}>
+              <div><dt>Mapping hash</dt><dd className="font-mono text-xs">{statement.mapping_sha256}</dd></div>
+              <div><dt>Statement content hash</dt><dd className="font-mono text-xs">{statement.content_sha256}</dd></div>
+              <div><dt>Declared approval timestamp</dt><dd>{statement.approved_at ?? "Not supplied"}</dd></div>
+            </dl>
+          </details>
         </article>
   );
 }

@@ -20,7 +20,9 @@ describe('readiness page', () => {
     render(<SourceReadiness />);
     expect(screen.getByText('Readiness unknown')).toBeInTheDocument();
     expect(screen.queryByText('Expected coverage complete')).not.toBeInTheDocument();
-    expect(screen.getByText(/Browser memory only/)).toBeInTheDocument();
+    expect(screen.getByText(/Browser memory only/).closest("details")).not.toHaveAttribute("open");
+    expect(screen.getByText("Download a package to keep your edits. Refreshing or leaving this page clears them.")).toBeVisible();
+    expect(screen.queryByText("Synthetic data only · Source readiness")).not.toBeInTheDocument();
   });
   it('keeps valid state after malformed or stale-hash import', async () => {
     render(<SourceReadiness />);
