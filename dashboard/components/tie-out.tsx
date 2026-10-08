@@ -27,7 +27,6 @@ export function PageHeader({ run, question, children }: { run: Run; question: st
       <div className="page-provenance">
         <p className="eyebrow">Agency intake assessment</p>
         <p className="run-reference">Run <span className="font-mono">{run.manifest.run_id}</span></p>
-        <span className="synthetic-label">Synthetic data only.</span>
       </div>
       <h1>{question}</h1>
       {children && <p className="page-description">{children}</p>}

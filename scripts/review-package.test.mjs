@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -7,6 +8,7 @@ import { buildReviewPackage } from './review-package.mjs';
 
 test('packages exact committed synthetic Intake bytes without combining demos', async () => {
  const p = await buildReviewPackage(new URL('../dashboard/public/demo-run', import.meta.url), 'synthetic-agency-a');
+ assert.equal(await readFile(new URL('../dashboard/public/demo-review-package.json', import.meta.url), 'utf8'), JSON.stringify(p) + '\n');
  assert.equal(p.intake_run_id, 'demo'); assert.equal(p.artifacts.length, 4);
  assert.ok(p.artifacts.every(a => Buffer.byteLength(a.content) === a.size_bytes));
 });

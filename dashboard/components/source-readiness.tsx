@@ -48,10 +48,11 @@ export function SourceReadiness() {
   }
   return <div className={`space-y-6 ${WORDS}`}>
     <header className="space-y-2">
-      <p className="text-sm text-muted-foreground">Synthetic data only · Source readiness</p>
+      <p className="text-sm text-muted-foreground">Source readiness</p>
       <h1 className="text-3xl font-semibold">Are the expected files ready?</h1>
       <p>Coverage matches agency, carrier, file type and period. Freshness uses the source date and an explicit cutoff, never the delivery time.</p>
-      <p className="text-sm text-muted-foreground">Browser memory only. Refreshing or leaving this page clears the view and edits. Download a package to keep it on your device. There is no hosted storage or authenticated approval.</p>
+      <p className="text-sm text-muted-foreground">Download a package to keep your edits. Refreshing or leaving this page clears them.</p>
+      <details className="text-sm text-muted-foreground"><summary className="cursor-pointer">Storage and review limits</summary><p className="mt-2">Browser memory only. There is no hosted storage or authenticated approval.</p></details>
     </header>
     <section aria-label="Load readiness package" className={`${CARD} space-y-3 p-4`}>
       <p className="text-sm">Imports into the same agency and readiness run must retain all version, receipt and evidence history. A different agency or run switches the package. Clearing the view allows a fresh snapshot.</p>

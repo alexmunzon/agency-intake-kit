@@ -54,6 +54,7 @@ describe("Review package", () => {
       expect(labels).toContain(label);
     }
     expect(gates?.textContent).toContain("separate authorization and implementation");
-    expect(doc.querySelector("button")?.textContent).toBe("Clear summary");
+    expect(doc.querySelector("button")?.textContent).toBe("Load synthetic example");
+    expect([...doc.querySelectorAll("button")].find(button => button.textContent === "Clear summary")?.hasAttribute("disabled")).toBe(true);
   });
 });

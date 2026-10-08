@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add an explicit synthetic package example generated from the unchanged committed Intake run, with the same artifact validation and same-run continuity checks as uploads. Disable empty Clear actions, support cancelling an initial load, and preserve unavailable evidence and valid snapshots after failed replacements.
+- Lead Revenue breakdown with exact signed active totals, unclassified amounts, category evidence and source rows. Retain receipt history and hashes in native disclosures, with readable UTC times and exact original timestamps. No calculation, rule or frozen fixture changes.
+- Consolidate the visible synthetic/human-review notice, retain contextual review limits and move implementation details into disclosures. Keep the V2 brown palette, use the full Agency Intake Kit name, and place theme controls after navigation in every viewport. Show informational counts below the four primary quality metrics.
+
 - Add a visible, accessible V2 badge beside the app title.
 
 - Frame the overview and newly generated reports as human-reviewed data handoffs, not agency go-live approval. Keep financial/source evidence prominent and move model/runtime diagnostics and uncalibrated model scores into expandable details. Rename the ledger navigation to Revenue breakdown. No rule, fixture or benchmark changes.

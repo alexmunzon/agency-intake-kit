@@ -63,7 +63,6 @@ export function LoadRun({ demoRunId }: { demoRunId: string }) {
       <header className="page-header">
         <div className="page-provenance">
           <p className="eyebrow">Run evidence workspace</p>
-          <span className="synthetic-label">Synthetic data only.</span>
         </div>
         <h1>Load your own run</h1>
         <p className="page-description">

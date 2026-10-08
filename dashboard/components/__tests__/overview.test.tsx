@@ -75,6 +75,13 @@ describe("Overview", () => {
     expect(tile("Jev AI review").getByText("0 calls")).toBeInTheDocument();
   });
 
+  it("keeps secondary informational notes unknown when a blocked run never checked them", async () => {
+    await show("sample-run-failed", run => { run.scorecard.exceptions_by_severity.info = 0; });
+    expect(tile("Info").getByText("Not checked")).toBeInTheDocument();
+    expect(tile("Info").getByText("The run stopped before row checks")).toBeInTheDocument();
+    expect(tile("Info").queryByText("0")).not.toBeInTheDocument();
+  });
+
   it("answers yes for the passed sample", async () => {
     await show("sample-run-passed");
     expect(screen.getByText("Data checks passed. Human sign-off still required.")).toBeInTheDocument();

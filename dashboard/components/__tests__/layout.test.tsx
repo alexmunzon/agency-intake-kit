@@ -20,6 +20,18 @@ describe("RootLayout", () => {
     expect(doc.querySelector('a[href="/ledger"]')?.textContent).toBe("Revenue breakdown");
   });
 
+  it("shows one short trust notice and keeps the theme footer after navigation and demo links", () => {
+    const html = renderToStaticMarkup(<RootLayout params={Promise.resolve({})}>page</RootLayout>);
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const notice = doc.querySelector('[aria-label="Review scope"]');
+    expect(notice?.textContent).toBe("Synthetic demo · human review required");
+    expect(doc.querySelectorAll('[aria-label="Review scope"]')).toHaveLength(1);
+    const nav = doc.querySelector('nav[aria-label="Main"]')!;
+    expect(nav.lastElementChild?.classList.contains("sidebar-footer")).toBe(true);
+    expect(nav.lastElementChild?.querySelector("button")?.textContent).toBe("Dark mode");
+    expect(nav.textContent).not.toContain("human review required");
+  });
+
   it("lets the page column shrink beside the sidebar so wide tables scroll in their own box", () => {
     const html = renderToStaticMarkup(<RootLayout params={Promise.resolve({})}>page</RootLayout>);
     const main = new DOMParser().parseFromString(html, "text/html").querySelector("main");
@@ -31,7 +43,7 @@ describe("RootLayout", () => {
     const doc = new DOMParser().parseFromString(html, "text/html");
     const series = doc.querySelector('[aria-label="Agency Data Trust Series"]');
     expect(series?.textContent).toContain("Separate demos");
-    expect(series?.querySelector('[aria-current="page"]')?.textContent).toBe("1. Intake Kit");
+    expect(series?.querySelector('[aria-current="page"]')?.textContent).toBe("1. Agency Intake Kit");
     expect(series?.querySelector('a[href="https://bob-resolve-nine.vercel.app"]')?.textContent).toBe("2. Bob Resolve");
     expect(series?.querySelector('a[href="https://plan-diff.vercel.app"]')?.textContent).toBe("3. Plan Diff");
   });

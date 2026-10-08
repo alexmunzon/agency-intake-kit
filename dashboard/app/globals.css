@@ -265,7 +265,7 @@ a, button, select, input, summary { -webkit-tap-highlight-color: transparent; }
 @media (min-width: 541px) {
   .metric-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .metric-strip > .metric-tile:nth-child(odd) { border-right: 1px solid var(--border); }
-  .metric-strip > .metric-tile:last-child { grid-column: 1 / -1; border-right: 0; }
+  .metric-strip > .metric-tile:last-child { border-right: 0; }
 }
 @media (min-width: 1024px) {
   .app-sidebar { position: sticky; top: 0; width: 240px; height: 100dvh; overflow-y: auto; }
@@ -276,7 +276,7 @@ a, button, select, input, summary { -webkit-tap-highlight-color: transparent; }
   .sidebar-footer { padding-top: 4px; padding-bottom: 24px; }
   .theme-toggle { width: 100%; }
   .app-main { padding: 36px 36px 48px; }
-  .metric-strip { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .metric-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .metric-strip > .metric-tile { border-bottom: 0; border-right: 1px solid var(--border); }
   .metric-strip > .metric-tile:last-child { grid-column: auto; }
 }
@@ -286,7 +286,7 @@ a, button, select, input, summary { -webkit-tap-highlight-color: transparent; }
   .brand-caption { display: none; }
   .sidebar-label { display: none; }
   .sidebar-series { padding: 14px 20px; }
-  .sidebar-footer { position: absolute; right: 20px; top: 18px; padding: 0; }
+  .sidebar-footer { padding: 0 20px 16px; }
   .theme-toggle { padding: 7px 9px; }
 }
 @media (max-width: 540px) {
@@ -298,7 +298,7 @@ a, button, select, input, summary { -webkit-tap-highlight-color: transparent; }
   .filter-bar > p { margin-left: 0; width: 100%; padding: 0; }
   .lineage-drawer { padding: 20px; }
   .brand-symbol { width: 28px; height: 28px; }
-  .brand-title { max-width: 130px; font-size: 13px; }
+  .brand-title { max-width: none; font-size: 13px; }
   .sidebar-brand { gap: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -311,8 +311,7 @@ a, button, select, input, summary { -webkit-tap-highlight-color: transparent; }
 
 /* Keep phone touch targets, wrapping and evidence scrollers at both 375px and 390px. */
 @media (max-width: 640px) {
-  .sidebar-brand { min-height: 76px; padding-right: 132px; }
-  .sidebar-footer { top: 16px; right: 16px; }
+  .sidebar-brand { min-height: 76px; }
   .sidebar-link, .theme-toggle { min-height: 44px; }
   .sidebar-series a { display: inline-flex; align-items: center; min-height: 44px; }
   .sidebar-series ol { align-items: center; gap: 4px 16px; }

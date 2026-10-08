@@ -18,7 +18,10 @@ describe("Executive presentation", () => {
     expect(decision.getByText("Review required before handoff.")).toBeInTheDocument();
     expect(decision.getByRole("link", { name: "See the exceptions" })).toHaveAttribute("href", "/exceptions");
     const quality = within(screen.getByRole("region", { name: "Load quality" }));
-    expect(quality.getAllByRole("group")).toHaveLength(5);
+    expect(quality.getAllByRole("group")).toHaveLength(4);
+    expect(quality.queryByRole("group", { name: "Info" })).not.toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Info" })).toHaveTextContent("Informational notes3Notes only");
+    expect(screen.getByRole("group", { name: "Info" })).not.toHaveClass("metric-tile");
     expect(quality.getByRole("group", { name: "Clean rows" })).toHaveTextContent("7,761");
     const checks = within(screen.getByRole("region", { name: "Financial and operational checks" }));
     expect(checks.getByRole("group", { name: "Check variance sum" })).toHaveTextContent("This is not a missing-revenue total.");
@@ -39,11 +42,11 @@ describe("Executive presentation", () => {
     }
   });
 
-  it("retains the visible run identity and synthetic-data caveat in a single page heading", async () => {
+  it("retains run identity without repeating the shared synthetic-data notice", async () => {
     const run = await loadRunDir(SAMPLE);
     render(<PageHeader run={run} question="Does the money agree?">Review the evidence.</PageHeader>);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByText("Synthetic data only.")).toBeInTheDocument();
+    expect(screen.queryByText("Synthetic data only.")).not.toBeInTheDocument();
     expect(screen.getByText(run.manifest.run_id)).toBeInTheDocument();
     expect(screen.getByText("Review the evidence.")).toBeInTheDocument();
   });

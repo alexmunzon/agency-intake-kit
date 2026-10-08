@@ -16,7 +16,6 @@ export default function PackagePage() {
       <header className="page-header">
         <div className="page-provenance">
           <p className="eyebrow">Agency Data Trust Series</p>
-          <span className="synthetic-label">Synthetic agency package</span>
         </div>
         <h1>Synthetic review package</h1>
         <p className="page-description">
