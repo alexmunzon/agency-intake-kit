@@ -13,17 +13,19 @@ describe("Executive presentation", () => {
   it("keeps the decision, quality metrics and check context in distinct named regions", async () => {
     const run = await loadRunDir(SAMPLE);
     render(<Overview run={run} tieOut={await loadTieOut(SAMPLE)} />);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Can this agency go live?");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("What needs review before handoff?");
     const decision = within(screen.getByRole("region", { name: "Run status" }));
-    expect(decision.getByText("Yes, with fixes to review.")).toBeInTheDocument();
+    expect(decision.getByText("Review required before handoff.")).toBeInTheDocument();
     expect(decision.getByRole("link", { name: "See the exceptions" })).toHaveAttribute("href", "/exceptions");
     const quality = within(screen.getByRole("region", { name: "Load quality" }));
     expect(quality.getAllByRole("group")).toHaveLength(5);
     expect(quality.getByRole("group", { name: "Clean rows" })).toHaveTextContent("7,761");
     const checks = within(screen.getByRole("region", { name: "Financial and operational checks" }));
     expect(checks.getByRole("group", { name: "Check variance sum" })).toHaveTextContent("This is not a missing-revenue total.");
-    expect(checks.getByRole("group", { name: "Run time" })).toHaveTextContent("Not measured");
-    expect(screen.getByRole("region", { name: "Financial and operational checks" }).querySelector(".overview-check-grid")).toHaveClass("sm:grid-cols-2", "xl:grid-cols-4");
+    expect(checks.queryByRole("group", { name: "Run time" })).not.toBeInTheDocument();
+    expect(screen.getByText("Technical run details").closest("details")).not.toHaveAttribute("open");
+    expect(decision.getByText(/not agency go-live approval/)).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Financial and operational checks" }).querySelector(".overview-check-grid")).toHaveClass("sm:grid-cols-2");
   });
 
   it("makes bounded exception and financial evidence scroll regions keyboard focusable", async () => {

@@ -8,7 +8,7 @@ const SIZE = { width: 1280, height: 800 };
 const OUT_DIR = "../docs/screenshots/.demo-video";
 
 const STEPS = [
-  { path: "/", question: "Can this agency go live?" },
+  { path: "/", question: "What needs review before handoff?" },
   { path: "/exceptions", question: "What needs fixing, in what order, and how?" },
   { path: "/tie-out", question: "Does the money agree?" },
 ] as const;

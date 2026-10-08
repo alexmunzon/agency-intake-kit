@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 // Accessibility and layout checks on every page (#17). Run by hand: npx playwright test e2e/a11y.spec.ts
 const PAGES = [
-  { path: "/", question: "Can this agency go live?" },
+  { path: "/", question: "What needs review before handoff?" },
   { path: "/sources", question: "What did we receive, and did it read cleanly?" },
   { path: "/exceptions", question: "What needs fixing, in what order, and how?" },
   { path: "/tie-out", question: "Does the money agree?" },
@@ -66,7 +66,7 @@ for (const scheme of SCHEMES) {
 
 test("the dark mode toggle wins over the system setting and survives a reload", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
-  await open(page, "/", "Can this agency go live?");
+  await open(page, "/", "What needs review before handoff?");
   await page.getByRole("button", { name: "Dark mode" }).click();
   await expect(page.locator("html")).toHaveClass(/\bdark\b/);
   await page.reload();

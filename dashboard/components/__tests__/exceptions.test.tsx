@@ -55,10 +55,13 @@ describe("Exceptions page", () => {
     const close = within(screen.getByRole("dialog")).getByRole("button", { name: "Close" });
     expect(close).toHaveFocus();
     // fireEvent returns false when the drawer stops the browser from moving focus out.
-    expect(fireEvent.keyDown(close, { key: "Tab" })).toBe(false);
+    const details = screen.getByText("Model review details");
+    expect(fireEvent.keyDown(close, { key: "Tab" })).toBe(true);
+    details.focus();
+    expect(fireEvent.keyDown(details, { key: "Tab" })).toBe(false);
     expect(close).toHaveFocus();
     expect(fireEvent.keyDown(close, { key: "Tab", shiftKey: true })).toBe(false);
-    expect(close).toHaveFocus();
+    expect(details).toHaveFocus();
     expect(screen.getByLabelText("Severity").closest("[inert]")).not.toBeNull();
     fireEvent.keyDown(window, { key: "Escape" });
     expect(row).toHaveFocus();

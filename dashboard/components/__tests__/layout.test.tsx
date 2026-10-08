@@ -17,7 +17,7 @@ describe("RootLayout", () => {
     expect(doc.querySelectorAll('nav[aria-label="Main"] ul a')).toHaveLength(9);
     expect(doc.querySelector('a[href="/package"]')?.textContent).toBe("Review package");
     expect(doc.querySelector('a[href="/readiness"]')?.textContent).toBe("Source readiness");
-    expect(doc.querySelector('a[href="/ledger"]')?.textContent).toBe("Receipt ledger");
+    expect(doc.querySelector('a[href="/ledger"]')?.textContent).toBe("Revenue breakdown");
   });
 
   it("lets the page column shrink beside the sidebar so wide tables scroll in their own box", () => {

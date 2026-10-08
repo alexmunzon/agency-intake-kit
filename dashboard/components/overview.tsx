@@ -15,9 +15,9 @@ import type { RunStatus, SeverityCounts } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const ANSWERS: Record<RunStatus, { tone: Tone; answer: string; word: string; fallback: string }> = {
-  PASSED: { tone: "pass", answer: "Yes. Every check passed.", word: "Passed", fallback: "No errors, warnings, or blockers." },
-  PASSED_WITH_WARNINGS: { tone: "warning", answer: "Yes, with fixes to review.", word: "Passed with warnings", fallback: "" },
-  FAILED: { tone: "blocker", answer: "No. A blocker stopped the run.", word: "Failed", fallback: "" },
+  PASSED: { tone: "pass", answer: "Data checks passed. Human sign-off still required.", word: "Passed", fallback: "No errors, warnings, or blockers." },
+  PASSED_WITH_WARNINGS: { tone: "warning", answer: "Review required before handoff.", word: "Passed with warnings", fallback: "" },
+  FAILED: { tone: "blocker", answer: "Blocked. Resolve missing or unsafe inputs first.", word: "Failed", fallback: "" },
 };
 
 const SEVERITY_TILES: { key: keyof SeverityCounts; tone: Tone; label: string; context: string }[] = [
@@ -34,7 +34,7 @@ function StatusBanner({ run }: { run: Run }) {
     <section aria-label="Run status" data-tone={tone} className={cn(CARD, "decision-panel relative overflow-hidden")}>
       <div className="decision-content">
         <div className="min-w-0">
-          <p className="eyebrow mb-2">Readiness decision</p>
+          <p className="eyebrow mb-2">Data-check result</p>
           <p className="decision-title flex items-start gap-2 font-semibold">
             <SeverityIcon tone={tone} className="mt-0.5 size-5" />
             {answer}
@@ -42,6 +42,7 @@ function StatusBanner({ run }: { run: Run }) {
           <p className="decision-detail mt-2 text-sm">
             <SeverityBadge tone={tone} label={word} /> <span>{status_reason ?? fallback}</span>
           </p>
+          <p className="mt-2 text-sm">This result is not agency go-live approval. Review excluded rows, financial differences, source readiness and identity holds before handoff.</p>
           <ul className="mt-2 text-sm tabular-nums">
             {shortFiles(run).map((file) => (
               <li key={file.source}>
@@ -97,7 +98,7 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
   const jevOff = manifest.jev.mode === "off";
   return (
     <div className="page-stack">
-      <PageHeader run={run} question="Can this agency go live?">Validate the incoming book, prioritize fixes, and trace the evidence before release.</PageHeader>
+      <PageHeader run={run} question="What needs review before handoff?">For implementation and data operations: check incoming agency files, resolve exceptions, and hand the evidence to finance and operations.</PageHeader>
       <StatusBanner run={run} />
       <section aria-label="Load quality" className="metric-strip">
         {SEVERITY_TILES.map(({ key, tone, label, context }) => {
@@ -121,7 +122,7 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
       </section>
       <section aria-label="Financial and operational checks" className="space-y-3">
         <h2 className="section-eyebrow">Financial and operational checks</h2>
-        <div className="overview-check-grid grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="overview-check-grid grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
           {tieOut.checked ? (
             <Tile
               label="Check variance sum"
@@ -138,6 +139,12 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
             context={rts ? "Policies sold without ready-to-sell status" : "The run stopped before this check"}
             muted={!rts}
           />
+        </div>
+      </section>
+      <details className={cn(CARD, "p-5")}>
+        <summary className="cursor-pointer font-medium">Technical run details</summary>
+        <p className="mt-2 text-sm text-muted-foreground">Replay calls and frozen-clock timestamps describe this synthetic run. They do not measure staff time saved.</p>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <Tile
             label="Jev AI review"
             value={jevOff ? "Off" : plural(manifest.jev.calls, "call")}
@@ -149,7 +156,7 @@ export function Overview({ run, tieOut: tieFiles }: { run: Run; tieOut: TieOut }
             context={frozenClock(run) ? `Frozen clock, run on ${runDateText(run)}` : `Run on ${runDateText(run)}`}
           />
         </div>
-      </section>
+      </details>
       <SourceBars rows={countsBySource(run)} />
     </div>
   );
