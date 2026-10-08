@@ -40,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <div className="sidebar-brand">
               <span className="brand-symbol"><ShieldCheck aria-hidden className="size-5" /></span>
               <div>
-                <p className="brand-title">Agency Intake Kit</p>
+                <p className="brand-title">Agency Intake Kit <span data-version-badge className="ml-1 inline-block rounded border border-current px-1.5 py-0.5 align-middle text-[10px] font-semibold tracking-wide"><span aria-hidden="true">V2</span><span className="sr-only">Version 2</span></span></p>
                 <p className="brand-caption">Data trust series / 01</p>
               </div>
             </div>

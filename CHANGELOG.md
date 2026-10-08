@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add a visible, accessible V2 badge beside the app title.
+
 - Frame the overview and newly generated reports as human-reviewed data handoffs, not agency go-live approval. Keep financial/source evidence prominent and move model/runtime diagnostics and uncalibrated model scores into expandable details. Rename the ledger navigation to Revenue breakdown. No rule, fixture or benchmark changes.
 
 - Read package artifacts through pinned directory descriptors with no symlink following, regular-file checks and a 12 MB total bound. Refuse special files and unsupported safe-read platforms.
