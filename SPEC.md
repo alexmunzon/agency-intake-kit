@@ -1,3 +1,5 @@
+> V2 presentation revision (2026-10-08): The overview now asks “What needs review before handoff?” and reports data-check status only. It never approves agency go-live. Technical runtime/model details are expandable. Historical finish-line text below describes the original v1 presentation; rules and data contracts remain unchanged.
+
 # SPEC: agency-intake-kit
 
 ## Recruiting v1 scope control (2026-10-05)

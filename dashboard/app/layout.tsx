@@ -18,7 +18,7 @@ const PAGES: { label: string; href: string }[] = [
   { label: "Source readiness", href: "/readiness" },
   { label: "Exceptions", href: "/exceptions" },
   { label: "Tie-out", href: "/tie-out" },
-  { label: "Receipt ledger", href: "/ledger" },
+  { label: "Revenue breakdown", href: "/ledger" },
   { label: "Agents", href: "/agents" },
   { label: "Runs", href: "/runs" },
 ];

@@ -55,3 +55,12 @@ def test_frozen_clock_run_time_is_not_measured(tmp_path: Path) -> None:
     path.write_text(path.read_text().replace('"as_of": "2026-10-01T09:00:00Z"', '"as_of": null'))
     html = render_report(run)
     assert "Run time: 47 seconds." in html and "not measured" not in html
+
+
+def test_report_is_review_handoff_not_go_live_approval() -> None:
+    html = render_report(SAMPLE)
+    assert "What needs review before handoff?" in html
+    assert "Review required before handoff." in html
+    assert "not agency go-live approval" in html
+    assert "Yes, with fixes" not in html
+    assert "This agency can go live" not in html

@@ -249,7 +249,7 @@ def test_frozen_clock_makes_two_runs_byte_identical(
 
 def test_report_renders_and_names_the_status(agency_a: RunResult) -> None:
     report = (agency_a.run_dir / "report.html").read_text()
-    assert "PASSED_WITH_WARNINGS" in report and "Can this agency go live?" in report
+    assert "PASSED_WITH_WARNINGS" in report and "What needs review before handoff?" in report
     assert "<script" not in report and "http" not in report.replace("http-equiv", "")
     assert "—" not in report
 

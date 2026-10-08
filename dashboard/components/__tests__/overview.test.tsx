@@ -1,5 +1,5 @@
 import path from "node:path";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { Overview } from "@/components/overview";
@@ -16,13 +16,17 @@ async function show(name: string, change?: (run: Run) => void) {
 }
 
 function tile(label: string) {
+  if (["Jev AI review", "Run time"].includes(label)) {
+    const summary = screen.getByText("Technical run details");
+    if (!summary.closest("details")?.open) fireEvent.click(summary);
+  }
   return within(screen.getByRole("group", { name: label }));
 }
 
 describe("Overview", () => {
   it("answers yes with fixes for the warnings sample", async () => {
     await show("sample-run");
-    expect(screen.getByText("Yes, with fixes to review.")).toBeInTheDocument();
+    expect(screen.getByText("Review required before handoff.")).toBeInTheDocument();
     expect(tile("Blockers").getByText("0")).toBeInTheDocument();
     expect(tile("Errors").getByText("4")).toBeInTheDocument();
     expect(tile("Warnings").getByText("6")).toBeInTheDocument();
@@ -59,7 +63,7 @@ describe("Overview", () => {
 
   it("answers no for the failed sample and never shows a missing check as zero", async () => {
     await show("sample-run-failed");
-    expect(screen.getByText("No. A blocker stopped the run.")).toBeInTheDocument();
+    expect(screen.getByText("Blocked. Resolve missing or unsafe inputs first.")).toBeInTheDocument();
     expect(screen.getByText("crm_export.csv: expected 2,680 rows, received 2,574.")).toBeInTheDocument();
     expect(tile("Blockers").getByText("1")).toBeInTheDocument();
     expect(tile("Errors").getByText("Not checked")).toBeInTheDocument();
@@ -73,7 +77,7 @@ describe("Overview", () => {
 
   it("answers yes for the passed sample", async () => {
     await show("sample-run-passed");
-    expect(screen.getByText("Yes. Every check passed.")).toBeInTheDocument();
+    expect(screen.getByText("Data checks passed. Human sign-off still required.")).toBeInTheDocument();
     expect(tile("Clean rows").getByText("7,765")).toBeInTheDocument();
     expect(tile("Check variance sum").getByText("$0.00")).toBeInTheDocument();
     expect(tile("RTS gaps").getByText("0")).toBeInTheDocument();

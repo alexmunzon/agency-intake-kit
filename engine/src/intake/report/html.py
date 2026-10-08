@@ -25,9 +25,9 @@ from agency_schema.outputs import (
 
 TOP_EXCEPTIONS = 50  # the report lists the first ones in fix-first order; the rest are in the file
 ANSWER = {
-    RunStatus.PASSED: "Yes. This agency can go live.",
-    RunStatus.PASSED_WITH_WARNINGS: "Yes, with fixes. The load files exclude the rows below.",
-    RunStatus.FAILED: "No. A blocker stopped the run, so no load files were written.",
+    RunStatus.PASSED: "Data checks passed. Human sign-off still required.",
+    RunStatus.PASSED_WITH_WARNINGS: "Review required before handoff. The load files exclude the rows below.",
+    RunStatus.FAILED: "Blocked. A blocker stopped the run, so no load files were written.",
 }
 STATUS_WORDS = {  # the same plain labels the dashboard shows (#78)
     RunStatus.PASSED: "Passed",

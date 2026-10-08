@@ -8,7 +8,7 @@ const PHONE = { width: 375, height: 812 };
 const OUT = "../docs/screenshots";
 
 const PAGES = [
-  { name: "overview", path: "/", question: "Can this agency go live?" },
+  { name: "overview", path: "/", question: "What needs review before handoff?" },
   { name: "sources", path: "/sources", question: "What did we receive, and did it read cleanly?" },
   { name: "exceptions", path: "/exceptions", question: "What needs fixing, in what order, and how?" },
   { name: "tie-out", path: "/tie-out", question: "Does the money agree?" },
@@ -61,6 +61,6 @@ for (const { name, path, question } of PAGES) {
 test("overview 1440 dark", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "dark" });
   await page.setViewportSize(DESKTOP);
-  await open(page, "/", "Can this agency go live?");
+  await open(page, "/", "What needs review before handoff?");
   await page.screenshot({ path: `${OUT}/overview-dark.png`, animations: "disabled" });
 });

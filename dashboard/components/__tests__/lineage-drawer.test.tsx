@@ -1,5 +1,5 @@
 import path from "node:path";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { LineageDrawer } from "@/components/lineage-drawer";
@@ -12,6 +12,8 @@ describe("LineageDrawer Jev scores", () => {
     expect(record).toBeDefined();
     render(<LineageDrawer record={record!} onClose={() => {}} />);
 
+    expect(screen.getByText("Model review details").closest("details")).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByText("Model review details"));
     const row = screen.getByText("Impact score on the load (0 to 2)").parentElement!;
     expect(within(row).getByText("1.43 / 2")).toBeInTheDocument();
     expect(row.querySelector('[data-score="impact_score"]')?.getAttribute("style")).toContain("width: 71.5%");
@@ -27,6 +29,7 @@ describe("LineageDrawer Jev scores", () => {
     expect(record).toBeDefined();
     render(<LineageDrawer record={record!} jevMode={mode} onClose={() => {}} />);
 
+    fireEvent.click(screen.getByText("Model review details"));
     expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
     expect(screen.queryByText("Jev AI review")).not.toBeInTheDocument();
     expect(screen.getByText("Scores are the model's own numbers, not measured accuracy.")).toBeInTheDocument();
@@ -37,6 +40,7 @@ describe("LineageDrawer Jev scores", () => {
     const record = run.exceptions.find((item) => item.jev === null)!;
     render(<LineageDrawer record={record} onClose={() => {}} />);
 
+    fireEvent.click(screen.getByText("Model review details"));
     expect(screen.getByRole("heading", { name: "Jev review" })).toBeInTheDocument();
     expect(screen.getByText("Not reviewed by Jev.")).toBeInTheDocument();
   });
@@ -52,6 +56,7 @@ describe("Exceptions page passes the run's Jev mode to the detail panel", () => 
     render(<ExceptionsPage run={{ ...run, exceptions: [scored] }} />);
 
     fireEvent.click(within(screen.getByRole("table")).getAllByRole("row")[1]);
+    fireEvent.click(screen.getByText("Model review details"));
     const drawer = within(screen.getByRole("dialog"));
     expect(drawer.getByRole("heading", { name: "Jev review (replay of saved answers)" })).toBeInTheDocument();
   });

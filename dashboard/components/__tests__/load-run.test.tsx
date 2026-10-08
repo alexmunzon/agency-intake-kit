@@ -46,7 +46,7 @@ describe("Load your own run", () => {
     pick(await fixtureFiles("sample-run-partial"));
     await waitFor(() => expect(screen.getByRole("status", { name: "Which run" })).toHaveTextContent("Loaded sample-run-partial. Every page now shows it."));
     expect(screen.queryByText("Demo overview")).toBeNull();
-    expect(screen.getByRole("heading", { level: 1, name: "Can this agency go live?" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "What needs review before handoff?" })).toBeInTheDocument();
     expect(screen.getByText(/2 of 3 checks ran/)).toBeInTheDocument();
     const banner = within(screen.getByRole("region", { name: "Your run" }));
     expect(banner.getByText(/sample-run-partial/)).toBeInTheDocument();

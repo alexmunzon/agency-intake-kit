@@ -8,7 +8,7 @@ import type { ExceptionRecord, JevMode } from "@/lib/types";
 
 // One exception in full: what it is, where it came from, and how to fix it. Closes on Escape.
 // It acts as a modal: the page behind it is inert, Tab stays inside, and focus returns on close.
-const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+const FOCUSABLE = 'summary, button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 const JEV_SCORES = [
   { key: "entry_error_probability", label: "Chance this is a typing error", max: 1, format: percent },
   { key: "impact_score", label: "Impact score on the load (0 to 2)", max: 2, format: (score: number) => `${score.toFixed(2)} / 2` },
@@ -103,7 +103,8 @@ export function LineageDrawer({ record, jevMode, onClose }: { record: ExceptionR
         <Row term="Blocks the load" value={record.blocks_load ? "Yes" : "No"} />
       </dl>
       {!lineage && <p className="mt-1 text-xs text-muted-foreground">This is about the whole file, not one row.</p>}
-      <h3 className="mt-4 font-medium">{(jevMode && JEV_HEADING[jevMode]) ?? "Jev review"}</h3>
+      <details className="mt-4"><summary className="cursor-pointer font-medium">Model review details</summary>
+      <h3 className="mt-2 font-medium">{(jevMode && JEV_HEADING[jevMode]) ?? "Jev review"}</h3>
       {jev ? (
         <>
           <p className="text-xs text-muted-foreground">Scores are the model&apos;s own numbers, not measured accuracy.</p>
@@ -127,6 +128,7 @@ export function LineageDrawer({ record, jevMode, onClose }: { record: ExceptionR
       ) : (
         <p className="text-muted-foreground">Not reviewed by Jev.</p>
       )}
+      </details>
     </aside>
   );
 }
