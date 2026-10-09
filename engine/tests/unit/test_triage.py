@@ -29,9 +29,9 @@ from jev_client import CassetteMiss, JevClient, request_hash
 
 SYNTHETIC = Path(__file__).resolve().parents[1] / "cassettes" / "synthetic"
 FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "agency-a"
-# The bounded link slice adds three TIE-001 and three TIE-002 exceptions for the
-# planted P-01324 identity conflict. Grouped requests remain 157 (docs/jev.md).
-AGENCY_A_TRIAGE_EXCEPTIONS = 711
+# Orphan policy P-01324 (REF-001) links by strong key despite a sibling name/DOB match, so
+# no TIE-001 or TIE-002 is added for it. Grouped requests remain 157 (docs/jev.md).
+AGENCY_A_TRIAGE_EXCEPTIONS = 705
 AGENCY_A_TRIAGE_CALLS = 157
 
 
