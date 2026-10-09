@@ -47,12 +47,22 @@ describe("parseLinkEvidence", () => {
     expect(parseLinkEvidence(input(value), "run-1")[0].policy_id).toBe("P-1");
   });
 
+  it("allows a confirmed orphan policy beside a name and DOB match on another policy", () => {
+    const value = record({ candidates: [
+      candidate("P-1", ["MEMBER_ID", "POLICY_REF"]), candidate("P-2", ["NAME_DOB"]),
+    ] });
+    expect(parseLinkEvidence(input(value), "run-1")[0].policy_id).toBe("P-1");
+  });
+
   it.each([
     ["malformed JSON", "{bad"],
     ["duplicate JSON key", input(record()).replace('"schema_version":1', '"schema_version":1,"schema_version":1')],
     ["wrong run", input(record({ lineage: lineage({ run_id: "run-2" }) }))],
     ["invalid statement row", input(record({ lineage: lineage({ row_number: 0 }) }))],
     ["candidate identity mismatch", input(record({ candidates: [candidate("P-2")] }))],
+    ["confirmed on one strong key beside other name and DOB", input(record({ candidates: [
+      candidate("P-1", ["MEMBER_ID"]), candidate("P-2", ["NAME_DOB"]),
+    ] }))],
     ["unknown match method", input(record({ candidates: [candidate("P-1", ["EMAIL"])] }))],
     ["duplicate method", input(record({ candidates: [candidate("P-1", ["POLICY_REF", "POLICY_REF"])] }))],
     ["duplicate candidate ID", input(record({ candidates: [candidate(), candidate()] }))],

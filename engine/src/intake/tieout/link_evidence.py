@@ -50,11 +50,14 @@ class LinkEvidence(StrictModel):
         if any(candidate.lineage.run_id != self.lineage.run_id for candidate in self.candidates):
             raise ValueError("candidate lineage run_id differs from statement lineage")
         if self.state == "confirmed":
-            strong = [
-                c.policy_id for c in self.candidates if {"MEMBER_ID", "POLICY_REF"} & set(c.methods)
-            ]
+            strong = [c for c in self.candidates if {"MEMBER_ID", "POLICY_REF"} & set(c.methods)]
             weak = {c.policy_id for c in self.candidates if "NAME_DOB" in c.methods}
-            if strong != [self.policy_id] or (weak and self.policy_id not in weak):
+            # Name/DOB on other policies may sit beside a confirmed link only when it matched
+            # by both strong keys (01_match_keys.sql also requires its client row be missing).
+            both_keys = len(strong) == 1 and {"MEMBER_ID", "POLICY_REF"} <= set(strong[0].methods)
+            if [c.policy_id for c in strong] != [self.policy_id] or (
+                weak and self.policy_id not in weak and not both_keys
+            ):
                 raise ValueError("confirmed link needs one consistent strong candidate")
         elif self.policy_id is not None:
             raise ValueError("only a confirmed link may attribute a policy")
