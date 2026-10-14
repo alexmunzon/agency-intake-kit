@@ -471,6 +471,8 @@ Rule ids are stable and appear in exceptions, tests, docs, and the dashboard fil
 | MAP-001 | W | Column could not be mapped | "{header}" has no canonical field | Map manually in mapping/{source}.yaml |
 | MAP-002 | W | Mapping confidence between thresholds | "{header}" mapped to {field} at {conf} | Confirm or correct the mapping |
 | MAP-003 | B | Required canonical field missing | {source} is missing {field} | Add the column or map an existing one |
+| MAP-004 | E | Canonical row violates its declared load-table schema or depends on an excluded parent | {table}: {field} is missing or invalid for the load file (or references an excluded {parent} row) | Correct the required or invalid field before loading this row |
+| MAP-005 | W | Export format changed since mappings were saved; saved decisions not reused | Export format changed since mappings were saved for {key}. Added: {headers}. Removed: {headers}. | Review the mapping again and apply the decisions to mapping/{key}.yaml |
 | SSN-001 | B | A column looks like SSNs (header matches ssn or social, or a 9-digit pattern at 90 percent of non-empty rows); runs on raw frames before any model call | SSNs are not accepted | Remove the column before intake |
 | CMP-001 | B | Rows received differ from rows expected (drop/manifest.json, else the file's own total row); runs on raw frames | {source}: expected {e}, received {r} | Re-export the file; check for truncation |
 | CMP-002 | W | A source is missing entirely | No {source} file in drop | Tie-out leg {leg} marked NOT_RUN |
@@ -500,6 +502,7 @@ Rule ids are stable and appear in exceptions, tests, docs, and the dashboard fil
 | DUP-002 | W | Same normalized name and DOB in two or more rows or sources (exact after normalization; fuzzy identity matching belongs to bob-resolve) | Possible duplicate person | Resolve (handled fully in bob-resolve) |
 | DUP-003 | E | Duplicate policy ID with different content | {policy_id} appears {n} times | Keep the correct row |
 | REF-001 | E | Policy references unknown client | {policy_id} has no client | Add client or fix client_id |
+| REF-002 | E | Policy filed under the wrong client: carrier lines matched by both member ID and policy number name exactly one other existing client | Policy {policy_id} is filed under client {a}, but {n} carrier statement lines matched by member ID and policy number name client {b} | Confirm with the carrier which client owns the policy, then refile it |
 | RTS-001 | E | Writing agent not RTS for carrier, policy state, plan year, line of business | NPN {npn} not ready to sell {carrier} in {state} for {year} | Obtain RTS or reassign writing agent |
 | RTS-002 | W | RTS record end_date before policy effective date | RTS ended {d} | Renew RTS |
 | LIC-001 | E | Agent license states do not include the policy state (client address state when the policy has none) | NPN {npn} not licensed in {state} | Verify license |
@@ -511,7 +514,7 @@ Rule ids are stable and appear in exceptions, tests, docs, and the dashboard fil
 | TIE-006 | I | Match made on name plus DOB only (weak key) | Weak match for line {n} | Add carrier_member_id to CRM |
 | PII-001 | W | Free text appears to contain personal health or identity details | Notes on row {n} redacted | Keep notes out of exports |
 
-Rule implementation contract (registry skeleton lands in PR 1, rules fill in from PR 4 onward): each rule is a function `(frame) -> list[ExceptionRecord]` registered with id, severity, family, description, and `blocks`. The registry is the single source for `docs/rules.md` (generated) and for the dashboard filter list. Catalog size: 46 rules.
+Rule implementation contract (registry skeleton lands in PR 1, rules fill in from PR 4 onward): each rule is a function `(frame) -> list[ExceptionRecord]` registered with id, severity, family, description, and `blocks`. The registry is the single source for `docs/rules.md` (generated) and for the dashboard filter list. Catalog size: 49 rules.
 
 ---
 
@@ -789,7 +792,7 @@ Section order, same in every repo of the series:
 1. **Title and one line.** "agency-intake-kit: validate, reconcile, and dashboard a newly acquired insurance agency's book of business. Synthetic data only."
 2. **Hero.** Overview screenshot at 1440 light, then the GIF.
 3. **The problem in three sentences.** Agencies arrive with exports nobody trusts. Intake is where a 30-day integration is won or lost. Nothing downstream, human or AI, can act on data that has not been validated, reconciled, and traced to its source.
-4. **What it does in five bullets.** Reads anything. Maps columns (dictionary, then Jev, then you). Validates every row against 46 named rules. Reconciles three ways in SQL. Shows you what to fix first.
+4. **What it does in five bullets.** Reads anything. Maps columns (dictionary, then Jev, then you). Validates every row against 49 named rules. Reconciles three ways in SQL. Shows you what to fix first.
 5. **Architecture.** The Mermaid diagram from section 1.2.
 6. **The trust layer.** One paragraph: deterministic floor, Jev gate, humans for the rest, provenance on everything. Include the sentence that Jev never overrides a rule.
 7. **Results.** Detection table from the scorecard (defect type, injected, detected, recall, false positives). The header mapping benchmark table. Run time and estimated Jev cost for the demo run.

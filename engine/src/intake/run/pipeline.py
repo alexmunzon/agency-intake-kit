@@ -25,6 +25,7 @@ from agency_schema.mapping_review import MappingReviewItem
 from agency_schema.outputs import JevMode, LegStatus, RtsCoverage, RunStatus
 from agency_schema.run_dir import check_run_dir
 from intake.checks import run_cross_record_checks
+from intake.checks.references import misfiled_policies
 from intake.config import RAW_MAPPING_VERSION
 from intake.exceptions.pii import pii_gate
 from intake.exceptions.policy import apply_policy, run_status
@@ -301,6 +302,7 @@ def _run_into(
             coverage = checks.coverage
             tie = run_tieout(tables, run_id=out.name)
             records += tie.exceptions
+            records += misfiled_policies(tables, tie.links)  # REF-002 reads the tie-out links
             enrollment = check_enrollment(canon.enrollment, tables)
     if tie is None:
         tie = tieout_not_run(_stop_reason(records))

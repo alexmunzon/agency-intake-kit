@@ -95,7 +95,7 @@ The record is file-level and never copies or counts a value. It names the column
 
 ## Rule registry
 
-`agency_schema.registry` holds the `@rule(rule_id, severity, family, description, blocks=...)` decorator, `catalog()`, and `run_rules(frame, family=None)`. Registering applies the same identity checks as ExceptionRecord, refuses duplicate ids, and `run_rules` refuses a rule that emits a record under another rule's id or severity. All 46 rules are registered; see [rules.md](rules.md).
+`agency_schema.registry` holds the `@rule(rule_id, severity, family, description, blocks=...)` decorator, `catalog()`, and `run_rules(frame, family=None)`. Registering applies the same identity checks as ExceptionRecord, refuses duplicate ids, and `run_rules` refuses a rule that emits a record under another rule's id or severity. All 49 rules are registered; see [rules.md](rules.md).
 
 ## Format rules
 

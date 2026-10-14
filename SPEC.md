@@ -135,7 +135,7 @@ Changes from the build guide made in PR 0: Node 24 instead of Node 20 (Node 20 r
 
 When an agency is acquired, its records arrive as a pile of mismatched files. Today someone checks them by hand for weeks. This kit takes that pile and, in one command, answers three questions an acquirer must answer within 30 days of close:
 
-1. **Can this agency's book go live in our systems?** Every row is mapped to one standard format and checked against 46 written rules. Anything that would corrupt the load blocks it, with a plain-language reason and a suggested fix.
+1. **Can this agency's book go live in our systems?** Every row is mapped to one standard format and checked against 49 written rules. Anything that would corrupt the load blocks it, with a plain-language reason and a suggested fix.
 2. **Does the money agree?** The book of business, the carrier commission statements, and the CRM are reconciled three ways, with every dollar variance explained.
 3. **Are we compliant?** Every policy's writing agent is checked for ready-to-sell status and licensing in the policy's state.
 
@@ -191,20 +191,20 @@ Every row carries `Lineage`: source_file, sheet, row_number, raw_hash, run_id, m
 
 ## Rule catalog reference
 
-Full catalog: `docs/rules.md`, generated from the rule registry (registry skeleton in PR 1a, generator in PR 8). The source of the 46 rules is BUILD-GUIDE section 6 until docs/rules.md exists. Rule IDs are stable.
+Full catalog: `docs/rules.md`, generated from the rule registry (registry skeleton in PR 1a, generator in PR 8). The source of the 49 rules is BUILD-GUIDE section 6 until docs/rules.md exists. Rule IDs are stable.
 
 | Family | Rules | What it covers |
 |---|---|---|
 | ING | 4 | File reading: encoding, header row, trailing rows, delimiter |
-| MAP | 3 | Column mapping |
+| MAP | 5 | Column mapping |
 | SSN | 1 | SSN refusal (raw gate) |
 | CMP | 2 | Completeness (raw gate) |
 | DOB, MBI, NPN, PLN, ADR, CON, DAT, STA | 22 | Row-level field checks |
-| DUP, REF, RTS, LIC | 7 | Cross-record checks |
+| DUP, REF, RTS, LIC | 8 | Cross-record checks, including REF-002 (a policy filed under the wrong client, read from the tie-out's carrier evidence) |
 | TIE | 6 | Three-way tie-out |
 | PII | 1 | Free-text privacy gate |
 
-Totals by severity: 3 blockers, 21 errors, 17 warnings, 5 info.
+Totals by severity: 3 blockers, 23 errors, 18 warnings, 5 info.
 
 **Blocking policy.** There are exactly three blockers: MAP-003 (a required field is missing after mapping), CMP-001 (rows received differ from rows expected), and SSN-001 (an SSN column is present). A blocker sets status FAILED and stops `clean/` from being written. **Errors** keep their rows out of `clean/`, but the run can finish PASSED_WITH_WARNINGS. **Warnings** pass through with a flag column. **Info** is logged only. RTS-001 is deliberately an error, not a blocker: almost every acquired agency has a few RTS gaps, and the run must still produce a load file with those policies excluded and surfaced.
 

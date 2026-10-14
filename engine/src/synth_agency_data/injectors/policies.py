@@ -1,13 +1,15 @@
 """Policy defects: agent ids, plan ids, dates, statuses, duplicates, and broken references."""
 
 import random
+import re
+from collections import Counter
 from dataclasses import replace
 from datetime import timedelta
 from decimal import Decimal
 
+from agency_schema.enums import EligibilityReason, PolicyStatus
 from agency_schema.enums import LineOfBusiness as Lob
-from agency_schema.enums import PolicyStatus
-from synth_agency_data.injectors.base import Defect, defect, edit, pick
+from synth_agency_data.injectors.base import Defect, defect, edit, line_key, lock_key, pick
 from synth_agency_data.world import AS_OF, Row, World
 
 MESSY_STATUSES = ("See notes", "XFER", "??", "chk w/ carrier", "N/A")
@@ -173,6 +175,114 @@ def orphan_policy(world: World, rng: random.Random, rate: float) -> tuple[World,
         "REF-001",
         "policy_id",
     )
+
+
+def _name_key(name: str) -> str:
+    """Lowercase letters only, the same key intake uses to match a person by name."""
+    return re.sub(r"[^a-z]", "", name.lower())
+
+
+_NOT_AGE_REASONS = {EligibilityReason.DISABILITY, EligibilityReason.ESRD}
+
+
+def misfiled_policy(world: World, rng: random.Random, rate: float) -> tuple[World, list[Defect]]:
+    """File a policy under a different, existing client (REF-002).
+
+    Opt in only: it is not in the default INJECTORS list, because adding it there would change
+    the random sequence and the committed demo fixture. Tests and scale-test scripts call it
+    after inject().
+
+    Commission lines are built with the world and copy the member name and DOB from the client
+    the policy belonged to then; no writer rebuilds them. So after the move, the carrier lines
+    (same member id and policy number) still name the original client. Only policies whose lines
+    name exactly their current client are picked, and both the original and the new client must
+    have a (name key, DOB) that no other client shares, so the rule has one clear answer. Both
+    clients are locked and each is used once, so no other defect lands on them.
+
+    The misfile must be the only new problem. A policy whose commission lines already carry a
+    planted defect is skipped (its lines would go ambiguous and hide that defect, as seen for
+    TIE-003 at scale). The new client must fit the policy: an MBI exactly when the policy is
+    Medicare (else MBI-002 or MBI-003), and age 65 or over at the effective date for a
+    Medicare policy not held for disability or ESRD (else DOB-003).
+    """
+    policies = world.tables["policies"]
+    clients = world.tables["clients"]
+    by_id = {c["client_id"]: c for c in clients}
+
+    def person(c: Row) -> tuple[str, object]:
+        return _name_key(c["first_name"] + c["last_name"]), c["dob"]
+
+    counts = Counter(person(c) for c in clients)
+
+    def free(client_id: str) -> bool:
+        c = by_id.get(client_id)
+        return (
+            c is not None
+            and counts[person(c)] == 1
+            and lock_key({"client_id": client_id}) not in world.locked
+        )
+
+    def fits(p: Row, client_id: str) -> bool:
+        c = by_id[client_id]
+        medicare = p["line_of_business"] != Lob.ACA
+        if bool(c["mbi"]) != medicare:
+            return False
+        if not medicare or p["eligibility_reason"] in _NOT_AGE_REASONS:
+            return True
+        born, on = c["dob"], p["effective_date"]
+        age: int = on.year - born.year - ((on.month, on.day) < (born.month, born.day))
+        return age >= 65
+
+    stacked: set[tuple[str, str]] = set()  # (carrier, policy id or member id) with a locked line
+    named: dict[tuple[str, str], set[tuple[str, object]]] = {}
+    for ln in world.tables["commission_lines"]:
+        if lock_key(line_key(ln)) in world.locked:
+            stacked |= {(ln["carrier"], ln["policy_ref"]), (ln["carrier"], ln["carrier_member_id"])}
+        who = (_name_key(ln["member_name"] or ""), ln["member_dob"])
+        named.setdefault((ln["policy_ref"], ln["carrier_member_id"]), set()).add(who)
+    policy_ids = Counter(p["policy_id"] for p in policies)
+
+    def eligible(p: Row) -> bool:
+        return (
+            policy_ids[p["policy_id"]] == 1
+            and (p["carrier"], p["policy_id"]) not in stacked
+            and (p["carrier"], p["carrier_member_id"]) not in stacked
+            and lock_key({"policy_id": p["policy_id"]}) not in world.locked
+            and free(p["client_id"])
+            and named.get((p["policy_id"], p["carrier_member_id"]))
+            == {person(by_id[p["client_id"]])}
+        )
+
+    candidates = [i for i, p in enumerate(policies) if eligible(p)]
+    rng.shuffle(candidates)
+    targets = sorted(c["client_id"] for c in clients if free(c["client_id"]))
+    want = min(max(1, round(rate * len(policies))), len(candidates))
+    used: set[str] = set()
+    moves: dict[int, str] = {}
+    to: dict[str, str] = {}  # policy id -> new client id (policy ids are unique here)
+    for i in candidates:
+        if len(moves) == want:
+            break
+        source = policies[i]["client_id"]
+        options = [t for t in targets if t != source and t not in used and fits(policies[i], t)]
+        if source in used or not options:
+            continue
+        target = rng.choice(options)
+        moves[i] = target
+        to[policies[i]["policy_id"]] = target
+        used |= {source, target}
+    out, defects = edit(
+        world,
+        "policies",
+        sorted(moves),
+        lambda p: {"client_id": to[p["policy_id"]]},
+        "misfiled_policy",
+        "REF-002",
+        "policy_id",
+    )
+    locks = {lock_key({"client_id": c}) for c in used}
+    locks |= {lock_key(d["record_key"]) for d in defects}
+    return replace(out, locked=out.locked | locks), defects
 
 
 def crm_status_conflict(
