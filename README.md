@@ -25,21 +25,21 @@ Start the [three-demo walkthrough](docs/demo-walkthrough.md): [1. Intake Kit](ht
 
 Canonical locks are `engine/uv.lock` and `dashboard/package-lock.json`. The public dashboard and local CLI are separate surfaces; the [threat boundaries](SECURITY.md#threat-boundaries) apply to both.
 
-![Overview page: a status banner answering whether the agency can go live, with counts of blockers, errors, and warnings](docs/screenshots/overview-1440.png)
+![Overview page: a data-check result saying what needs review before handoff, with counts of blockers, errors, warnings, and clean rows](docs/screenshots/overview-1440.png)
 
 ![Demo: the Overview page, then the Exceptions page, then the Tie-out page](docs/screenshots/demo.gif)
 
 ## Two-minute tour
 
 1. Open the [live demo](https://agency-intake-kit.vercel.app), which starts on the Overview page.
-2. Read the answer at the top: "Yes, with fixes to review," with 0 blockers, 308 errors, and 423 warnings.
+2. Read the answer at the top: "Review required before handoff," with 0 blockers, 308 errors, and 423 warnings.
 3. Open Exceptions to see every problem sorted by severity, with its rule and source file.
 4. Click any row to open the drawer, which shows the suggested fix and the exact file, sheet, and row the problem came from.
 5. Open Tie-out and find the $61.05 that Harborline paid in August for a member who is on no policy in the book.
 
 ## What this is
 
-When an insurance agency is bought, its records arrive as a pile of mismatched files: a CRM export, an enrollment platform export, carrier commission statements, and an agent roster kept by hand. Someone then checks them by hand for weeks, and nothing downstream, human or AI, can act on data nobody has checked. This kit takes that pile and, in one command, answers three questions: can this book go live in our systems, does the money agree, and was every policy sold by an agent allowed to sell it.
+When an insurance agency is bought, its records arrive as a pile of mismatched files: a CRM export, an enrollment platform export, carrier commission statements, and an agent roster kept by hand. Someone then checks them by hand for weeks, and nothing downstream, human or AI, can act on data nobody has checked. This kit takes that pile and, in one command, answers three questions: what needs review before this book is handed off, does the money agree, and was every policy sold by an agent allowed to sell it.
 
 - **Reads the files as they come**, with odd encodings, title rows, total rows, and Excel dates.
 - **Maps columns to one standard format**: a dictionary first, then Jev, then a person.
@@ -53,7 +53,7 @@ I am Alex Munzon, a UCLA business economics student. I built this as a working a
 
 ## Who it is for
 
-- **Agency owner or acquirer:** one answer, can this agency go live, and if not, why not.
+- **Agency owner or acquirer:** one answer: what needs review before handoff, and why.
 - **Integration specialist:** every problem, how serious it is, the exact source row, and how to fix it, in priority order.
 - **Finance or M&A analyst:** commission differences in dollars by carrier and agent.
 - **Compliance lead:** which agents wrote business they were not ready to sell or licensed for.
@@ -97,7 +97,7 @@ Every page answers its question at the top before showing detail. A check that d
 
 | Page | Question it answers |
 |---|---|
-| Overview | Can this agency go live? |
+| Overview | What needs review before handoff? |
 | Sources | Did we receive every file, and did each one read cleanly? |
 | Exceptions | What needs fixing, in what order, and how? |
 | Tie-out | Does the money agree across the book, the statements, and the CRM? |

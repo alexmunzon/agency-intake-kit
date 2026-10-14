@@ -6,7 +6,7 @@ The dashboard is for an agency owner who has never seen a data pipeline and for 
 
 | Page | Question on the page | Screenshot |
 |---|---|---|
-| Overview | Can this agency go live? | `screenshots/overview-1440.png`, `overview-375.png`, `overview-dark.png` |
+| Overview | What needs review before handoff? | `screenshots/overview-1440.png`, `overview-375.png`, `overview-dark.png` |
 | Sources | What did we receive, and did it read cleanly? | `screenshots/sources-1440.png` |
 | Exceptions | What needs fixing, in what order, and how? | `screenshots/exceptions-1440.png` |
 | Tie-out | Does the money agree? | `screenshots/tie-out-1440.png` |

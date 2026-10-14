@@ -24,7 +24,7 @@ Alex
 **Check before sending:**
 - The CRM point is from Alex's call notes (ROADMAP section 2). Do not put words in George's mouth beyond that.
 - "717 planted mistakes" and "no false alarms" are measured on synthetic data (README Results: 22 scored types, 0 false alarms on 11,234 clean rows). The generator also plants identity mistakes this kit reports but does not score, which is why the note says "built to catch".
-- Open the live demo first and confirm it shows the real demo run (the Overview should say "Yes, with fixes to review.").
+- Open the live demo first and confirm it shows the real demo run (the Overview should say "Review required before handoff.").
 
 ## 2. LinkedIn post
 

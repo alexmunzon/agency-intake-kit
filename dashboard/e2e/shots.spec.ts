@@ -37,12 +37,16 @@ for (const { name, path, question } of PAGES) {
     await open(page, path, question);
     await expectNoSidewaysScroll(page);
     if (name === "overview") {
-      // The answer and every tile fit on one screen at desktop width. The answer sits above
-      // the tiles, so the lowest tile edge bounds both. Evidence tables below may scroll.
-      const tiles = page.locator(".metric-tile");
-      expect(await tiles.count()).toBeGreaterThanOrEqual(5);
+      // The readiness answer and the four main quality tiles fit on one screen at desktop
+      // width. Financial checks and evidence tables below them may scroll.
+      await expect(page.getByText("Review required before handoff.")).toBeVisible();
+      const answer = await page.getByRole("region", { name: "Run status" }).boundingBox();
+      expect(answer).not.toBeNull();
+      expect(answer!.y + answer!.height).toBeLessThanOrEqual(DESKTOP.height);
+      const tiles = page.getByRole("region", { name: "Load quality" }).locator(".metric-tile");
+      expect(await tiles.count()).toBe(4);
       const bottoms = await tiles.evaluateAll((els) => els.map((el) => el.getBoundingClientRect().bottom));
-      expect(Math.max(...bottoms)).toBeLessThanOrEqual(DESKTOP.height);
+      for (const bottom of bottoms) expect(bottom).toBeLessThanOrEqual(DESKTOP.height);
     }
     await page.screenshot({ path: `${OUT}/${name}-1440.png`, animations: "disabled" });
   });
