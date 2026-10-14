@@ -112,8 +112,12 @@ function evidence(value: unknown, runId: string, where: string): LinkEvidence {
   if (state === "confirmed") {
     const strong = candidates.filter((item) => item.methods.some((method) => method !== "NAME_DOB"));
     const weak = candidates.filter((item) => item.methods.includes("NAME_DOB"));
+    // Name/DOB on other policies may sit beside a confirmed link only when it matched by both
+    // strong keys (the engine also requires that policy's client row be missing).
+    const bothKeys = strong.length === 1 && strong[0].methods.includes("MEMBER_ID")
+      && strong[0].methods.includes("POLICY_REF");
     if (strong.length !== 1 || row.policy_id !== strong[0].policy_id
-      || (weak.length > 0 && !weak.some((item) => item.policy_id === row.policy_id))) fail(where);
+      || (weak.length > 0 && !weak.some((item) => item.policy_id === row.policy_id) && !bothKeys)) fail(where);
   } else if (row.policy_id !== null) fail(where);
   else if (state === "provisional" && (candidates.length !== 1
     || candidates[0].methods.length !== 1 || candidates[0].methods[0] !== "NAME_DOB")) fail(where);

@@ -14,7 +14,7 @@ describe('bound review package', () => {
   it('loads real synthetic run evidence without inventing other streams', async () => {
     const p = await parseReviewPackage(JSON.stringify(bundle()));
     const s = reviewSummary(p);
-    expect(s.accepted).toBe(12833); expect(s.excludedEvidenceRows).toBeGreaterThan(0);
+    expect(s.accepted).toBe(12836); expect(s.excludedEvidenceRows).toBeGreaterThan(0);
     expect(s.readiness).toBeNull(); expect(s.unresolvedIdentities).toBeNull(); expect(p.finance).toBeNull();
   });
   it('refuses a rehashed wrong run', async () => {

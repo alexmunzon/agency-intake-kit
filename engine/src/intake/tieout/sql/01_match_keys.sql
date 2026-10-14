@@ -88,7 +88,14 @@ WHERE nullif(trim(s.carrier), '') IS NOT NULL
 
 -- One output row per statement _rec. A unique strong candidate remains confirmed when
 -- name/DOB also includes that candidate, even if other people share the name/DOB. A weak
--- candidate set that excludes it is contradictory. All edges stay available for review.
+-- candidate set that excludes it is contradictory, with one narrow exception: when the strong
+-- policy has no client row at all (an orphan policy, REF-001) its person is unknown, and if
+-- the line matched it by BOTH member ID and policy reference, name/DOB evidence for other
+-- policies cannot disagree with it, so the line is confirmed by its strong keys. One strong
+-- key alone is not enough. A client row that exists, even with a blank name, is a known
+-- person. Policy client_id is compared as text: a blank client_id joins a blank client row
+-- and so counts as known (errs toward a conflict), while a NULL client_id joins nothing and
+-- counts as unknown. All edges stay available for review.
 -- max(policy_id) is read only when its distinct strong count is one, never as a tie breaker.
 CREATE OR REPLACE VIEW line_match AS
 WITH candidate_counts AS (
@@ -118,7 +125,13 @@ evidence AS (
                SELECT 1 FROM line_candidates AS w
                WHERE w._rec = s._rec AND w.match_method = 'NAME_DOB'
                  AND w.policy_id = c.sole_strong_policy_id
-           ) AS weak_includes_strong
+           ) AS weak_includes_strong,
+           EXISTS (
+               SELECT 1 FROM line_candidates AS k
+               JOIN book_people AS p ON p.policy_rec = k.policy_rec
+               WHERE k._rec = s._rec AND k.match_method IN ('MEMBER_ID', 'POLICY_REF')
+                 AND k.policy_id = c.sole_strong_policy_id
+           ) AS strong_person_known
     FROM statement_lines AS s
     LEFT JOIN candidate_counts AS c USING (_rec)
 ),
@@ -129,7 +142,9 @@ classified AS (
         WHEN (strong_member_supplied AND NOT strong_member_matched)
           OR (strong_ref_supplied AND NOT strong_ref_matched) THEN 'unmatched_strong_key'
         WHEN strong_candidate_count = 1 AND weak_candidate_count > 0
-          AND NOT weak_includes_strong THEN 'conflicting_name_dob'
+          AND NOT weak_includes_strong
+          AND (strong_person_known OR NOT (strong_member_matched AND strong_ref_matched))
+          THEN 'conflicting_name_dob'
         WHEN strong_candidate_count = 1 THEN 'strong_key'
         WHEN weak_candidate_count > 1 THEN 'multiple_candidates'
         ELSE 'name_dob_only' END AS link_reason

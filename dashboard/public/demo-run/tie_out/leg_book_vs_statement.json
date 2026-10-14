@@ -2,11 +2,11 @@
   "leg": "BOOK_VS_STATEMENT",
   "status": "RAN",
   "not_run_reason": null,
-  "matched": 6397,
-  "unmatched": 134,
+  "matched": 6400,
+  "unmatched": 131,
   "weak_matched": 0,
-  "variance_count": 134,
-  "variance_dollars": "3530.75",
+  "variance_count": 131,
+  "variance_dollars": "3518.15",
   "variances": [
     {
       "rule_id": "TIE-001",
@@ -855,20 +855,6 @@
       "carrier": "Meridian Care",
       "statement_period": "2026-06",
       "line_no": null,
-      "policy_id": "P-01324",
-      "carrier_member_id": "MC-372869",
-      "agent_npn": "33857966",
-      "paid": null,
-      "expected": "4.20",
-      "difference": "-4.20"
-    },
-    {
-      "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000062",
-      "leg": "BOOK_VS_STATEMENT",
-      "carrier": "Meridian Care",
-      "statement_period": "2026-06",
-      "line_no": null,
       "policy_id": "P-01409",
       "carrier_member_id": "MC-888678",
       "agent_npn": "1884412",
@@ -878,7 +864,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000063",
+      "exception_id": "EX-TIE-000062",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-06",
@@ -892,7 +878,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000064",
+      "exception_id": "EX-TIE-000063",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-06",
@@ -906,7 +892,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000065",
+      "exception_id": "EX-TIE-000064",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-06",
@@ -920,7 +906,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000066",
+      "exception_id": "EX-TIE-000065",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-06",
@@ -934,7 +920,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000067",
+      "exception_id": "EX-TIE-000066",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-06",
@@ -948,7 +934,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000068",
+      "exception_id": "EX-TIE-000067",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-07",
@@ -962,7 +948,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000069",
+      "exception_id": "EX-TIE-000068",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-07",
@@ -976,7 +962,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000070",
+      "exception_id": "EX-TIE-000069",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-07",
@@ -990,7 +976,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000071",
+      "exception_id": "EX-TIE-000070",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-07",
@@ -1004,7 +990,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000072",
+      "exception_id": "EX-TIE-000071",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-07",
@@ -1018,21 +1004,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000073",
-      "leg": "BOOK_VS_STATEMENT",
-      "carrier": "Meridian Care",
-      "statement_period": "2026-07",
-      "line_no": null,
-      "policy_id": "P-01324",
-      "carrier_member_id": "MC-372869",
-      "agent_npn": "33857966",
-      "paid": null,
-      "expected": "4.20",
-      "difference": "-4.20"
-    },
-    {
-      "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000074",
+      "exception_id": "EX-TIE-000072",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-07",
@@ -1046,7 +1018,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000075",
+      "exception_id": "EX-TIE-000073",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-07",
@@ -1060,7 +1032,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000076",
+      "exception_id": "EX-TIE-000074",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-07",
@@ -1074,7 +1046,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000077",
+      "exception_id": "EX-TIE-000075",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-07",
@@ -1088,7 +1060,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000078",
+      "exception_id": "EX-TIE-000076",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-08",
@@ -1102,7 +1074,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000079",
+      "exception_id": "EX-TIE-000077",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-08",
@@ -1116,7 +1088,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000080",
+      "exception_id": "EX-TIE-000078",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-08",
@@ -1130,7 +1102,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000081",
+      "exception_id": "EX-TIE-000079",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-08",
@@ -1144,7 +1116,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000082",
+      "exception_id": "EX-TIE-000080",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-08",
@@ -1158,7 +1130,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000083",
+      "exception_id": "EX-TIE-000081",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-08",
@@ -1172,21 +1144,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000084",
-      "leg": "BOOK_VS_STATEMENT",
-      "carrier": "Meridian Care",
-      "statement_period": "2026-08",
-      "line_no": null,
-      "policy_id": "P-01324",
-      "carrier_member_id": "MC-372869",
-      "agent_npn": "33857966",
-      "paid": null,
-      "expected": "4.20",
-      "difference": "-4.20"
-    },
-    {
-      "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000085",
+      "exception_id": "EX-TIE-000082",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-08",
@@ -1200,7 +1158,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000086",
+      "exception_id": "EX-TIE-000083",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-08",
@@ -1214,7 +1172,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000087",
+      "exception_id": "EX-TIE-000084",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Meridian Care",
       "statement_period": "2026-08",
@@ -1228,7 +1186,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000088",
+      "exception_id": "EX-TIE-000085",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-06",
@@ -1242,7 +1200,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000089",
+      "exception_id": "EX-TIE-000086",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-06",
@@ -1256,7 +1214,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000090",
+      "exception_id": "EX-TIE-000087",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-06",
@@ -1270,7 +1228,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000091",
+      "exception_id": "EX-TIE-000088",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-06",
@@ -1284,7 +1242,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000092",
+      "exception_id": "EX-TIE-000089",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-06",
@@ -1298,7 +1256,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000093",
+      "exception_id": "EX-TIE-000090",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1312,7 +1270,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000094",
+      "exception_id": "EX-TIE-000091",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1326,7 +1284,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000095",
+      "exception_id": "EX-TIE-000092",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1340,7 +1298,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000096",
+      "exception_id": "EX-TIE-000093",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1354,7 +1312,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000097",
+      "exception_id": "EX-TIE-000094",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1368,7 +1326,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000098",
+      "exception_id": "EX-TIE-000095",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1382,7 +1340,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000099",
+      "exception_id": "EX-TIE-000096",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1396,7 +1354,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000100",
+      "exception_id": "EX-TIE-000097",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1410,7 +1368,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000101",
+      "exception_id": "EX-TIE-000098",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1424,7 +1382,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000102",
+      "exception_id": "EX-TIE-000099",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-07",
@@ -1438,7 +1396,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000103",
+      "exception_id": "EX-TIE-000100",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1452,7 +1410,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000104",
+      "exception_id": "EX-TIE-000101",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1466,7 +1424,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000105",
+      "exception_id": "EX-TIE-000102",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1480,7 +1438,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000106",
+      "exception_id": "EX-TIE-000103",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1494,7 +1452,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000107",
+      "exception_id": "EX-TIE-000104",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1508,7 +1466,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000108",
+      "exception_id": "EX-TIE-000105",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1522,7 +1480,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000109",
+      "exception_id": "EX-TIE-000106",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1536,7 +1494,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000110",
+      "exception_id": "EX-TIE-000107",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1550,7 +1508,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000111",
+      "exception_id": "EX-TIE-000108",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1564,7 +1522,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000112",
+      "exception_id": "EX-TIE-000109",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1578,7 +1536,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000113",
+      "exception_id": "EX-TIE-000110",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Northwind Health",
       "statement_period": "2026-08",
@@ -1592,7 +1550,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000114",
+      "exception_id": "EX-TIE-000111",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-06",
@@ -1606,7 +1564,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000115",
+      "exception_id": "EX-TIE-000112",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-06",
@@ -1620,7 +1578,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000116",
+      "exception_id": "EX-TIE-000113",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-06",
@@ -1634,7 +1592,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000117",
+      "exception_id": "EX-TIE-000114",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-06",
@@ -1648,7 +1606,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000118",
+      "exception_id": "EX-TIE-000115",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-06",
@@ -1662,7 +1620,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000119",
+      "exception_id": "EX-TIE-000116",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-06",
@@ -1676,7 +1634,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000120",
+      "exception_id": "EX-TIE-000117",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-07",
@@ -1690,7 +1648,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000121",
+      "exception_id": "EX-TIE-000118",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-07",
@@ -1704,7 +1662,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000122",
+      "exception_id": "EX-TIE-000119",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-07",
@@ -1718,7 +1676,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000123",
+      "exception_id": "EX-TIE-000120",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-07",
@@ -1732,7 +1690,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000124",
+      "exception_id": "EX-TIE-000121",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-07",
@@ -1746,7 +1704,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000125",
+      "exception_id": "EX-TIE-000122",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-07",
@@ -1760,7 +1718,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000126",
+      "exception_id": "EX-TIE-000123",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-07",
@@ -1774,7 +1732,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000127",
+      "exception_id": "EX-TIE-000124",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-07",
@@ -1788,7 +1746,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000128",
+      "exception_id": "EX-TIE-000125",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-08",
@@ -1802,7 +1760,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000129",
+      "exception_id": "EX-TIE-000126",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-08",
@@ -1816,7 +1774,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000130",
+      "exception_id": "EX-TIE-000127",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-08",
@@ -1830,7 +1788,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000131",
+      "exception_id": "EX-TIE-000128",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-08",
@@ -1844,7 +1802,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000132",
+      "exception_id": "EX-TIE-000129",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-08",
@@ -1858,7 +1816,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000133",
+      "exception_id": "EX-TIE-000130",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-08",
@@ -1872,7 +1830,7 @@
     },
     {
       "rule_id": "TIE-001",
-      "exception_id": "EX-TIE-000134",
+      "exception_id": "EX-TIE-000131",
       "leg": "BOOK_VS_STATEMENT",
       "carrier": "Summit Health Plans",
       "statement_period": "2026-08",

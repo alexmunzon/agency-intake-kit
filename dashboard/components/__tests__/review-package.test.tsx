@@ -30,7 +30,7 @@ describe('review summary replacement', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Load synthetic example' }));
     await screen.findByText(/Loaded agency synthetic-agency-a/);
     expect(fetcher).toHaveBeenCalledWith('/demo-review-package.json');
-    expect(screen.getByText('Accepted clean output rows: 12833')).toBeInTheDocument();
+    expect(screen.getByText('Accepted clean output rows: 12836')).toBeInTheDocument();
     expect(screen.getByText('Unavailable: no run-bound expected source inventory')).toBeInTheDocument();
     expect(screen.getByText('Unavailable: no bound identity partition')).toBeInTheDocument();
     expect(screen.getByText('Unavailable: no bound finance review')).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('review summary replacement', () => {
     select('{broken');
     await screen.findByRole('alert');
     expect(screen.getByText(/Loaded agency example-agency/)).toBeInTheDocument();
-    expect(screen.getByText('Accepted clean output rows: 12833')).toBeInTheDocument();
+    expect(screen.getByText('Accepted clean output rows: 12836')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Clear summary' }));
     expect(screen.getByText(/No package loaded/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Clear summary' })).toBeDisabled();

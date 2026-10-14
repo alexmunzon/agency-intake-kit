@@ -111,11 +111,6 @@ def test_six_statement_files_find_exactly_the_ground_truth() -> None:
             for v in result.variances.variances
             if v.rule_id == rule_id
         )
-        # The planted REF-001 now leaves the conflicting policy link unresolved.
-        if rule_id == "TIE-001":
-            planted[("P-01324",)] += 3
-        elif rule_id == "TIE-002":
-            planted.update(("Meridian Care", f"2026-{m}", 193) for m in ("06", "07", "08"))
         assert planted and found == planted, rule_id
     orphan = [v for v in result.variances.variances if v.carrier_member_id == "HL-998213"]
     assert [(v.rule_id, v.paid) for v in orphan] == [("TIE-002", Decimal("61.05"))]
