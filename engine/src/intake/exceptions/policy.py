@@ -25,6 +25,11 @@ CATALOG_FIXES = {
     "DUP-002": "Resolve (handled fully in bob-resolve)",
     "DUP-003": "Keep the correct row",
     "REF-001": "Add client or fix client_id",
+    "REF-002": (
+        "Confirm with the carrier which person owns the policy (a household member may be the "
+        "subscriber), then refile it; this also explains related TIE-002 and TIE-001 items for "
+        "this policy"
+    ),
     "RTS-001": "Obtain RTS or reassign writing agent",
     "RTS-002": "Renew RTS",
     "LIC-001": "Verify license",

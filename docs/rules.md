@@ -1,7 +1,7 @@
 # Rule catalog
 
 Generated from the rule registry by `uv run intake rules --md > ../docs/rules.md`. Do not edit
-by hand. All 48 rules; readers, gates, mapping, tie-out, and clean validation raise theirs
+by hand. All 49 rules; readers, gates, mapping, tie-out, and clean validation raise theirs
 outside the registry.
 
 Severity decides what happens to a row: a blocker stops the run, an error keeps the row out of
@@ -47,6 +47,7 @@ the load file, a warning passes with a flag, and info is only logged.
 | PLN-003 | Error | PLN | no | Plan ID prefix disagrees with line of business (MA and PDP only) |
 | PLN-004 | Error | PLN | no | Medigap plan letter invalid (MEDSUPP only) |
 | REF-001 | Error | REF | no | Policy references unknown client |
+| REF-002 | Error | REF | no | Policy filed under the wrong client: carrier lines matched by both member ID and policy number name exactly one other existing client |
 | RTS-001 | Error | RTS | no | Writing agent not RTS for carrier, policy state, plan year, line of business |
 | RTS-002 | Warning | RTS | no | RTS record end_date before policy effective date |
 | SSN-001 | Blocker | SSN | yes | A column looks like SSNs; runs on raw frames before any model call |

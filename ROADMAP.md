@@ -309,7 +309,7 @@ flowchart LR
 **Outputs.** An immutable run directory: `manifest.json` (input hashes, versions, timings, Jev usage and cost), `scorecard.json`, `mapping/*.yaml` (learned column maps, reused next time), `exceptions.jsonl` (rule id, severity, lineage, suggested fix, blocks-load flag), `tie_out/` (variances with reason codes, totals by carrier and agent), `clean/` (load-ready CSV and Parquet), and `report.html` (self-contained static report). The Next.js dashboard renders the same JSON.
 
 **Scope.**
-- In: file ingest with sniffing; column mapping (synonyms, then Jev, then human); 46 deterministic rules with stable IDs (catalog in the build guide); cross-record checks (duplicates, orphans, RTS compliance, license coverage); three-way tie-out in DuckDB SQL; exceptions queue with Jev triage and a PII gate; completeness assertion; CLI; static report; dashboard with Overview, Sources, Exceptions, Tie-out, Agents; run diff; benchmark of header mapping (synonyms vs synonyms plus Jev vs Sonnet).
+- In: file ingest with sniffing; column mapping (synonyms, then Jev, then human); 49 deterministic rules with stable IDs (catalog in the build guide); cross-record checks (duplicates, orphans, RTS compliance, license coverage); three-way tie-out in DuckDB SQL; exceptions queue with Jev triage and a PII gate; completeness assertion; CLI; static report; dashboard with Overview, Sources, Exceptions, Tie-out, Agents; run diff; benchmark of header mapping (synonyms vs synonyms plus Jev vs Sonnet).
 - Out: real CRM API connectors (no credentials, no vendor formats claimed), commission math beyond a fixtures rate table, any LLM-written content in the load files, user accounts or auth on the dashboard, anything that stores PHI.
 
 **Success criteria.**
@@ -318,7 +318,7 @@ flowchart LR
 - A reader with no context understands the problem, the architecture, and the result from the README in under two minutes.
 - Header-mapping benchmark table published with accuracy, cost per 1,000 headers, and p50 latency for each approach.
 
-**Recruiting hooks.** README mirrors the JD's own language (book of business, RTS, commissions and contracting, reconciliation checks, 30 days). Resume line candidates, with placeholders to be replaced by measured numbers from the committed fixtures (the default fixture has 2,600 policies and the catalog has 46 rules): "Built an agency intake pipeline (Python, DuckDB, Jev) validating and reconciling [N] policy records against carrier statements with provenance on every row" and "Shipped a reconciliation dashboard that surfaces [N] classes of data defects with suggested fixes."
+**Recruiting hooks.** README mirrors the JD's own language (book of business, RTS, commissions and contracting, reconciliation checks, 30 days). Resume line candidates, with placeholders to be replaced by measured numbers from the committed fixtures (the default fixture has 2,600 policies and the catalog has 49 rules): "Built an agency intake pipeline (Python, DuckDB, Jev) validating and reconciling [N] policy records against carrier statements with provenance on every row" and "Shipped a reconciliation dashboard that surfaces [N] classes of data defects with suggested fixes."
 
 **Shared foundations born here.** `agency_schema`, `synth_agency_data`, `jev_client`, the severity palette and dashboard tokens, the README standard, the CLAUDE.md and settings template, the verify command and Stop hook.
 

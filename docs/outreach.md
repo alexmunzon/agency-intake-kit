@@ -12,7 +12,7 @@ Nothing in this file has been emailed, messaged, or posted. These are starting p
 
 Hi George,
 
-On our call you said agencies often arrive without a reliable CRM. That stuck with me, so I built a small intake kit on synthetic data. It reads the files an acquired agency hands over, checks every row against 46 written rules, and ties out the book three ways against carrier commission statements and the CRM. Every row keeps a record of where it came from. Jev answers only narrow questions the rules cannot, and a person decides the rest. On a synthetic test agency it found all 717 planted mistakes it is built to catch, with no false alarms. I wrote the spec and AI coding agents did the typing.
+On our call you said agencies often arrive without a reliable CRM. That stuck with me, so I built a small intake kit on synthetic data. It reads the files an acquired agency hands over, checks every row against 49 written rules, and ties out the book three ways against carrier commission statements and the CRM. Every row keeps a record of where it came from. Jev answers only narrow questions the rules cannot, and a person decides the rest. On a synthetic test agency it found all 717 planted mistakes it is built to catch, with no false alarms. I wrote the spec and AI coding agents did the typing.
 
 Demo: https://agency-intake-kit.vercel.app
 Code: https://github.com/alexmunzon/agency-intake-kit
@@ -30,7 +30,7 @@ Alex
 
 When an insurance agency is bought, its records arrive as a pile of mismatched files. Someone then checks them by hand for weeks.
 
-I wrote that checking down as code. agency-intake-kit reads a CRM export, an enrollment export, carrier commission statements, and an agent roster. It checks every row against 46 written rules, ties out the commissions three ways, and flags policies sold by agents who were not ready to sell them. A small decision model answers only narrow questions the rules cannot. A person decides the rest.
+I wrote that checking down as code. agency-intake-kit reads a CRM export, an enrollment export, carrier commission statements, and an agent roster. It checks every row against 49 written rules, ties out the commissions three ways, and flags policies sold by agents who were not ready to sell them. A small decision model answers only narrow questions the rules cannot. A person decides the rest.
 
 On a synthetic test agency it found all 717 planted mistakes it is built to catch.
 

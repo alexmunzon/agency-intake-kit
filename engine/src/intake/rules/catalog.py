@@ -1,7 +1,8 @@
 """Catalog-only entries for the rules that run outside the registry (#52).
 
-Readers (ING), raw gates (SSN, CMP), mapping (MAP), and the tie-out (TIE) emit their records
-themselves, because they need files, a mapping store, or DuckDB rather than one frame. They
+Readers (ING), raw gates (SSN, CMP), mapping (MAP), the tie-out (TIE), and REF-002 (which reads
+the tie-out's links) emit their records themselves, because they need files, a mapping store,
+or DuckDB rather than one frame. They
 register here so the catalog and docs/rules.md list every rule. Each function returns nothing.
 """
 
@@ -29,6 +30,12 @@ ENTRIES = (
     ("SSN-001", B, "A column looks like SSNs; runs on raw frames before any model call"),
     ("CMP-001", B, "Rows received differ from rows expected; runs on raw frames"),
     ("CMP-002", W, "A source is missing entirely"),
+    (
+        "REF-002",
+        E,
+        "Policy filed under the wrong client: carrier lines matched by both member ID and policy "
+        "number name exactly one other existing client",
+    ),
     ("TIE-001", W, "Active policy with no commission line in period"),
     ("TIE-002", E, "Commission paid on a policy not in the book"),
     ("TIE-003", W, "Commission amount off schedule beyond tolerance"),

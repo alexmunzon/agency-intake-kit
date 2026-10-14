@@ -43,7 +43,7 @@ When an insurance agency is bought, its records arrive as a pile of mismatched f
 
 - **Reads the files as they come**, with odd encodings, title rows, total rows, and Excel dates.
 - **Maps columns to one standard format**: a dictionary first, then Jev, then a person.
-- **Checks every row against 46 named rules**, each with a severity and a suggested fix.
+- **Checks every row against 49 named rules**, each with a severity and a suggested fix.
 - **Reconciles the money three ways in SQL**: the book, the carrier statements, and the CRM.
 - **Shows what to fix first** on a dashboard and in a one-file HTML report.
 
@@ -176,7 +176,7 @@ Header mapping benchmark on 134 labeled headers (79 from the fixture files, 55 s
 - [SPEC.md](SPEC.md): the contract every change was built against, with the six examples that became tests.
 - [CHANGELOG.md](CHANGELOG.md): every pull request, in order. [docs/release-notes-v1.0.0.md](docs/release-notes-v1.0.0.md): what v1.0.0 contains.
 - [docs/adr/](docs/adr/README.md): five decision records (DuckDB for the tie-out, Jev as a gate, a static-first dashboard, synthetic data only, separate repos).
-- [docs/rules.md](docs/rules.md) (all 46 rules), [docs/schema.md](docs/schema.md) and [docs/outputs.md](docs/outputs.md) (data shapes), [docs/jev.md](docs/jev.md), [docs/synthetic-data.md](docs/synthetic-data.md), [docs/design.md](docs/design.md) (dashboard design), [docs/benchmark-header-mapping.md](docs/benchmark-header-mapping.md).
+- [docs/rules.md](docs/rules.md) (all 49 rules), [docs/schema.md](docs/schema.md) and [docs/outputs.md](docs/outputs.md) (data shapes), [docs/jev.md](docs/jev.md), [docs/synthetic-data.md](docs/synthetic-data.md), [docs/design.md](docs/design.md) (dashboard design), [docs/benchmark-header-mapping.md](docs/benchmark-header-mapping.md).
 
 ## Glossary
 
